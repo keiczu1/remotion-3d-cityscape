@@ -12,3 +12,4 @@ build/
 .agents/
 .codex/
 .gemini/
+.worktrees/
