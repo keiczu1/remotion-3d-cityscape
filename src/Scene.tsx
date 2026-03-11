@@ -1,10 +1,12 @@
 import { ThreeCanvas } from "@remotion/three";
-import { useCurrentFrame, useVideoConfig, random, spring, interpolate, staticFile } from "remotion";
+import { useCurrentFrame, useVideoConfig, random, spring, interpolate } from "remotion";
 import { data } from "./data";
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { Text, RoundedBox } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
+import { getFaviconTextureUrl, getFlagTextureUrl } from "./assets/asset-urls";
+import { preloadSharedTexture, useSharedTexture } from "./assets/texture-cache";
 import {
     BASE_HEIGHT,
     GROUND_Y,
@@ -44,92 +46,6 @@ export function formatVisits(visits: number): string {
     return visits.toString();
 }
 export { durationInFrames } from "./scene-logic";
-
-type SharedTextureKind = "favicon" | "flag";
-
-const sharedTextureLoader = new THREE.TextureLoader();
-const sharedTextureCache = new Map<string, THREE.Texture>();
-const sharedTexturePromises = new Map<string, Promise<THREE.Texture>>();
-
-sharedTextureLoader.setCrossOrigin("anonymous");
-
-const getFaviconTextureUrl = (domain: string) => staticFile(`favicons/${domain}.png`);
-const getFlagTextureUrl = (country: string) => staticFile(`flags/${country.toLowerCase()}.png`);
-
-const configureSharedTexture = (texture: THREE.Texture, kind: SharedTextureKind) => {
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.magFilter = THREE.LinearFilter;
-    texture.minFilter = THREE.LinearMipmapLinearFilter;
-    texture.generateMipmaps = kind === "favicon";
-    texture.needsUpdate = true;
-};
-
-const loadSharedTexture = (url: string, kind: SharedTextureKind) => {
-    const cachedTexture = sharedTextureCache.get(url);
-    if (cachedTexture) {
-        return Promise.resolve(cachedTexture);
-    }
-
-    const pendingTexture = sharedTexturePromises.get(url);
-    if (pendingTexture) {
-        return pendingTexture;
-    }
-
-    const texturePromise = new Promise<THREE.Texture>((resolve, reject) => {
-        sharedTextureLoader.load(
-            url,
-            (texture) => {
-                configureSharedTexture(texture, kind);
-                sharedTextureCache.set(url, texture);
-                resolve(texture);
-            },
-            undefined,
-            (error) => reject(error),
-        );
-    }).finally(() => {
-        sharedTexturePromises.delete(url);
-    });
-
-    sharedTexturePromises.set(url, texturePromise);
-
-    return texturePromise;
-};
-
-const preloadSharedTexture = (url: string, kind: SharedTextureKind) => {
-    void loadSharedTexture(url, kind).catch(() => undefined);
-};
-
-const useSharedTexture = (url: string, kind: SharedTextureKind) => {
-    const [texture, setTexture] = useState<THREE.Texture | null>(() => sharedTextureCache.get(url) ?? null);
-
-    useEffect(() => {
-        let cancelled = false;
-        const cachedTexture = sharedTextureCache.get(url);
-
-        if (cachedTexture) {
-            setTexture(cachedTexture);
-            return;
-        }
-
-        loadSharedTexture(url, kind)
-            .then((loadedTexture) => {
-                if (!cancelled) {
-                    setTexture(loadedTexture);
-                }
-            })
-            .catch(() => {
-                if (!cancelled) {
-                    setTexture(null);
-                }
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [kind, url]);
-
-    return texture;
-};
 
 const Flag = ({ country, position }: { country: string, position: [number, number, number] }) => {
     const texture = useSharedTexture(getFlagTextureUrl(country), "flag");
