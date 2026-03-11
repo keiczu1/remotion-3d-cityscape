@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+    baseDurationInFrames,
     durationInFrames,
     getCameraTimelineFrame,
     getCameraState,
@@ -12,6 +13,7 @@ import {
     getFocusedTowerIndex,
     shouldPreloadTowerAssets,
     milestones,
+    sequenceCompleteFrame,
 } from "./scene-logic";
 
 test("camera keeps a softer side angle and gently orbits during a tower pause", () => {
@@ -95,6 +97,15 @@ test("asset preloading starts before a tower reveal and stays enabled through th
     assert.equal(shouldPreloadTowerAssets(target.arriveFrame + 10, target.index), true);
 });
 
+test("cinematic tail forces cinematic render mode and preloads every tower", () => {
+    const cinematicFrame = sequenceCompleteFrame + 1;
+
+    assert.equal(getTowerRenderMode(cinematicFrame, 0), "cinematic");
+    assert.equal(getTowerRenderMode(cinematicFrame, milestones[milestones.length - 1].index), "cinematic");
+    assert.equal(shouldPreloadTowerAssets(cinematicFrame, 0), true);
+    assert.equal(shouldPreloadTowerAssets(cinematicFrame, milestones[milestones.length - 1].index), true);
+});
+
 test("camera timeline slows down 3x from 4:42 until the end without changing earlier frames", () => {
     const offsetFrame = 90;
 
@@ -105,4 +116,12 @@ test("camera timeline slows down 3x from 4:42 until the end without changing ear
         FINAL_CAMERA_SLOWDOWN_START_FRAME + offsetFrame
     );
     assert.equal(getCameraTimelineFrame(durationInFrames), milestones[milestones.length - 1].leaveFrame + 1680);
+});
+
+test("duration in frames follows the slowed-tail formula exactly", () => {
+    assert.equal(
+        durationInFrames,
+        FINAL_CAMERA_SLOWDOWN_START_FRAME +
+            (baseDurationInFrames - FINAL_CAMERA_SLOWDOWN_START_FRAME) * FINAL_CAMERA_SLOWDOWN_FACTOR
+    );
 });
