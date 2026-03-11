@@ -7,10 +7,49 @@ import { Shockwave } from "../effects/Shockwave";
 import { type RankingTowerItem } from "../model/types";
 import { sequenceCompleteFrame, type TowerRenderMode } from "../scene/scene-logic";
 import { Favicon } from "./Favicon";
-import { assembleScramble, formatVisits } from "./dashboard-helpers";
+import { assembleScramble, formatVisits, getVisitsSecondaryLabel } from "./dashboard-helpers";
 
 const sharedBoxGeo = new THREE.BoxGeometry(20, 32, 0.4);
 const sharedEdgesGeo = new THREE.EdgesGeometry(sharedBoxGeo);
+const VISITS_VALUE_Y = -8.6;
+const VISITS_LABEL_Y = -11.9;
+const TYPE_BADGE_Y = -14.7;
+
+const VisitsMetric = ({
+    value,
+    fillOpacity,
+}: {
+    value: string;
+    fillOpacity?: number;
+}) => {
+    return (
+        <>
+            <Text
+                position={[0, VISITS_VALUE_Y, 0.3]}
+                color="#00FF9D"
+                fontSize={4.0}
+                anchorX="center"
+                anchorY="middle"
+                fontWeight="bold"
+                fillOpacity={fillOpacity}
+            >
+                {value}
+            </Text>
+            <Text
+                position={[0, VISITS_LABEL_Y, 0.3]}
+                color="#7CFFCB"
+                fontSize={1.55}
+                anchorX="center"
+                anchorY="middle"
+                fontWeight="bold"
+                fillOpacity={fillOpacity === undefined ? 0.72 : fillOpacity * 0.72}
+                letterSpacing={0.03}
+            >
+                {getVisitsSecondaryLabel()}
+            </Text>
+        </>
+    );
+};
 
 const StaticDashboardCard = ({
     item,
@@ -46,10 +85,8 @@ const StaticDashboardCard = ({
             <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">
                 {item.domain}
             </Text>
-            <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">
-                {formattedVisits}
-            </Text>
-            <group position={[0, -13.5, 0.3]}>
+            <VisitsMetric value={formattedVisits} />
+            <group position={[0, TYPE_BADGE_Y, 0.3]}>
                 <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}>
                     <meshStandardMaterial color="#2563EB" transparent opacity={0.88} />
                 </RoundedBox>
@@ -164,18 +201,8 @@ export const HologramDashboard = ({
                     >
                         {decodedDomain}
                     </Text>
-                    <Text
-                        position={[0, -9.5, 0.3]}
-                        color="#00FF9D"
-                        fontSize={4.0}
-                        anchorX="center"
-                        anchorY="middle"
-                        fontWeight="bold"
-                        fillOpacity={opacity / 0.88}
-                    >
-                        {decodedVisits}
-                    </Text>
-                    <group position={[0, -13.5, 0.3]}>
+                    <VisitsMetric value={decodedVisits} fillOpacity={opacity / 0.88} />
+                    <group position={[0, TYPE_BADGE_Y, 0.3]}>
                         <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}>
                             <meshStandardMaterial color="#2563EB" transparent opacity={opacity / 0.88} />
                         </RoundedBox>
@@ -234,10 +261,8 @@ export const HologramDashboard = ({
                     <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">
                         {decodedDomain}
                     </Text>
-                    <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">
-                        {decodedVisits}
-                    </Text>
-                    <group position={[0, -13.5, 0.3]}>
+                    <VisitsMetric value={decodedVisits} />
+                    <group position={[0, TYPE_BADGE_Y, 0.3]}>
                         <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}>
                             <meshStandardMaterial color="#2563EB" />
                         </RoundedBox>
@@ -274,12 +299,10 @@ export const HologramDashboard = ({
                 <Text position={[0, -5, 0.3]} color="#00FF9D" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">
                     {uppercaseDomain}
                 </Text>
-                <Text position={[0, -9.5, 0.3]} color="#ffffff" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">
-                    {matrixVisits}
-                </Text>
+                <VisitsMetric value={matrixVisits} />
 
                 {animFrame > 50 && (
-                    <group position={[0, -13.5, 0.3]}>
+                    <group position={[0, TYPE_BADGE_Y, 0.3]}>
                         <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}>
                             <meshStandardMaterial color="#2563EB" />
                         </RoundedBox>
@@ -325,10 +348,8 @@ export const HologramDashboard = ({
                         <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">
                             {decodedDomain}
                         </Text>
-                        <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">
-                            {decodedVisits}
-                        </Text>
-                        <group position={[0, -13.5, 0.3]}>
+                        <VisitsMetric value={decodedVisits} />
+                        <group position={[0, TYPE_BADGE_Y, 0.3]}>
                             <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}>
                                 <meshStandardMaterial color="#2563EB" />
                             </RoundedBox>
@@ -362,14 +383,10 @@ export const HologramDashboard = ({
                     {decodedDomain}
                 </Text>
             )}
-            {animFrame > 40 && (
-                <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">
-                    {decodedVisits}
-                </Text>
-            )}
+            {animFrame > 40 && <VisitsMetric value={decodedVisits} />}
 
             {animFrame > 50 && (
-                <group position={[0, -13.5, 0.3]}>
+                <group position={[0, TYPE_BADGE_Y, 0.3]}>
                     <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}>
                         <meshStandardMaterial color="#2563EB" />
                     </RoundedBox>

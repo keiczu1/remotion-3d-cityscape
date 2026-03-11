@@ -1,14 +1,18 @@
 import { random } from "remotion";
 
+const trimTrailingZero = (value: number) => value.toFixed(1).replace(/\.0$/, "");
+
 export function formatVisits(visits: number): string {
     if (visits >= 1e9) {
-        return (visits / 1e9).toFixed(1) + " B";
+        return trimTrailingZero(visits / 1e9) + " B";
     }
     if (visits >= 1e6) {
-        return (visits / 1e6).toFixed(1) + " M";
+        return trimTrailingZero(visits / 1e6) + " M";
     }
     return visits.toString();
 }
+
+export const getVisitsSecondaryLabel = () => "Monthly";
 
 export const assembleScramble = (text: string, progress: number, seed: string) => {
     if (progress >= 1) return text;
