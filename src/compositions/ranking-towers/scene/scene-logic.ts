@@ -3,6 +3,11 @@ import { data } from "../model/data";
 
 export const reversedData = [...data].reverse();
 
+export const INTRO_REVEAL_FRAMES = 45;
+export const INTRO_HOLD_FRAMES = 40;
+export const INTRO_PUSH_IN_FRAMES = 75;
+export const INTRO_DURATION_IN_FRAMES = INTRO_REVEAL_FRAMES + INTRO_HOLD_FRAMES + INTRO_PUSH_IN_FRAMES;
+
 export const X_SPACING = 30;
 export const TOWER_WIDTH = 12;
 export const TOWER_DEPTH = 10;
@@ -26,7 +31,7 @@ const CAMERA_ORBIT_HOLD_FRAMES = 45;
 const TOWER_PRELOAD_LEAD_FRAMES = 45;
 const FULL_DETAIL_RADIUS = 1;
 const STANDBY_RADIUS = 2;
-export const FINAL_CAMERA_SLOWDOWN_START_FRAME = 4 * 60 * 60 + 42 * 60;
+export const FINAL_CAMERA_SLOWDOWN_START_FRAME = 4 * 60 * 60 + 42 * 60 + INTRO_DURATION_IN_FRAMES;
 export const FINAL_CAMERA_SLOWDOWN_FACTOR = 3;
 
 export const getTowerHeight = (relHeight: number) => {
@@ -35,7 +40,7 @@ export const getTowerHeight = (relHeight: number) => {
 };
 
 const getMilestones = () => {
-    let frame = 0;
+    let frame = INTRO_DURATION_IN_FRAMES;
     const list: { arriveFrame: number; leaveFrame: number; xCenter: number; yCenter: number; index: number }[] = [];
 
     for (let i = 0; i < reversedData.length; i++) {
@@ -77,6 +82,10 @@ export function getCameraTimelineFrame(frame: number) {
         FINAL_CAMERA_SLOWDOWN_START_FRAME + (frame - FINAL_CAMERA_SLOWDOWN_START_FRAME) / FINAL_CAMERA_SLOWDOWN_FACTOR;
 
     return Math.min(baseDurationInFrames, slowedFrame);
+}
+
+export function isIntroFrame(frame: number) {
+    return frame < INTRO_DURATION_IN_FRAMES;
 }
 
 const getMilestoneState = (m: (typeof milestones)[number], localFrame = 0) => {
@@ -152,6 +161,47 @@ type CinematicCameraState = {
     lookY: number;
     lookZ: number;
 };
+
+export type IntroCameraState = CinematicCameraState;
+
+export function getIntroCameraState(frame: number): IntroCameraState {
+    const firstMainCameraState = getCameraState(milestones[0].arriveFrame);
+    const clampedFrame = Math.max(0, Math.min(INTRO_DURATION_IN_FRAMES, frame));
+    const pushInStartFrame = INTRO_REVEAL_FRAMES + INTRO_HOLD_FRAMES;
+    const pushInProgress =
+        clampedFrame <= pushInStartFrame ? 0 : Math.min(1, (clampedFrame - pushInStartFrame) / INTRO_PUSH_IN_FRAMES);
+    const eased = pushInProgress * pushInProgress * (3 - 2 * pushInProgress);
+
+    const introStart: IntroCameraState = {
+        camX: firstMainCameraState.camX - 42,
+        camY: firstMainCameraState.camY + 58,
+        camZ: 210,
+        lookX: firstMainCameraState.lookX - 18,
+        lookY: firstMainCameraState.lookY + 10,
+        lookZ: 10,
+    };
+    const introEnd: IntroCameraState = {
+        camX: firstMainCameraState.camX,
+        camY: firstMainCameraState.camY,
+        camZ: 55 + firstMainCameraState.camZOffset,
+        lookX: firstMainCameraState.lookX,
+        lookY: firstMainCameraState.lookY,
+        lookZ: 10,
+    };
+
+    if (clampedFrame >= INTRO_DURATION_IN_FRAMES) {
+        return introEnd;
+    }
+
+    return {
+        camX: interpolate(eased, [0, 1], [introStart.camX, introEnd.camX]),
+        camY: interpolate(eased, [0, 1], [introStart.camY, introEnd.camY]),
+        camZ: interpolate(eased, [0, 1], [introStart.camZ, introEnd.camZ]),
+        lookX: interpolate(eased, [0, 1], [introStart.lookX, introEnd.lookX]),
+        lookY: interpolate(eased, [0, 1], [introStart.lookY, introEnd.lookY]),
+        lookZ: 10,
+    };
+}
 
 export function getCinematicCameraState(cinematicFrame: number): CinematicCameraState {
     const firstMilestone = milestones[0];
@@ -335,6 +385,7 @@ export function getTowerFrameState(frame: number) {
 
     return {
         focusedIndex,
+        isIntro: isIntroFrame(frame),
         isCinematic,
         renderModes: reversedData.map((_, index) => getTowerRenderModeForFocus(frame, index, focusedIndex)),
     };
