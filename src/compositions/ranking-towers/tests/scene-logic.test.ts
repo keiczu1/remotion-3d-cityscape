@@ -219,7 +219,9 @@ test("appearance sound library covers every supported profile", () => {
 test("appearance sound library uses public-relative asset paths", () => {
     for (const recipes of Object.values(appearanceSoundLibrary)) {
         for (const recipe of recipes) {
-            const layers = [recipe.transient, recipe.body, recipe.tail].filter(Boolean);
+            const layers = [recipe.transient, recipe.body, recipe.tail].filter(
+                (layer): layer is NonNullable<typeof layer> => Boolean(layer),
+            );
 
             for (const layer of layers) {
                 assert.match(layer.src, /^sfx\/appearance\/.+\.(wav|mp3)$/);
