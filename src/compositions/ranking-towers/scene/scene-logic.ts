@@ -7,6 +7,7 @@ export const INTRO_REVEAL_FRAMES = 45;
 export const INTRO_HOLD_FRAMES = 40;
 export const INTRO_PUSH_IN_FRAMES = 75;
 export const INTRO_DURATION_IN_FRAMES = INTRO_REVEAL_FRAMES + INTRO_HOLD_FRAMES + INTRO_PUSH_IN_FRAMES;
+export const INTRO_TITLE_EXIT_FRAMES = 30;
 
 export const X_SPACING = 30;
 export const TOWER_WIDTH = 12;
@@ -86,6 +87,27 @@ export function getCameraTimelineFrame(frame: number) {
 
 export function isIntroFrame(frame: number) {
     return frame < INTRO_DURATION_IN_FRAMES;
+}
+
+export function getIntroTitleState(frame: number) {
+    const clampedFrame = Math.max(0, Math.min(INTRO_DURATION_IN_FRAMES, frame));
+    const revealProgress = Math.min(1, clampedFrame / INTRO_REVEAL_FRAMES);
+    const revealEased = revealProgress * revealProgress * (3 - 2 * revealProgress);
+    const exitStartFrame = INTRO_DURATION_IN_FRAMES - INTRO_TITLE_EXIT_FRAMES;
+    const exitProgress =
+        clampedFrame <= exitStartFrame ? 0 : Math.min(1, (clampedFrame - exitStartFrame) / INTRO_TITLE_EXIT_FRAMES);
+    const exitEased = exitProgress * exitProgress * (3 - 2 * exitProgress);
+    const opacity = interpolate(revealEased, [0, 1], [0, 1]) * interpolate(exitEased, [0, 1], [1, 0]);
+    const revealTranslateY = interpolate(revealEased, [0, 1], [28, 0]);
+    const exitTranslateY = interpolate(exitEased, [0, 1], [0, -36]);
+    const scale = exitProgress > 0 ? interpolate(exitEased, [0, 1], [1, 0.94]) : interpolate(revealEased, [0, 1], [0.94, 1]);
+
+    return {
+        isVisible: opacity > 0.01,
+        opacity,
+        scale,
+        translateY: revealTranslateY + exitTranslateY,
+    };
 }
 
 const getMilestoneState = (m: (typeof milestones)[number], localFrame = 0) => {

@@ -8,6 +8,7 @@ import {
     FINAL_CAMERA_SLOWDOWN_START_FRAME,
     getCameraState,
     getIntroCameraState,
+    getIntroTitleState,
     getTowerFrameState,
     getTowerRenderMode,
     INTRO_DURATION_IN_FRAMES,
@@ -68,4 +69,13 @@ test("intro camera hands off to the first main camera frame without a jump", () 
         lookY: mainStart.lookY,
         lookZ: 10,
     });
+});
+
+test("title state enters exit motion during the intro push-in", () => {
+    const titleState = getIntroTitleState(INTRO_DURATION_IN_FRAMES - 10);
+
+    assert.equal(titleState.isVisible, true);
+    assert.ok(titleState.opacity < 1);
+    assert.ok(titleState.translateY < 0);
+    assert.ok(titleState.scale < 1);
 });

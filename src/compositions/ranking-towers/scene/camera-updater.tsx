@@ -1,14 +1,26 @@
 import { useThree } from "@react-three/fiber";
 import { useCurrentFrame } from "remotion";
 
-import { getCameraState, getCameraTimelineFrame, getCinematicCameraState, sequenceCompleteFrame } from "./scene-logic";
+import {
+    getCameraState,
+    getCameraTimelineFrame,
+    getCinematicCameraState,
+    getIntroCameraState,
+    isIntroFrame,
+    sequenceCompleteFrame,
+} from "./scene-logic";
 
 export const CameraUpdater = () => {
     const frame = useCurrentFrame();
     const { camera } = useThree();
     const cameraFrame = getCameraTimelineFrame(frame);
 
-    if (cameraFrame <= sequenceCompleteFrame) {
+    if (isIntroFrame(cameraFrame)) {
+        const state = getIntroCameraState(cameraFrame);
+
+        camera.position.set(state.camX, state.camY, state.camZ);
+        camera.lookAt(state.lookX, state.lookY, state.lookZ);
+    } else if (cameraFrame <= sequenceCompleteFrame) {
         const state = getCameraState(cameraFrame);
         const distanceOut = 55 + (state.camZOffset || 0);
 
