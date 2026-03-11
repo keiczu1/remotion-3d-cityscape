@@ -11,6 +11,7 @@ import {
     type ResolvedSoundCue,
 } from "../model/types";
 import { appearanceSoundLibrary } from "../sound/appearance-library";
+import { getSceneSoundtrackCues } from "../sound/get-scene-soundtrack-cues";
 import { resolveAppearanceSoundCues, resolveAppearanceSoundtrack } from "../sound/resolve-appearance-cues";
 import {
     baseDurationInFrames,
@@ -520,4 +521,12 @@ test("well-spaced reveals preserve both cue groups", () => {
 
     assert.ok(soundtrack.some((cue) => cue.eventId === "spaced-a"));
     assert.ok(soundtrack.some((cue) => cue.eventId === "spaced-b"));
+});
+
+test("scene soundtrack helper resolves cues for the canonical composition timeline", () => {
+    const cues = getSceneSoundtrackCues();
+
+    assert.ok(cues.length > 0);
+    assert.equal(cues[0]?.eventId, "intro-title-reveal");
+    assert.ok(cues.some((cue) => cue.eventId === "tower-0-dashboard-reveal"));
 });
