@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
     baseDurationInFrames,
     durationInFrames,
+    getAppearanceEvents,
     getCameraTimelineFrame,
     getCameraState,
     getCinematicCameraState,
@@ -136,5 +137,15 @@ test("milestones stay strictly ordered from first tower to last tower", () => {
     for (let i = 1; i < milestones.length; i++) {
         assert.ok(milestones[i].arriveFrame >= milestones[i - 1].arriveFrame);
         assert.ok(milestones[i].leaveFrame >= milestones[i - 1].leaveFrame);
+    }
+});
+
+test("appearance events stay ordered from intro reveal through tower dashboards", () => {
+    const events = getAppearanceEvents();
+
+    assert.equal(events[0]?.id, "intro-title-reveal");
+
+    for (let i = 1; i < events.length; i++) {
+        assert.ok(events[i].startFrame >= events[i - 1].startFrame);
     }
 });

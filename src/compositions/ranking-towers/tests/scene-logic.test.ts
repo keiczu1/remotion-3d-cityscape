@@ -17,6 +17,7 @@ import {
     durationInFrames,
     FINAL_CAMERA_SLOWDOWN_FACTOR,
     FINAL_CAMERA_SLOWDOWN_START_FRAME,
+    getAppearanceEvents,
     getCameraState,
     getIntroCameraState,
     getIntroTitleState,
@@ -338,4 +339,36 @@ test("appearance cue resolution uses direction and duration to shape timing meta
     assert.ok(bodyCue);
     assert.equal(bodyCue.startFrame, 199);
     assert.ok(bodyCue.playbackRate < 1);
+});
+
+test("appearance events include the intro title reveal", () => {
+    const introEvent = getAppearanceEvents().find((event) => event.id === "intro-title-reveal");
+
+    assert.ok(introEvent);
+    assert.equal(introEvent.startFrame, 0);
+    assert.equal(introEvent.descriptor.kind, "fade");
+    assert.equal(introEvent.descriptor.durationFrames, 45);
+});
+
+test("tower dashboard appearance events align with reveal timing in scene logic", () => {
+    const firstTowerEvent = getAppearanceEvents().find((event) => event.id === "tower-0-dashboard-reveal");
+    const thirdTowerEvent = getAppearanceEvents().find((event) => event.id === "tower-2-dashboard-reveal");
+
+    assert.ok(firstTowerEvent);
+    assert.ok(thirdTowerEvent);
+    assert.equal(firstTowerEvent.startFrame, milestones[0].arriveFrame + 25);
+    assert.equal(thirdTowerEvent.startFrame, milestones[2].arriveFrame + 25);
+});
+
+test("tower appearance events describe reveal semantics instead of JSX details", () => {
+    const effectTypeZeroEvent = getAppearanceEvents().find((event) => event.id === "tower-0-dashboard-reveal");
+    const effectTypeOneEvent = getAppearanceEvents().find((event) => event.id === "tower-1-dashboard-reveal");
+    const effectTypeTwoEvent = getAppearanceEvents().find((event) => event.id === "tower-2-dashboard-reveal");
+
+    assert.ok(effectTypeZeroEvent);
+    assert.ok(effectTypeOneEvent);
+    assert.ok(effectTypeTwoEvent);
+    assert.equal(effectTypeZeroEvent.descriptor.kind, "impact");
+    assert.equal(effectTypeOneEvent.descriptor.kind, "slide");
+    assert.equal(effectTypeTwoEvent.descriptor.kind, "scale");
 });

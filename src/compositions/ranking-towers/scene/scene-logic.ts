@@ -1,4 +1,5 @@
 import { interpolate } from "remotion";
+import type { AppearanceDescriptor, AppearanceEvent } from "../model/types";
 import { data } from "../model/data";
 
 export const reversedData = [...data].reverse();
@@ -8,6 +9,7 @@ export const INTRO_HOLD_FRAMES = 40;
 export const INTRO_PUSH_IN_FRAMES = 90;
 export const INTRO_DURATION_IN_FRAMES = INTRO_REVEAL_FRAMES + INTRO_HOLD_FRAMES + INTRO_PUSH_IN_FRAMES;
 export const INTRO_TITLE_EXIT_FRAMES = 30;
+export const DASHBOARD_REVEAL_DELAY_FRAMES = 25;
 
 export const X_SPACING = 30;
 export const TOWER_WIDTH = 12;
@@ -412,3 +414,95 @@ export function getTowerFrameState(frame: number) {
         renderModes: reversedData.map((_, index) => getTowerRenderModeForFocus(frame, index, focusedIndex)),
     };
 }
+
+const getTowerAppearanceDescriptor = (index: number): AppearanceDescriptor => {
+    const effectType = index % 5;
+
+    if (effectType === 0) {
+        return {
+            kind: "impact",
+            durationFrames: 28,
+            intensity: 0.9,
+            direction: "down",
+            hasOvershoot: false,
+            hasSettle: true,
+            sizeClass: "large",
+        };
+    }
+
+    if (effectType === 1) {
+        return {
+            kind: "slide",
+            durationFrames: 30,
+            intensity: 0.6,
+            direction: "right",
+            hasOvershoot: false,
+            hasSettle: true,
+            sizeClass: "medium",
+        };
+    }
+
+    if (effectType === 2) {
+        return {
+            kind: "scale",
+            durationFrames: 24,
+            intensity: 0.7,
+            direction: "none",
+            hasOvershoot: true,
+            hasSettle: true,
+            sizeClass: "medium",
+        };
+    }
+
+    if (effectType === 3) {
+        return {
+            kind: "tech",
+            durationFrames: 32,
+            intensity: 0.8,
+            direction: "up",
+            hasOvershoot: false,
+            hasSettle: true,
+            sizeClass: "large",
+        };
+    }
+
+    return {
+        kind: "slide",
+        durationFrames: 26,
+        intensity: 0.5,
+        direction: "up",
+        hasOvershoot: false,
+        hasSettle: false,
+        sizeClass: "medium",
+    };
+};
+
+export const getAppearanceEvents = (): AppearanceEvent[] => {
+    const events: AppearanceEvent[] = [
+        {
+            id: "intro-title-reveal",
+            startFrame: 0,
+            seed: "intro-title-reveal",
+            descriptor: {
+                kind: "fade",
+                durationFrames: INTRO_REVEAL_FRAMES,
+                intensity: 0.35,
+                direction: "none",
+                hasOvershoot: false,
+                hasSettle: false,
+                sizeClass: "large",
+            },
+        },
+    ];
+
+    milestones.forEach((milestone) => {
+        events.push({
+            id: `tower-${milestone.index}-dashboard-reveal`,
+            startFrame: milestone.arriveFrame + DASHBOARD_REVEAL_DELAY_FRAMES,
+            seed: `tower-${milestone.index}-dashboard-reveal`,
+            descriptor: getTowerAppearanceDescriptor(milestone.index),
+        });
+    });
+
+    return events;
+};
