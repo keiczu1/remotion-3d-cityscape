@@ -24,6 +24,7 @@ import {
     milestones,
     sequenceCompleteFrame,
 } from "../scene/scene-logic";
+import { resolveAppearanceSoundProfile } from "../sound/appearance-profile";
 
 test("canonical composition path exposes ranking tower scene logic", () => {
     assert.equal(getTowerRenderMode(milestones[0].arriveFrame + 10, 0), "full");
@@ -123,4 +124,79 @@ test("appearance sound domain types support scene-local fixtures", () => {
     assert.ok(appearanceDirections.includes(descriptor.direction));
     assert.ok(appearanceSizeClasses.includes(descriptor.sizeClass));
     assert.ok(appearanceSoundProfiles.includes(cue.profile));
+});
+
+test("fade descriptors with low intensity resolve to soft-reveal", () => {
+    assert.equal(
+        resolveAppearanceSoundProfile({
+            kind: "fade",
+            durationFrames: 24,
+            intensity: 0.2,
+            direction: "none",
+            hasOvershoot: false,
+            hasSettle: false,
+            sizeClass: "medium",
+        }),
+        "soft-reveal",
+    );
+});
+
+test("scale descriptors with overshoot resolve to pop-reveal", () => {
+    assert.equal(
+        resolveAppearanceSoundProfile({
+            kind: "scale",
+            durationFrames: 18,
+            intensity: 0.55,
+            direction: "none",
+            hasOvershoot: true,
+            hasSettle: true,
+            sizeClass: "small",
+        }),
+        "pop-reveal",
+    );
+});
+
+test("directional slide descriptors resolve to sweep-reveal", () => {
+    assert.equal(
+        resolveAppearanceSoundProfile({
+            kind: "slide",
+            durationFrames: 22,
+            intensity: 0.45,
+            direction: "right",
+            hasOvershoot: false,
+            hasSettle: true,
+            sizeClass: "medium",
+        }),
+        "sweep-reveal",
+    );
+});
+
+test("high-intensity settling descriptors resolve to impact-reveal", () => {
+    assert.equal(
+        resolveAppearanceSoundProfile({
+            kind: "impact",
+            durationFrames: 14,
+            intensity: 0.9,
+            direction: "down",
+            hasOvershoot: false,
+            hasSettle: true,
+            sizeClass: "large",
+        }),
+        "impact-reveal",
+    );
+});
+
+test("tech descriptors resolve to tech-reveal", () => {
+    assert.equal(
+        resolveAppearanceSoundProfile({
+            kind: "tech",
+            durationFrames: 20,
+            intensity: 0.5,
+            direction: "none",
+            hasOvershoot: false,
+            hasSettle: false,
+            sizeClass: "medium",
+        }),
+        "tech-reveal",
+    );
 });
