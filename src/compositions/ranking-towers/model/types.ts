@@ -20,9 +20,6 @@ export const appearanceSoundProfiles = [
 ] as const;
 export type AppearanceSoundProfile = (typeof appearanceSoundProfiles)[number];
 
-export const resolvedSoundLayers = ["transient", "body", "tail"] as const;
-export type ResolvedSoundLayer = (typeof resolvedSoundLayers)[number];
-
 export type AppearanceDescriptor = {
     kind: AppearanceKind;
     durationFrames: number;
@@ -44,9 +41,7 @@ export type ResolvedSoundCue = {
     id: string;
     eventId: string;
     profile: AppearanceSoundProfile;
-    layer: ResolvedSoundLayer;
     startFrame: number;
     src: string;
     volume: number;
-    playbackRate: number;
 };

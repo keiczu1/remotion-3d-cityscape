@@ -11,7 +11,6 @@ import {
     type ResolvedSoundCue,
 } from "../model/types";
 import { appearanceSoundLibrary } from "../sound/appearance-library";
-import { resolveAppearanceSoundCues } from "../sound/resolve-appearance-cues";
 import {
     baseDurationInFrames,
     durationInFrames,
@@ -114,11 +113,9 @@ test("appearance sound domain types support scene-local fixtures", () => {
         id: "tower-0-reveal-main",
         eventId: event.id,
         profile: "pop-reveal",
-        layer: "body",
         startFrame: event.startFrame,
         src: "sfx/appearance/pop/body-01.wav",
         volume: 0.72,
-        playbackRate: 1,
     };
 
     assert.equal(cue.eventId, event.id);
@@ -224,118 +221,4 @@ test("appearance sound library uses public-relative asset paths", () => {
             }
         }
     }
-});
-
-test("appearance cue resolution is deterministic for the same seed", () => {
-    const event: AppearanceEvent = {
-        id: "tower-pop",
-        startFrame: 120,
-        seed: "tower-pop",
-        descriptor: {
-            kind: "scale",
-            durationFrames: 18,
-            intensity: 0.65,
-            direction: "none",
-            hasOvershoot: true,
-            hasSettle: true,
-            sizeClass: "medium",
-        },
-    };
-
-    const firstRun = resolveAppearanceSoundCues(event);
-    const secondRun = resolveAppearanceSoundCues(event);
-
-    assert.deepEqual(firstRun, secondRun);
-});
-
-test("appearance cue resolution can vary recipe selection across seeds", () => {
-    const leftCue = resolveAppearanceSoundCues({
-        id: "tower-pop-a",
-        startFrame: 120,
-        seed: "tower-pop-a",
-        descriptor: {
-            kind: "scale",
-            durationFrames: 18,
-            intensity: 0.65,
-            direction: "none",
-            hasOvershoot: true,
-            hasSettle: true,
-            sizeClass: "medium",
-        },
-    });
-    const rightCue = resolveAppearanceSoundCues({
-        id: "tower-pop-b",
-        startFrame: 120,
-        seed: "tower-pop-b",
-        descriptor: {
-            kind: "scale",
-            durationFrames: 18,
-            intensity: 0.65,
-            direction: "none",
-            hasOvershoot: true,
-            hasSettle: true,
-            sizeClass: "medium",
-        },
-    });
-
-    assert.notDeepEqual(
-        leftCue.map((cue) => cue.src),
-        rightCue.map((cue) => cue.src),
-    );
-});
-
-test("appearance cue resolution scales volume with intensity", () => {
-    const quieter = resolveAppearanceSoundCues({
-        id: "intro-soft-quiet",
-        startFrame: 40,
-        seed: "intro-soft-quiet",
-        descriptor: {
-            kind: "fade",
-            durationFrames: 28,
-            intensity: 0.15,
-            direction: "none",
-            hasOvershoot: false,
-            hasSettle: false,
-            sizeClass: "medium",
-        },
-    });
-    const louder = resolveAppearanceSoundCues({
-        id: "intro-soft-loud",
-        startFrame: 40,
-        seed: "intro-soft-loud",
-        descriptor: {
-            kind: "fade",
-            durationFrames: 28,
-            intensity: 0.85,
-            direction: "none",
-            hasOvershoot: false,
-            hasSettle: false,
-            sizeClass: "medium",
-        },
-    });
-
-    assert.ok(quieter.every((cue, index) => cue.volume <= louder[index].volume));
-});
-
-test("appearance cue resolution uses direction and duration to shape timing metadata", () => {
-    const cues = resolveAppearanceSoundCues({
-        id: "tower-sweep",
-        startFrame: 200,
-        seed: "tower-sweep",
-        descriptor: {
-            kind: "slide",
-            durationFrames: 36,
-            intensity: 0.55,
-            direction: "left",
-            hasOvershoot: false,
-            hasSettle: true,
-            sizeClass: "large",
-        },
-    });
-
-    const bodyCue = cues.find((cue) => cue.layer === "body");
-
-    assert.ok(bodyCue);
-    assert.equal(bodyCue.startFrame, 199);
-    assert.ok(bodyCue.playbackRate < 1);
 });
