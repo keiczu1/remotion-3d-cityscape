@@ -1,10 +1,29 @@
 import { ThreeCanvas } from "@remotion/three";
-import { useCurrentFrame, useVideoConfig, random, spring, interpolate, delayRender, continueRender, staticFile } from "remotion";
+import { useCurrentFrame, useVideoConfig, random, spring, interpolate, staticFile } from "remotion";
 import { data } from "./data";
-import { useMemo, Suspense, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import * as THREE from "three";
 import { Text, RoundedBox } from "@react-three/drei";
-import { useThree, useLoader } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import {
+    BASE_HEIGHT,
+    GROUND_Y,
+    TOWER_DEPTH,
+    TOWER_ROW_Z,
+    TOWER_WIDTH,
+    X_SPACING,
+    getCameraState,
+    getCameraTimelineFrame,
+    getCinematicCameraState,
+    getFocusedTowerIndex,
+    getTowerHeight,
+    getTowerRenderMode,
+    milestones,
+    reversedData,
+    sequenceCompleteFrame,
+    shouldPreloadTowerAssets,
+    type TowerRenderMode,
+} from "./scene-logic";
 
 // --- GLOBAL CACHE FOR PERFORMANCE ---
 const sharedBoxGeo = new THREE.BoxGeometry(20, 32, 0.4);
@@ -15,9 +34,6 @@ const treeLeavesGeo = new THREE.DodecahedronGeometry(3, 0);
 const treeLeavesMat = new THREE.MeshStandardMaterial({ color: "#4CAF50", roughness: 0.8 });
 const cloudGeo = new THREE.SphereGeometry(1, 6, 6);
 
-// Use all 40 items and reverse them so rank 40 is first, layout from left to right
-const reversedData = [...data].reverse();
-
 export function formatVisits(visits: number): string {
     if (visits >= 1e9) {
         return (visits / 1e9).toFixed(1) + " B";
@@ -27,255 +43,106 @@ export function formatVisits(visits: number): string {
     }
     return visits.toString();
 }
+export { durationInFrames } from "./scene-logic";
 
-const X_SPACING = 30;
-const TOWER_WIDTH = 12;
-const TOWER_DEPTH = 10;
-const BASE_HEIGHT = 15;
-const TOWER_ROW_Z = 10;
-const GROUND_Y = -0.02;
-const CINEMATIC_RAMP_FRAMES = 300;
-const CINEMATIC_OVERVIEW_FRAMES = 540;
-const CINEMATIC_TURN_FRAMES = 180;
-const CINEMATIC_RETURN_FRAMES = 600;
-const FINAL_CINEMATIC_FRAMES =
-    CINEMATIC_RAMP_FRAMES + CINEMATIC_OVERVIEW_FRAMES + CINEMATIC_TURN_FRAMES + CINEMATIC_RETURN_FRAMES;
+type SharedTextureKind = "favicon" | "flag";
 
-const getMilestones = () => {
-    let frame = 0;
-    const milestones: { arriveFrame: number; leaveFrame: number; xCenter: number; yCenter: number; index: number }[] = [];
-    for (let i = 0; i < reversedData.length; i++) {
-        const item = reversedData[i];
+const sharedTextureLoader = new THREE.TextureLoader();
+const sharedTextureCache = new Map<string, THREE.Texture>();
+const sharedTexturePromises = new Map<string, Promise<THREE.Texture>>();
 
-        // SIGNIFICANTLY LONGER PAUSE: 320 frames (~5.3 seconds)
-        // This extends the video length and allows for slower, non-rushed presentation
-        const moveFrames = i === 0 ? 0 : 80;
-        const pauseFrames = 320;              
+sharedTextureLoader.setCrossOrigin("anonymous");
 
-        const arriveFrame = frame + moveFrames;
-        const leaveFrame = arriveFrame + pauseFrames;
+const getFaviconTextureUrl = (domain: string) => staticFile(`favicons/${domain}.png`);
+const getFlagTextureUrl = (country: string) => staticFile(`flags/${country.toLowerCase()}.png`);
 
-        // Massive exponential scale difference to feel the volume, making top towers absolutely colossal
-        const scaledHeight = Math.pow(item.relHeight, 1.45) * 6.5;
-        const height = Math.max(scaledHeight, 3);
-
-        milestones.push({
-            index: i,
-            arriveFrame,
-            leaveFrame,
-            xCenter: i * X_SPACING,
-            yCenter: height + 20 // Target the hologram center which is above the tower
-        });
-        frame = leaveFrame;
-    }
-
-    const lastArrive = milestones[milestones.length - 1].leaveFrame;
-
-    return { milestones, durationInFrames: lastArrive + FINAL_CINEMATIC_FRAMES + 60 };
+const configureSharedTexture = (texture: THREE.Texture, kind: SharedTextureKind) => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.generateMipmaps = kind === "favicon";
+    texture.needsUpdate = true;
 };
 
-export const { milestones, durationInFrames } = getMilestones();
-export const sequenceCompleteFrame = milestones[milestones.length - 1].leaveFrame;
-
-const CAMERA_SWEEP_X_OFFSET = 24;
-const CAMERA_SWEEP_Z_OFFSET = 16;
-const CAMERA_ORBIT_X_RADIUS = 10;
-const CAMERA_ORBIT_Z_RADIUS = 6;
-const CAMERA_ORBIT_LOOK_X_RADIUS = 3;
-const CAMERA_ORBIT_HOLD_FRAMES = 45;
-
-export function getCameraState(frame: number) {
-    function getMilestoneState(m: typeof milestones[0], localFrame = 0) {
-        const totalPause = m.leaveFrame - m.arriveFrame;
-        const orbitFrames = Math.max(1, totalPause - CAMERA_ORBIT_HOLD_FRAMES);
-        const orbitProgress =
-            localFrame <= CAMERA_ORBIT_HOLD_FRAMES
-                ? 0
-                : Math.min(1, (localFrame - CAMERA_ORBIT_HOLD_FRAMES) / orbitFrames);
-        const orbitAngle = -0.6 + orbitProgress * 1.0;
-        const orbitX = Math.sin(orbitAngle) * CAMERA_ORBIT_X_RADIUS;
-        const orbitZ = (Math.cos(orbitAngle) - Math.cos(-0.6)) * CAMERA_ORBIT_Z_RADIUS;
-        const orbitLookX = Math.sin(orbitAngle) * CAMERA_ORBIT_LOOK_X_RADIUS;
-
-        return {
-            camX: m.xCenter + CAMERA_SWEEP_X_OFFSET + orbitX,
-            camY: m.yCenter + 2,
-            lookX: m.xCenter + orbitLookX,
-            lookY: m.yCenter,
-            camZOffset: CAMERA_SWEEP_Z_OFFSET + orbitZ
-        };
+const loadSharedTexture = (url: string, kind: SharedTextureKind) => {
+    const cachedTexture = sharedTextureCache.get(url);
+    if (cachedTexture) {
+        return Promise.resolve(cachedTexture);
     }
 
-    if (frame <= milestones[0].arriveFrame) {
-        return getMilestoneState(milestones[0]);
+    const pendingTexture = sharedTexturePromises.get(url);
+    if (pendingTexture) {
+        return pendingTexture;
     }
 
-    const last = milestones[milestones.length - 1];
-    if (frame >= last.leaveFrame) {
-        return getMilestoneState(last);
-    }
+    const texturePromise = new Promise<THREE.Texture>((resolve, reject) => {
+        sharedTextureLoader.load(
+            url,
+            (texture) => {
+                configureSharedTexture(texture, kind);
+                sharedTextureCache.set(url, texture);
+                resolve(texture);
+            },
+            undefined,
+            (error) => reject(error),
+        );
+    }).finally(() => {
+        sharedTexturePromises.delete(url);
+    });
 
-    for (let i = 0; i < milestones.length; i++) {
-        const cur = milestones[i];
-        
-        if (frame >= cur.arriveFrame && frame <= cur.leaveFrame) {
-            return getMilestoneState(cur, frame - cur.arriveFrame);
-        }
+    sharedTexturePromises.set(url, texturePromise);
 
-        if (i < milestones.length - 1) {
-            const next = milestones[i + 1];
-            if (frame > cur.leaveFrame && frame < next.arriveFrame) {
-                const p = (frame - cur.leaveFrame) / (next.arriveFrame - cur.leaveFrame);
-                // Smooth step easing for flyways as well
-                const eased = p * p * (3 - 2 * p);
-                const startState = getMilestoneState(cur, cur.leaveFrame - cur.arriveFrame);
-                const endState = getMilestoneState(next, 0);
-                
-                return {
-                    camX: startState.camX + (endState.camX - startState.camX) * eased,
-                    camY: startState.camY + (endState.camY - startState.camY) * eased,
-                    lookX: startState.lookX + (endState.lookX - startState.lookX) * eased,
-                    lookY: startState.lookY + (endState.lookY - startState.lookY) * eased,
-                    camZOffset: startState.camZOffset + (endState.camZOffset - startState.camZOffset) * eased
-                };
-            }
-        }
-    }
-    
-    return getMilestoneState(last);
-}
-
-export function getSceneLayoutMetrics() {
-    return {
-        towerRange: [TOWER_ROW_Z - TOWER_DEPTH / 2, TOWER_ROW_Z + TOWER_DEPTH / 2] as const,
-        roadRange: null,
-    };
-}
-
-type CinematicCameraState = {
-    camX: number;
-    camY: number;
-    camZ: number;
-    lookX: number;
-    lookY: number;
-    lookZ: number;
+    return texturePromise;
 };
 
-export function getCinematicCameraState(cinematicFrame: number): CinematicCameraState {
-    const firstMilestone = milestones[0];
-    const lastMilestone = milestones[milestones.length - 1];
-    const startState = getCameraState(lastMilestone.leaveFrame);
+const preloadSharedTexture = (url: string, kind: SharedTextureKind) => {
+    void loadSharedTexture(url, kind).catch(() => undefined);
+};
 
-    const rampTarget: CinematicCameraState = {
-        camX: lastMilestone.xCenter + 120,
-        camY: 260,
-        camZ: 340,
-        lookX: lastMilestone.xCenter - 50,
-        lookY: 78,
-        lookZ: 0
-    };
-    const overviewEnd: CinematicCameraState = {
-        camX: firstMilestone.xCenter - 70,
-        camY: 225,
-        camZ: 290,
-        lookX: firstMilestone.xCenter + 80,
-        lookY: 62,
-        lookZ: 0
-    };
-    const returnStart: CinematicCameraState = {
-        camX: firstMilestone.xCenter - 50,
-        camY: 120,
-        camZ: 185,
-        lookX: firstMilestone.xCenter + 30,
-        lookY: 48,
-        lookZ: 0
-    };
-    const returnEnd: CinematicCameraState = {
-        camX: lastMilestone.xCenter + 80,
-        camY: 132,
-        camZ: 165,
-        lookX: lastMilestone.xCenter - 40,
-        lookY: 56,
-        lookZ: 0
-    };
+const useSharedTexture = (url: string, kind: SharedTextureKind) => {
+    const [texture, setTexture] = useState<THREE.Texture | null>(() => sharedTextureCache.get(url) ?? null);
 
-    if (cinematicFrame <= CINEMATIC_RAMP_FRAMES) {
-        const rampProgress = Math.min(1, cinematicFrame / CINEMATIC_RAMP_FRAMES);
-        const speedRamp = rampProgress < 0.4
-            ? (rampProgress / 0.4) * 0.9
-            : 0.9 + ((rampProgress - 0.4) / 0.6) * 0.1;
-        const t = speedRamp * speedRamp * (3 - 2 * speedRamp);
+    useEffect(() => {
+        let cancelled = false;
+        const cachedTexture = sharedTextureCache.get(url);
 
-        return {
-            camX: interpolate(t, [0, 1], [startState.camX, rampTarget.camX]),
-            camY: interpolate(t, [0, 1], [startState.camY, rampTarget.camY]),
-            camZ: interpolate(t, [0, 1], [55 + startState.camZOffset, rampTarget.camZ]),
-            lookX: interpolate(t, [0, 1], [startState.lookX, rampTarget.lookX]),
-            lookY: interpolate(t, [0, 1], [startState.lookY, rampTarget.lookY]),
-            lookZ: interpolate(t, [0, 1], [10, rampTarget.lookZ])
+        if (cachedTexture) {
+            setTexture(cachedTexture);
+            return;
+        }
+
+        loadSharedTexture(url, kind)
+            .then((loadedTexture) => {
+                if (!cancelled) {
+                    setTexture(loadedTexture);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setTexture(null);
+                }
+            });
+
+        return () => {
+            cancelled = true;
         };
-    }
+    }, [kind, url]);
 
-    if (cinematicFrame <= CINEMATIC_RAMP_FRAMES + CINEMATIC_OVERVIEW_FRAMES) {
-        const overviewFrame = cinematicFrame - CINEMATIC_RAMP_FRAMES;
-        const progress = Math.min(1, overviewFrame / CINEMATIC_OVERVIEW_FRAMES);
-        const eased = progress * progress * (3 - 2 * progress);
-        const glideY = Math.sin(progress * Math.PI) * 18;
-        const glideZ = Math.sin(progress * Math.PI * 1.2) * 16;
-
-        return {
-            camX: interpolate(eased, [0, 1], [rampTarget.camX, overviewEnd.camX]),
-            camY: interpolate(eased, [0, 1], [rampTarget.camY, overviewEnd.camY]) + glideY,
-            camZ: interpolate(eased, [0, 1], [rampTarget.camZ, overviewEnd.camZ]) + glideZ,
-            lookX: interpolate(eased, [0, 1], [rampTarget.lookX, overviewEnd.lookX]),
-            lookY: interpolate(eased, [0, 1], [rampTarget.lookY, overviewEnd.lookY]),
-            lookZ: 0
-        };
-    }
-
-    if (cinematicFrame <= CINEMATIC_RAMP_FRAMES + CINEMATIC_OVERVIEW_FRAMES + CINEMATIC_TURN_FRAMES) {
-        const turnFrame = cinematicFrame - CINEMATIC_RAMP_FRAMES - CINEMATIC_OVERVIEW_FRAMES;
-        const progress = Math.min(1, turnFrame / CINEMATIC_TURN_FRAMES);
-        const eased = progress * progress * (3 - 2 * progress);
-
-        return {
-            camX: interpolate(eased, [0, 1], [overviewEnd.camX, returnStart.camX]),
-            camY: interpolate(eased, [0, 1], [overviewEnd.camY, returnStart.camY]),
-            camZ: interpolate(eased, [0, 1], [overviewEnd.camZ, returnStart.camZ]),
-            lookX: interpolate(eased, [0, 1], [overviewEnd.lookX, returnStart.lookX]),
-            lookY: interpolate(eased, [0, 1], [overviewEnd.lookY, returnStart.lookY]),
-            lookZ: 0
-        };
-    }
-
-    const returnFrame = cinematicFrame - CINEMATIC_RAMP_FRAMES - CINEMATIC_OVERVIEW_FRAMES - CINEMATIC_TURN_FRAMES;
-    const returnProgress = Math.min(1, returnFrame / CINEMATIC_RETURN_FRAMES);
-    const eased = returnProgress * returnProgress * (3 - 2 * returnProgress);
-    const swayY = Math.sin(returnProgress * Math.PI * 1.5) * 10;
-    const swayZ = Math.sin(returnProgress * Math.PI) * 14;
-    const leadLookX = Math.sin(returnProgress * Math.PI) * 12;
-
-    return {
-        camX: interpolate(eased, [0, 1], [returnStart.camX, returnEnd.camX]),
-        camY: interpolate(eased, [0, 1], [returnStart.camY, returnEnd.camY]) + swayY,
-        camZ: interpolate(eased, [0, 1], [returnStart.camZ, returnEnd.camZ]) + swayZ,
-        lookX: interpolate(eased, [0, 1], [returnStart.lookX, returnEnd.lookX]) + leadLookX,
-        lookY: interpolate(eased, [0, 1], [returnStart.lookY, returnEnd.lookY]),
-        lookZ: 0
-    };
-}
+    return texture;
+};
 
 const Flag = ({ country, position }: { country: string, position: [number, number, number] }) => {
-    const url = `https://flagcdn.com/w160/${country.toLowerCase()}.png`;
-    const texture = useLoader(THREE.TextureLoader, url, (loader) => {
-        loader.setCrossOrigin("anonymous");
-    });
+    const texture = useSharedTexture(getFlagTextureUrl(country), "flag");
     const frame = useCurrentFrame();
 
     const uniforms = useMemo(() => ({
         uTime: { value: 0 },
         uTexture: { value: texture }
     }), [texture]);
+
+    if (!texture) {
+        return null;
+    }
 
     // Update time smoothly for waviness
     uniforms.uTime.value = frame * 0.05;
@@ -311,36 +178,7 @@ const Flag = ({ country, position }: { country: string, position: [number, numbe
 };
 
 const Favicon = ({ domain, yPos, zPos, opacity }: { domain: string, yPos: number, zPos: number, opacity: number }) => {
-    const [texture, setTexture] = useState<THREE.Texture | null>(null);
-    const [handle] = useState(() => delayRender("Loading favicon " + domain));
-
-    useEffect(() => {
-        const loader = new THREE.TextureLoader();
-        loader.setCrossOrigin("anonymous");
-
-        // Load the locally downloaded favicon instead of making an external request
-        // This is much faster and doesn't rely on CORS or external servers!
-        const localUrl = staticFile(`favicons/${domain}.png`);
-
-        loader.load(
-            localUrl,
-            (tex) => {
-                // Fix washed out colors and pixelation in WebGL
-                tex.colorSpace = THREE.SRGBColorSpace;
-                tex.minFilter = THREE.LinearMipmapLinearFilter;
-                tex.magFilter = THREE.LinearFilter;
-                tex.generateMipmaps = true;
-
-                setTexture(tex);
-                continueRender(handle);
-            },
-            undefined,
-            () => {
-                console.warn(`Could not load favicon for ${domain}, skipping`);
-                continueRender(handle);
-            }
-        );
-    }, [domain, handle]);
+    const texture = useSharedTexture(getFaviconTextureUrl(domain), "favicon");
 
     return (
         <group position={[0, yPos, zPos]}>
@@ -403,7 +241,97 @@ const LaserStrike = ({ frame, triggerFrame }: { frame: number, triggerFrame: num
     );
 };
 
-const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typeof data[0], yPos: number, rank: number, arriveFrame: number, index: number }) => {
+const preloadTowerAssets = (index: number) => {
+    const item = reversedData[index];
+    if (!item) {
+        return;
+    }
+
+    preloadSharedTexture(getFaviconTextureUrl(item.domain), "favicon");
+    preloadSharedTexture(getFlagTextureUrl(item.country), "flag");
+};
+
+const SceneAssetPreloader = () => {
+    const frame = useCurrentFrame();
+    const focusedIndex = getFocusedTowerIndex(frame);
+    const isCinematic = frame > sequenceCompleteFrame;
+
+    useEffect(() => {
+        if (isCinematic) {
+            reversedData.forEach((_, index) => preloadTowerAssets(index));
+            return;
+        }
+
+        for (let i = 0; i < reversedData.length; i++) {
+            if (shouldPreloadTowerAssets(frame, i)) {
+                preloadTowerAssets(i);
+            }
+        }
+    }, [focusedIndex, frame, isCinematic]);
+
+    return null;
+};
+
+const StaticDashboardCard = ({
+    item,
+    yPos,
+    floatY,
+    rank,
+    domainFontSize,
+    typeBadgeWidth,
+}: {
+    item: typeof data[0];
+    yPos: number;
+    floatY: number;
+    rank: number;
+    domainFontSize: number;
+    typeBadgeWidth: number;
+}) => {
+    return (
+        <group position={[0, yPos + floatY, 0]}>
+            <RoundedBox args={[20, 32, 0.4]} radius={0.6} smoothness={2}>
+                <meshStandardMaterial color="#0A1128" transparent opacity={0.88} />
+            </RoundedBox>
+            <lineSegments geometry={sharedEdgesGeo}>
+                <lineBasicMaterial color="#00E5FF" linewidth={3} transparent opacity={0.6} />
+            </lineSegments>
+            <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">
+                #{rank}
+            </Text>
+            <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />
+            <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">
+                {item.domain}
+            </Text>
+            <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">
+                {formatVisits(item.monthlyVisits)}
+            </Text>
+            <group position={[0, -13.5, 0.3]}>
+                <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}>
+                    <meshStandardMaterial color="#2563EB" transparent opacity={0.88} />
+                </RoundedBox>
+                <Text position={[0, 0, 0.12]} color="#ffffff" fontSize={1.4} anchorX="center" anchorY="middle" fontWeight="bold">
+                    {item.type.toUpperCase()}
+                </Text>
+            </group>
+        </group>
+    );
+};
+
+const HologramDashboard = ({
+    item,
+    yPos,
+    rank,
+    arriveFrame,
+    index,
+    renderMode,
+}: {
+    item: typeof data[0];
+    yPos: number;
+    rank: number;
+    arriveFrame: number;
+    index: number;
+    renderMode: TowerRenderMode;
+}) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
 
@@ -411,6 +339,7 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
     const localFrame = frame - arriveFrame;
     const isReady = localFrame >= 25;
     const animFrame = Math.max(0, localFrame - 25);
+    const isCinematic = frame > sequenceCompleteFrame;
 
     // Subtle float effect constantly happening
     const floatY = Math.sin(frame * 0.05 + yPos) * 0.5;
@@ -424,41 +353,20 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
     const decodedVisits = assembleScramble(formatVisits(item.monthlyVisits), scrambleProgress, `${index}-visits`);
     const decodedRank = assembleScramble(`#${rank}`, scrambleProgress, `${index}-rank`);
 
-    if (!isReady) return null; // Complete invisibility during structural delay
+    if (!isReady) {
+        return null;
+    }
 
-    // --- LOD: During the final cinematic flyover, show full dashboard without complex animations ---
-    // Now using GPU-based Favicon (texture on plane), so it's lightweight!
-    const isCinematic = frame > sequenceCompleteFrame;
-    if (isCinematic) {
+    if (isCinematic || renderMode === "standby") {
         return (
-            <group position={[0, yPos + floatY, 0]}>
-                <RoundedBox args={[20, 32, 0.4]} radius={0.6} smoothness={2}>
-                    <meshStandardMaterial color="#0A1128" transparent opacity={0.88} />
-                </RoundedBox>
-                <lineSegments geometry={sharedEdgesGeo}>
-                    <lineBasicMaterial color="#00E5FF" linewidth={3} transparent opacity={0.6} />
-                </lineSegments>
-                <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">
-                    #{rank}
-                </Text>
-                <Suspense fallback={null}>
-                    <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />
-                </Suspense>
-                <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">
-                    {item.domain}
-                </Text>
-                <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">
-                    {formatVisits(item.monthlyVisits)}
-                </Text>
-                <group position={[0, -13.5, 0.3]}>
-                    <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}>
-                        <meshStandardMaterial color="#2563EB" transparent opacity={0.88} />
-                    </RoundedBox>
-                    <Text position={[0, 0, 0.12]} color="#ffffff" fontSize={1.4} anchorX="center" anchorY="middle" fontWeight="bold">
-                        {item.type.toUpperCase()}
-                    </Text>
-                </group>
-            </group>
+            <StaticDashboardCard
+                item={item}
+                yPos={yPos}
+                floatY={floatY}
+                rank={rank}
+                domainFontSize={domainFontSize}
+                typeBadgeWidth={typeBadgeWidth}
+            />
         );
     }
 
@@ -490,9 +398,7 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
                 </Text>
 
                 <group position={[0, textDropY, 0]}>
-                    <Suspense fallback={null}>
-                        {animFrame > 20 && <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />}
-                    </Suspense>
+                    {animFrame > 20 && <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />}
                     <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold" fillOpacity={opacity / 0.88}>
                         {decodedDomain}
                     </Text>
@@ -541,9 +447,7 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
 
                 {animFrame > 25 && (
                     <group position={[0, 0, posZ_fav]}>
-                        <Suspense fallback={null}>
-                            <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />
-                        </Suspense>
+                        <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />
                     </group>
                 )}
 
@@ -579,9 +483,7 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
 
                 <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedRank}</Text>
 
-                <Suspense fallback={null}>
-                    {animFrame > 40 && <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />}
-                </Suspense>
+                {animFrame > 40 && <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />}
 
                 <Text position={[0, -5, 0.3]} color="#00FF9D" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">
                     {decodedDomain}
@@ -625,9 +527,7 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
                             <lineBasicMaterial color="#00E5FF" linewidth={3} transparent opacity={0.6} />
                         </lineSegments>
                         <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedRank}</Text>
-                        <Suspense fallback={null}>
-                            <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />
-                        </Suspense>
+                        <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />
                         <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">{decodedDomain}</Text>
                         <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedVisits}</Text>
                         <group position={[0, -13.5, 0.3]}>
@@ -653,7 +553,7 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
                 </lineSegments>
 
                 {animFrame > 10 && <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedRank}</Text>}
-                {animFrame > 20 && <Suspense fallback={null}><Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} /></Suspense>}
+                {animFrame > 20 && <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />}
                 {animFrame > 30 && <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">{decodedDomain}</Text>}
                 {animFrame > 40 && <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedVisits}</Text>}
 
@@ -891,9 +791,12 @@ const BackgroundEnvironment = () => {
 const Tower = ({ item, index, arriveFrame }: { item: typeof data[0]; index: number; arriveFrame: number }) => {
     const frame = useCurrentFrame();
     const rank = 40 - index;
-    const height = Math.max(Math.pow(item.relHeight, 1.45) * 6.5, 3);
+    const height = getTowerHeight(item.relHeight);
     const xPos = index * X_SPACING;
-    const isCinematic = frame > sequenceCompleteFrame;
+    const renderMode = getTowerRenderMode(frame, index);
+    const showDashboard = renderMode !== "minimal";
+    const showProjector = renderMode === "full";
+    const showFlag = renderMode === "full";
 
     return (
         <group position={[xPos, 0, TOWER_ROW_Z]}>
@@ -908,8 +811,8 @@ const Tower = ({ item, index, arriveFrame }: { item: typeof data[0]; index: numb
                 <meshStandardMaterial color="#00E5FF" emissive="#00E5FF" emissiveIntensity={1.5} transparent opacity={0.7} />
             </mesh>
 
-            {/* Projector Beams - hide during cinematic for perf */}
-            {!isCinematic && (
+            {/* Projector Beams only render in the active focus window */}
+            {showProjector && (
                 <mesh position={[0, height + 9, 0]}>
                     <cylinderGeometry args={[9, 5, 16, 32]} />
                     <meshStandardMaterial color="#00E5FF" transparent opacity={0.08} side={THREE.DoubleSide} depthWrite={false} />
@@ -917,14 +820,21 @@ const Tower = ({ item, index, arriveFrame }: { item: typeof data[0]; index: numb
             )}
 
             {/* Floating Holographic Dashboard */}
-            <HologramDashboard item={item} yPos={height + 20} rank={rank} arriveFrame={arriveFrame} index={index} />
+            {showDashboard && (
+                <HologramDashboard
+                    item={item}
+                    yPos={height + 20}
+                    rank={rank}
+                    arriveFrame={arriveFrame}
+                    index={index}
+                    renderMode={renderMode}
+                />
+            )}
 
-            {/* Flag - hide during cinematic flyover to save perf (40 shader materials + textures!) */}
-            {!isCinematic && (
+            {/* Flag shader only stays live for the current focus tower window */}
+            {showFlag && (
                 <>
-                    <Suspense fallback={null}>
-                        <Flag country={item.country} position={[12, height + 8, 0]} />
-                    </Suspense>
+                    <Flag country={item.country} position={[12, height + 8, 0]} />
                     <mesh position={[9, (height + 10) / 2, 0]}>
                         <cylinderGeometry args={[0.15, 0.15, height + 10]} />
                         <meshStandardMaterial color="#71717A" />
@@ -942,13 +852,11 @@ const Tower = ({ item, index, arriveFrame }: { item: typeof data[0]; index: numb
 const CameraUpdater = () => {
     const frame = useCurrentFrame();
     const { camera } = useThree();
+    const cameraFrame = getCameraTimelineFrame(frame);
 
-    const lastMilestone = milestones[milestones.length - 1];
-    const sequenceCompleteFrame = lastMilestone.leaveFrame;
-
-    if (frame <= sequenceCompleteFrame) {
+    if (cameraFrame <= sequenceCompleteFrame) {
         // NORMAL TOWER-TO-TOWER LOGIC uses guaranteed continuous camera states
-        const state = getCameraState(frame);
+        const state = getCameraState(cameraFrame);
 
         // The camera distances and views the hologram directly, with dynamic Z offset for wide shots
         const distanceOut = 55 + (state.camZOffset || 0);
@@ -960,7 +868,7 @@ const CameraUpdater = () => {
         // By syncing lookX to camX, the camera never rotates along the Y axis, it slides strictly right.
         camera.lookAt(state.lookX, state.lookY, 10);
     } else {
-        const cinematicFrame = frame - sequenceCompleteFrame;
+        const cinematicFrame = cameraFrame - sequenceCompleteFrame;
         const state = getCinematicCameraState(cinematicFrame);
         camera.position.set(state.camX, state.camY, state.camZ);
         camera.lookAt(state.lookX, state.lookY, state.lookZ);
@@ -976,6 +884,7 @@ export const Scene = () => {
         <ThreeCanvas width={width} height={height} camera={{ position: [0, BASE_HEIGHT, 45], fov: 45, near: 1, far: 7000 }}>
             <color attach="background" args={["#87CEEB"]} />
             <fog attach="fog" args={["#87CEEB", 500, 4500]} />
+            <SceneAssetPreloader />
             <BackgroundEnvironment />
 
             <group>

@@ -28,7 +28,7 @@
   },
   "scripts": {
     "dev": "remotion studio",
-    "build": "remotion bundle",
+    "build": "remotion bundle --bundle-cache=false",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"
   },
