@@ -3,7 +3,6 @@ import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 
 import { BackgroundEnvironment } from "../components/BackgroundEnvironment";
 import { IntroTitle } from "../components/IntroTitle";
-import { SceneSoundtrack } from "../components/SceneSoundtrack";
 import { Tower } from "../components/Tower";
 import { BASE_HEIGHT, getTowerFrameState, milestones, reversedData } from "./scene-logic";
 import { CameraUpdater } from "./camera-updater";
@@ -18,7 +17,6 @@ export const Scene = () => {
 
     return (
         <AbsoluteFill>
-            <SceneSoundtrack />
             <ThreeCanvas
                 width={width}
                 height={height}
