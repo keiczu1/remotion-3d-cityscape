@@ -1,4 +1,5 @@
 import type { AppearanceEvent, ResolvedSoundCue, ResolvedSoundLayer } from "../model/types";
+import { applyAppearanceCueDensityPolicy } from "./density-policy";
 import { appearanceSoundLibrary } from "./appearance-library";
 import { resolveAppearanceSoundProfile } from "./appearance-profile";
 
@@ -79,4 +80,12 @@ export const resolveAppearanceSoundCues = (event: AppearanceEvent): ResolvedSoun
     }
 
     return cues;
+};
+
+export const resolveAppearanceSoundtrack = (events: AppearanceEvent[]): ResolvedSoundCue[] => {
+    const cues = events
+        .flatMap((event) => resolveAppearanceSoundCues(event))
+        .sort((left, right) => left.startFrame - right.startFrame);
+
+    return applyAppearanceCueDensityPolicy(cues);
 };
