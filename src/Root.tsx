@@ -1,6 +1,6 @@
 import "./index.css";
 import { Composition } from "remotion";
-import { Scene, durationInFrames } from "./Scene";
+import { Scene, durationInFrames } from "./compositions/ranking-towers";
 
 export const RemotionRoot: React.FC = () => {
   return (

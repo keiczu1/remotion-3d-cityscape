@@ -3,7 +3,7 @@ import { useCurrentFrame } from "remotion";
 
 import { getFaviconTextureUrl, getFlagTextureUrl } from "../assets/asset-urls";
 import { preloadSharedTexture } from "../assets/texture-cache";
-import { getFocusedTowerIndex, reversedData, sequenceCompleteFrame, shouldPreloadTowerAssets } from "../scene-logic";
+import { getFocusedTowerIndex, reversedData, sequenceCompleteFrame, shouldPreloadTowerAssets } from "./scene-logic";
 
 const preloadTowerAssets = (index: number) => {
     const item = reversedData[index];

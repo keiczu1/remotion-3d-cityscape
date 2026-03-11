@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { interpolate, random, useCurrentFrame } from "remotion";
 import * as THREE from "three";
 
-import { GROUND_Y } from "../scene-logic";
+import { GROUND_Y } from "../scene/scene-logic";
 
 const treeTrunkGeo = new THREE.CylinderGeometry(0.5, 0.8, 4, 7);
 const treeTrunkMat = new THREE.MeshStandardMaterial({ color: "#8B5A2B", roughness: 0.9 });

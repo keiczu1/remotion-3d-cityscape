@@ -2,10 +2,10 @@ import { RoundedBox, Text } from "@react-three/drei";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import * as THREE from "three";
 
-import { data } from "../data";
 import { LaserStrike } from "../effects/LaserStrike";
 import { Shockwave } from "../effects/Shockwave";
-import { sequenceCompleteFrame, type TowerRenderMode } from "../scene-logic";
+import { type RankingTowerItem } from "../model/types";
+import { sequenceCompleteFrame, type TowerRenderMode } from "../scene/scene-logic";
 import { Favicon } from "./Favicon";
 import { assembleScramble, formatVisits } from "./dashboard-helpers";
 
@@ -20,7 +20,7 @@ const StaticDashboardCard = ({
     domainFontSize,
     typeBadgeWidth,
 }: {
-    item: (typeof data)[0];
+    item: RankingTowerItem;
     yPos: number;
     floatY: number;
     rank: number;
@@ -65,7 +65,7 @@ export const HologramDashboard = ({
     index,
     renderMode,
 }: {
-    item: (typeof data)[0];
+    item: RankingTowerItem;
     yPos: number;
     rank: number;
     arriveFrame: number;

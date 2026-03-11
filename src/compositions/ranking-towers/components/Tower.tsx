@@ -2,12 +2,12 @@ import { RoundedBox } from "@react-three/drei";
 import { useCurrentFrame } from "remotion";
 import * as THREE from "three";
 
-import { data } from "../data";
-import { TOWER_DEPTH, TOWER_ROW_Z, TOWER_WIDTH, X_SPACING, getTowerHeight, getTowerRenderMode } from "../scene-logic";
+import { type RankingTowerItem } from "../model/types";
+import { TOWER_DEPTH, TOWER_ROW_Z, TOWER_WIDTH, X_SPACING, getTowerHeight, getTowerRenderMode } from "../scene/scene-logic";
 import { Flag } from "./Flag";
 import { HologramDashboard } from "./HologramDashboard";
 
-export const Tower = ({ item, index, arriveFrame }: { item: (typeof data)[0]; index: number; arriveFrame: number }) => {
+export const Tower = ({ item, index, arriveFrame }: { item: RankingTowerItem; index: number; arriveFrame: number }) => {
     const frame = useCurrentFrame();
     const rank = 40 - index;
     const height = getTowerHeight(item.relHeight);

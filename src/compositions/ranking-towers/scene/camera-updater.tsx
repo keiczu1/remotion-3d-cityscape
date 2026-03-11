@@ -1,7 +1,7 @@
 import { useThree } from "@react-three/fiber";
 import { useCurrentFrame } from "remotion";
 
-import { getCameraState, getCameraTimelineFrame, getCinematicCameraState, sequenceCompleteFrame } from "../scene-logic";
+import { getCameraState, getCameraTimelineFrame, getCinematicCameraState, sequenceCompleteFrame } from "./scene-logic";
 
 export const CameraUpdater = () => {
     const frame = useCurrentFrame();

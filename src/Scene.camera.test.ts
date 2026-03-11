@@ -15,7 +15,7 @@ import {
     shouldPreloadTowerAssets,
     milestones,
     sequenceCompleteFrame,
-} from "./scene-logic";
+} from "./compositions/ranking-towers/scene/scene-logic";
 
 test("camera keeps a softer side angle and gently orbits during a tower pause", () => {
     const current = milestones[0];

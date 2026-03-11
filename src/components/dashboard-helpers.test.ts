@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { assembleScramble, formatVisits } from "./dashboard-helpers";
+import { assembleScramble, formatVisits } from "../compositions/ranking-towers/components/dashboard-helpers";
 
 test("formatVisits compacts large numbers into millions and billions", () => {
     assert.equal(formatVisits(1_500_000_000), "1.5 B");
