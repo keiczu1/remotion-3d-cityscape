@@ -10,7 +10,7 @@ export const SceneSoundtrack = () => {
         <>
             {cues.map((cue) => (
                 <Sequence key={cue.id} from={cue.startFrame}>
-                    <Audio src={staticFile(cue.src)} volume={() => cue.volume} playbackRate={cue.playbackRate} />
+                    <Audio src={staticFile(cue.src)} volume={cue.volume} playbackRate={cue.playbackRate} />
                 </Sequence>
             ))}
         </>
