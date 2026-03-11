@@ -2,6 +2,15 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+    appearanceDirections,
+    appearanceKinds,
+    appearanceSizeClasses,
+    appearanceSoundProfiles,
+    type AppearanceDescriptor,
+    type AppearanceEvent,
+    type ResolvedSoundCue,
+} from "../model/types";
+import {
     baseDurationInFrames,
     durationInFrames,
     FINAL_CAMERA_SLOWDOWN_FACTOR,
@@ -78,4 +87,40 @@ test("title state enters exit motion during the intro push-in", () => {
     assert.ok(titleState.opacity < 1);
     assert.ok(titleState.translateY < 0);
     assert.ok(titleState.scale < 1);
+});
+
+test("appearance sound domain types support scene-local fixtures", () => {
+    const descriptor: AppearanceDescriptor = {
+        kind: "scale",
+        durationFrames: 18,
+        intensity: 0.6,
+        direction: "none",
+        hasOvershoot: true,
+        hasSettle: true,
+        sizeClass: "medium",
+    };
+
+    const event: AppearanceEvent = {
+        id: "tower-0-reveal",
+        startFrame: milestones[0].arriveFrame,
+        descriptor,
+        seed: "tower-0",
+    };
+
+    const cue: ResolvedSoundCue = {
+        id: "tower-0-reveal-main",
+        eventId: event.id,
+        profile: "pop-reveal",
+        startFrame: event.startFrame,
+        src: "sfx/appearance/pop/body-01.wav",
+        volume: 0.72,
+    };
+
+    assert.equal(cue.eventId, event.id);
+    assert.equal(cue.profile, "pop-reveal");
+    assert.equal(descriptor.kind, "scale");
+    assert.ok(appearanceKinds.includes(descriptor.kind));
+    assert.ok(appearanceDirections.includes(descriptor.direction));
+    assert.ok(appearanceSizeClasses.includes(descriptor.sizeClass));
+    assert.ok(appearanceSoundProfiles.includes(cue.profile));
 });
