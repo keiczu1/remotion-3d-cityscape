@@ -5,7 +5,7 @@ export const reversedData = [...data].reverse();
 
 export const INTRO_REVEAL_FRAMES = 45;
 export const INTRO_HOLD_FRAMES = 40;
-export const INTRO_PUSH_IN_FRAMES = 75;
+export const INTRO_PUSH_IN_FRAMES = 90;
 export const INTRO_DURATION_IN_FRAMES = INTRO_REVEAL_FRAMES + INTRO_HOLD_FRAMES + INTRO_PUSH_IN_FRAMES;
 export const INTRO_TITLE_EXIT_FRAMES = 30;
 

@@ -37,7 +37,7 @@ test("frame state marks the cinematic tail explicitly", () => {
 });
 
 test("intro duration shifts the first tower milestone", () => {
-    assert.equal(INTRO_DURATION_IN_FRAMES, 160);
+    assert.equal(INTRO_DURATION_IN_FRAMES, 175);
     assert.equal(milestones[0].arriveFrame, INTRO_DURATION_IN_FRAMES);
 });
 
