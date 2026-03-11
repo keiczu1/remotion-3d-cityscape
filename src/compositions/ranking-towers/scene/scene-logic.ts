@@ -284,7 +284,7 @@ export function getFocusedTowerIndex(frame: number) {
     return milestones[milestones.length - 1].index;
 }
 
-export function shouldPreloadTowerAssets(frame: number, index: number) {
+function shouldPreloadTowerAssetsForFocus(frame: number, index: number, focusedIndex: number) {
     if (frame > sequenceCompleteFrame) {
         return true;
     }
@@ -294,7 +294,6 @@ export function shouldPreloadTowerAssets(frame: number, index: number) {
         return false;
     }
 
-    const focusedIndex = getFocusedTowerIndex(frame);
     if (Math.abs(index - focusedIndex) <= STANDBY_RADIUS) {
         return true;
     }
@@ -302,23 +301,41 @@ export function shouldPreloadTowerAssets(frame: number, index: number) {
     return frame >= milestone.arriveFrame - TOWER_PRELOAD_LEAD_FRAMES && frame <= milestone.leaveFrame + CAMERA_ORBIT_HOLD_FRAMES;
 }
 
+export function shouldPreloadTowerAssets(frame: number, index: number) {
+    return shouldPreloadTowerAssetsForFocus(frame, index, getFocusedTowerIndex(frame));
+}
+
 export type TowerRenderMode = "minimal" | "standby" | "full" | "cinematic";
 
-export function getTowerRenderMode(frame: number, index: number): TowerRenderMode {
+function getTowerRenderModeForFocus(frame: number, index: number, focusedIndex: number): TowerRenderMode {
     if (frame > sequenceCompleteFrame) {
         return "cinematic";
     }
 
-    const focusedIndex = getFocusedTowerIndex(frame);
     const distance = Math.abs(index - focusedIndex);
 
     if (distance <= FULL_DETAIL_RADIUS) {
         return "full";
     }
 
-    if (distance <= STANDBY_RADIUS || shouldPreloadTowerAssets(frame, index)) {
+    if (distance <= STANDBY_RADIUS || shouldPreloadTowerAssetsForFocus(frame, index, focusedIndex)) {
         return "standby";
     }
 
     return "minimal";
+}
+
+export function getTowerRenderMode(frame: number, index: number): TowerRenderMode {
+    return getTowerRenderModeForFocus(frame, index, getFocusedTowerIndex(frame));
+}
+
+export function getTowerFrameState(frame: number) {
+    const isCinematic = frame > sequenceCompleteFrame;
+    const focusedIndex = getFocusedTowerIndex(frame);
+
+    return {
+        focusedIndex,
+        isCinematic,
+        renderModes: reversedData.map((_, index) => getTowerRenderModeForFocus(frame, index, focusedIndex)),
+    };
 }

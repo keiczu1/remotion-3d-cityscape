@@ -18,14 +18,18 @@ const StaticDashboardCard = ({
     floatY,
     rank,
     domainFontSize,
+    formattedVisits,
     typeBadgeWidth,
+    typeLabel,
 }: {
     item: RankingTowerItem;
     yPos: number;
     floatY: number;
     rank: number;
     domainFontSize: number;
+    formattedVisits: string;
     typeBadgeWidth: number;
+    typeLabel: string;
 }) => {
     return (
         <group position={[0, yPos + floatY, 0]}>
@@ -43,14 +47,14 @@ const StaticDashboardCard = ({
                 {item.domain}
             </Text>
             <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">
-                {formatVisits(item.monthlyVisits)}
+                {formattedVisits}
             </Text>
             <group position={[0, -13.5, 0.3]}>
                 <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}>
                     <meshStandardMaterial color="#2563EB" transparent opacity={0.88} />
                 </RoundedBox>
                 <Text position={[0, 0, 0.12]} color="#ffffff" fontSize={1.4} anchorX="center" anchorY="middle" fontWeight="bold">
-                    {item.type.toUpperCase()}
+                    {typeLabel}
                 </Text>
             </group>
         </group>
@@ -74,23 +78,14 @@ export const HologramDashboard = ({
 }) => {
     const frame = useCurrentFrame();
     const { fps } = useVideoConfig();
-
     const localFrame = frame - arriveFrame;
-    const isReady = localFrame >= 25;
-    const animFrame = Math.max(0, localFrame - 25);
-    const isCinematic = frame > sequenceCompleteFrame;
-
-    const floatY = Math.sin(frame * 0.05 + yPos) * 0.5;
     const domainFontSize = Math.min(2.4, 30 / item.domain.length);
+    const formattedVisits = formatVisits(item.monthlyVisits);
+    const isReady = localFrame >= 25;
+    const isCinematic = frame > sequenceCompleteFrame;
+    const typeLabel = item.type.toUpperCase();
     const typeBadgeWidth = Math.max(7, item.type.length * 1.0 + 2.0);
-
-    const scrambleProgress = interpolate(animFrame, [120, 180], [0, 1], {
-        extrapolateRight: "clamp",
-        extrapolateLeft: "clamp",
-    });
-    const decodedDomain = assembleScramble(item.domain, scrambleProgress, `${index}-domain`);
-    const decodedVisits = assembleScramble(formatVisits(item.monthlyVisits), scrambleProgress, `${index}-visits`);
-    const decodedRank = assembleScramble(`#${rank}`, scrambleProgress, `${index}-rank`);
+    const floatY = Math.sin(frame * 0.05 + yPos) * 0.5;
 
     if (!isReady) {
         return null;
@@ -104,11 +99,21 @@ export const HologramDashboard = ({
                 floatY={floatY}
                 rank={rank}
                 domainFontSize={domainFontSize}
+                formattedVisits={formattedVisits}
                 typeBadgeWidth={typeBadgeWidth}
+                typeLabel={typeLabel}
             />
         );
     }
 
+    const animFrame = localFrame - 25;
+    const scrambleProgress = interpolate(animFrame, [120, 180], [0, 1], {
+        extrapolateRight: "clamp",
+        extrapolateLeft: "clamp",
+    });
+    const decodedDomain = assembleScramble(item.domain, scrambleProgress, `${index}-domain`);
+    const decodedVisits = assembleScramble(formattedVisits, scrambleProgress, `${index}-visits`);
+    const decodedRank = assembleScramble(`#${rank}`, scrambleProgress, `${index}-rank`);
     const effectType = index % 5;
 
     if (effectType === 0) {
@@ -183,7 +188,7 @@ export const HologramDashboard = ({
                             fontWeight="bold"
                             fillOpacity={opacity / 0.88}
                         >
-                            {item.type.toUpperCase()}
+                            {typeLabel}
                         </Text>
                     </group>
                 </group>
@@ -237,7 +242,7 @@ export const HologramDashboard = ({
                             <meshStandardMaterial color="#2563EB" />
                         </RoundedBox>
                         <Text position={[0, 0, 0.12]} color="#ffffff" fontSize={1.4} anchorX="center" anchorY="middle" fontWeight="bold">
-                            {item.type.toUpperCase()}
+                            {typeLabel}
                         </Text>
                     </group>
                 </group>
@@ -249,7 +254,7 @@ export const HologramDashboard = ({
         const scale = spring({ fps, frame: Math.min(150, animFrame), config: { damping: 14, mass: 1.5 } });
         const progress = interpolate(animFrame, [15, 60], [0, 1], { extrapolateRight: "clamp", extrapolateLeft: "clamp" });
         const uppercaseDomain = assembleScramble(item.domain.toUpperCase(), progress, `${index}-domain`);
-        const matrixVisits = assembleScramble(formatVisits(item.monthlyVisits), progress, `${index}-visits`);
+        const matrixVisits = assembleScramble(formattedVisits, progress, `${index}-visits`);
 
         return (
             <group position={[0, yPos + floatY, 0]} scale={scale}>
@@ -279,7 +284,7 @@ export const HologramDashboard = ({
                             <meshStandardMaterial color="#2563EB" />
                         </RoundedBox>
                         <Text position={[0, 0, 0.12]} color="#ffffff" fontSize={1.4} anchorX="center" anchorY="middle" fontWeight="bold">
-                            {item.type.toUpperCase()}
+                            {typeLabel}
                         </Text>
                     </group>
                 )}
@@ -328,7 +333,7 @@ export const HologramDashboard = ({
                                 <meshStandardMaterial color="#2563EB" />
                             </RoundedBox>
                             <Text position={[0, 0, 0.12]} color="#ffffff" fontSize={1.4} anchorX="center" anchorY="middle" fontWeight="bold">
-                                {item.type.toUpperCase()}
+                                {typeLabel}
                             </Text>
                         </group>
                     </group>
@@ -369,7 +374,7 @@ export const HologramDashboard = ({
                         <meshStandardMaterial color="#2563EB" />
                     </RoundedBox>
                     <Text position={[0, 0, 0.12]} color="#ffffff" fontSize={1.4} anchorX="center" anchorY="middle" fontWeight="bold">
-                        {item.type.toUpperCase()}
+                        {typeLabel}
                     </Text>
                 </group>
             )}

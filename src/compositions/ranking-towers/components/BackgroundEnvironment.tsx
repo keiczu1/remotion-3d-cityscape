@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { interpolate, random, useCurrentFrame } from "remotion";
 import * as THREE from "three";
 
@@ -111,7 +111,7 @@ const LowPolyTree = ({
     );
 };
 
-const CloudShape = ({ opacity }: { opacity: number }) => {
+const CloudShape = memo(({ opacity }: { opacity: number }) => {
     return (
         <group>
             <mesh position={[0, 0, 0]} geometry={cloudGeo}>
@@ -128,7 +128,7 @@ const CloudShape = ({ opacity }: { opacity: number }) => {
             </mesh>
         </group>
     );
-};
+});
 
 const Clouds = ({ frame }: { frame: number }) => {
     const clouds = useMemo(() => {
@@ -163,7 +163,7 @@ const Clouds = ({ frame }: { frame: number }) => {
     );
 };
 
-const CitySkyline = () => {
+const CitySkyline = memo(() => {
     const buildings = useMemo(() => {
         const arr = [];
         for (let i = -40; i < 150; i++) {
@@ -200,7 +200,7 @@ const CitySkyline = () => {
             ))}
         </group>
     );
-};
+});
 
 export const BackgroundEnvironment = () => {
     const frame = useCurrentFrame();

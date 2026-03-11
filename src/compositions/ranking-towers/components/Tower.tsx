@@ -1,64 +1,86 @@
+import { memo } from "react";
 import { RoundedBox } from "@react-three/drei";
-import { useCurrentFrame } from "remotion";
 import * as THREE from "three";
 
 import { type RankingTowerItem } from "../model/types";
-import { TOWER_DEPTH, TOWER_ROW_Z, TOWER_WIDTH, X_SPACING, getTowerHeight, getTowerRenderMode } from "../scene/scene-logic";
+import { TOWER_DEPTH, TOWER_ROW_Z, TOWER_WIDTH, X_SPACING, getTowerHeight, type TowerRenderMode } from "../scene/scene-logic";
 import { Flag } from "./Flag";
 import { HologramDashboard } from "./HologramDashboard";
 
-export const Tower = ({ item, index, arriveFrame }: { item: RankingTowerItem; index: number; arriveFrame: number }) => {
-    const frame = useCurrentFrame();
-    const rank = 40 - index;
-    const height = getTowerHeight(item.relHeight);
-    const xPos = index * X_SPACING;
-    const renderMode = getTowerRenderMode(frame, index);
-    const showDashboard = renderMode !== "minimal";
-    const showProjector = renderMode === "full";
-    const showFlag = renderMode === "full";
+const sharedTopCapGeometry = new THREE.CylinderGeometry(5, 5.5, 1, 32);
+const sharedTopCapMaterial = new THREE.MeshStandardMaterial({
+    color: "#00E5FF",
+    emissive: "#00E5FF",
+    emissiveIntensity: 1.5,
+    transparent: true,
+    opacity: 0.7,
+});
+const sharedProjectorGeometry = new THREE.CylinderGeometry(9, 5, 16, 32);
+const sharedProjectorMaterial = new THREE.MeshStandardMaterial({
+    color: "#00E5FF",
+    transparent: true,
+    opacity: 0.08,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+});
+const sharedFlagTopGeometry = new THREE.SphereGeometry(0.3);
+const sharedFlagTopMaterial = new THREE.MeshStandardMaterial({ color: "#FBBF24" });
+const sharedFlagPoleMaterial = new THREE.MeshStandardMaterial({ color: "#71717A" });
 
-    return (
-        <group position={[xPos, 0, TOWER_ROW_Z]}>
-            <RoundedBox args={[TOWER_WIDTH, height, TOWER_DEPTH]} position={[0, height / 2, 0]} radius={0.5} smoothness={2}>
-                <meshStandardMaterial color="#0A0F1A" roughness={0.5} metalness={0.6} />
-            </RoundedBox>
+export const Tower = memo(
+    ({
+        item,
+        index,
+        arriveFrame,
+        renderMode,
+    }: {
+        item: RankingTowerItem;
+        index: number;
+        arriveFrame: number;
+        renderMode: TowerRenderMode;
+    }) => {
+        const rank = 40 - index;
+        const height = getTowerHeight(item.relHeight);
+        const xPos = index * X_SPACING;
+        const showDashboard = renderMode !== "minimal";
+        const showProjector = renderMode === "full";
+        const showFlag = renderMode === "full";
 
-            <mesh position={[0, height + 0.5, 0]}>
-                <cylinderGeometry args={[5, 5.5, 1, 32]} />
-                <meshStandardMaterial color="#00E5FF" emissive="#00E5FF" emissiveIntensity={1.5} transparent opacity={0.7} />
-            </mesh>
+        return (
+            <group position={[xPos, 0, TOWER_ROW_Z]}>
+                <RoundedBox args={[TOWER_WIDTH, height, TOWER_DEPTH]} position={[0, height / 2, 0]} radius={0.5} smoothness={2}>
+                    <meshStandardMaterial color="#0A0F1A" roughness={0.5} metalness={0.6} />
+                </RoundedBox>
 
-            {showProjector && (
-                <mesh position={[0, height + 9, 0]}>
-                    <cylinderGeometry args={[9, 5, 16, 32]} />
-                    <meshStandardMaterial color="#00E5FF" transparent opacity={0.08} side={THREE.DoubleSide} depthWrite={false} />
-                </mesh>
-            )}
+                <mesh position={[0, height + 0.5, 0]} geometry={sharedTopCapGeometry} material={sharedTopCapMaterial} />
 
-            {showDashboard && (
-                <HologramDashboard
-                    item={item}
-                    yPos={height + 20}
-                    rank={rank}
-                    arriveFrame={arriveFrame}
-                    index={index}
-                    renderMode={renderMode}
-                />
-            )}
+                {showProjector && (
+                    <mesh position={[0, height + 9, 0]} geometry={sharedProjectorGeometry} material={sharedProjectorMaterial} />
+                )}
 
-            {showFlag && (
-                <>
-                    <Flag country={item.country} position={[12, height + 8, 0]} />
-                    <mesh position={[9, (height + 10) / 2, 0]}>
-                        <cylinderGeometry args={[0.15, 0.15, height + 10]} />
-                        <meshStandardMaterial color="#71717A" />
-                    </mesh>
-                    <mesh position={[9, height + 10, 0]}>
-                        <sphereGeometry args={[0.3]} />
-                        <meshStandardMaterial color="#FBBF24" />
-                    </mesh>
-                </>
-            )}
-        </group>
-    );
-};
+                {showDashboard && (
+                    <HologramDashboard
+                        item={item}
+                        yPos={height + 20}
+                        rank={rank}
+                        arriveFrame={arriveFrame}
+                        index={index}
+                        renderMode={renderMode}
+                    />
+                )}
+
+                {showFlag && (
+                    <>
+                        <Flag country={item.country} position={[12, height + 8, 0]} />
+                        <mesh position={[9, (height + 10) / 2, 0]} material={sharedFlagPoleMaterial}>
+                            <cylinderGeometry args={[0.15, 0.15, height + 10]} />
+                        </mesh>
+                        <mesh position={[9, height + 10, 0]} geometry={sharedFlagTopGeometry} material={sharedFlagTopMaterial} />
+                    </>
+                )}
+            </group>
+        );
+    }
+);
+
+Tower.displayName = "Tower";

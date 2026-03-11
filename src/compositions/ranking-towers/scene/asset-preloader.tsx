@@ -1,9 +1,8 @@
-import { useEffect } from "react";
-import { useCurrentFrame } from "remotion";
+import { useEffect, useRef } from "react";
 
 import { getFaviconTextureUrl, getFlagTextureUrl } from "../assets/asset-urls";
 import { preloadSharedTexture } from "../assets/texture-cache";
-import { getFocusedTowerIndex, reversedData, sequenceCompleteFrame, shouldPreloadTowerAssets } from "./scene-logic";
+import { reversedData, type TowerRenderMode } from "./scene-logic";
 
 const preloadTowerAssets = (index: number) => {
     const item = reversedData[index];
@@ -15,23 +14,45 @@ const preloadTowerAssets = (index: number) => {
     preloadSharedTexture(getFlagTextureUrl(item.country), "flag");
 };
 
-export const SceneAssetPreloader = () => {
-    const frame = useCurrentFrame();
-    const focusedIndex = getFocusedTowerIndex(frame);
-    const isCinematic = frame > sequenceCompleteFrame;
+export const SceneAssetPreloader = ({
+    renderModes,
+    isCinematic,
+}: {
+    renderModes: TowerRenderMode[];
+    isCinematic: boolean;
+}) => {
+    const preloadSignatureRef = useRef<string | null>(null);
+    const requestedTowerIndicesRef = useRef(new Set<number>());
 
     useEffect(() => {
-        if (isCinematic) {
-            reversedData.forEach((_, index) => preloadTowerAssets(index));
+        const preloadSignature = isCinematic ? "cinematic" : renderModes.join("|");
+        if (preloadSignature === preloadSignatureRef.current) {
             return;
         }
 
-        for (let i = 0; i < reversedData.length; i++) {
-            if (shouldPreloadTowerAssets(frame, i)) {
-                preloadTowerAssets(i);
-            }
+        preloadSignatureRef.current = preloadSignature;
+
+        if (isCinematic) {
+            reversedData.forEach((_, index) => {
+                if (requestedTowerIndicesRef.current.has(index)) {
+                    return;
+                }
+
+                preloadTowerAssets(index);
+                requestedTowerIndicesRef.current.add(index);
+            });
+            return;
         }
-    }, [focusedIndex, frame, isCinematic]);
+
+        renderModes.forEach((mode, index) => {
+            if (mode === "minimal" || requestedTowerIndicesRef.current.has(index)) {
+                return;
+            }
+
+            preloadTowerAssets(index);
+            requestedTowerIndicesRef.current.add(index);
+        });
+    }, [isCinematic, renderModes]);
 
     return null;
 };

@@ -1,9 +1,10 @@
+import { memo } from "react";
 import { RoundedBox } from "@react-three/drei";
 
 import { getFaviconTextureUrl } from "../assets/asset-urls";
 import { useSharedTexture } from "../assets/texture-cache";
 
-export const Favicon = ({
+export const Favicon = memo(({
     domain,
     yPos,
     zPos,
@@ -34,4 +35,6 @@ export const Favicon = ({
             )}
         </group>
     );
-};
+});
+
+Favicon.displayName = "Favicon";
