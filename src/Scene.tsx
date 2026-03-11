@@ -32,6 +32,14 @@ const X_SPACING = 30;
 const TOWER_WIDTH = 12;
 const TOWER_DEPTH = 10;
 const BASE_HEIGHT = 15;
+const TOWER_ROW_Z = 10;
+const GROUND_Y = -0.02;
+const CINEMATIC_RAMP_FRAMES = 300;
+const CINEMATIC_OVERVIEW_FRAMES = 540;
+const CINEMATIC_TURN_FRAMES = 180;
+const CINEMATIC_RETURN_FRAMES = 600;
+const FINAL_CINEMATIC_FRAMES =
+    CINEMATIC_RAMP_FRAMES + CINEMATIC_OVERVIEW_FRAMES + CINEMATIC_TURN_FRAMES + CINEMATIC_RETURN_FRAMES;
 
 const getMilestones = () => {
     let frame = 0;
@@ -39,9 +47,10 @@ const getMilestones = () => {
     for (let i = 0; i < reversedData.length; i++) {
         const item = reversedData[i];
 
-        // Faster camera movement to save time, massive pause for suspense and epic VFX
+        // SIGNIFICANTLY LONGER PAUSE: 320 frames (~5.3 seconds)
+        // This extends the video length and allows for slower, non-rushed presentation
         const moveFrames = i === 0 ? 0 : 80;
-        const pauseFrames = 200;              // Over 3 seconds for delay + assembly + reading time
+        const pauseFrames = 320;              
 
         const arriveFrame = frame + moveFrames;
         const leaveFrame = arriveFrame + pauseFrames;
@@ -62,33 +71,198 @@ const getMilestones = () => {
 
     const lastArrive = milestones[milestones.length - 1].leaveFrame;
 
-    // Add 15 seconds (900 frames at 60fps) of final cinematic, plus buffer
-    return { milestones, durationInFrames: lastArrive + 950 };
+    return { milestones, durationInFrames: lastArrive + FINAL_CINEMATIC_FRAMES + 60 };
 };
 
 export const { milestones, durationInFrames } = getMilestones();
 export const sequenceCompleteFrame = milestones[milestones.length - 1].leaveFrame;
 
-export function getInterpolatedValue(frame: number, key: 'xCenter' | 'yCenter') {
-    if (frame <= milestones[0].arriveFrame) return milestones[0][key];
+const CAMERA_SWEEP_X_OFFSET = 24;
+const CAMERA_SWEEP_Z_OFFSET = 16;
+const CAMERA_ORBIT_X_RADIUS = 10;
+const CAMERA_ORBIT_Z_RADIUS = 6;
+const CAMERA_ORBIT_LOOK_X_RADIUS = 3;
+const CAMERA_ORBIT_HOLD_FRAMES = 45;
+
+export function getCameraState(frame: number) {
+    function getMilestoneState(m: typeof milestones[0], localFrame = 0) {
+        const totalPause = m.leaveFrame - m.arriveFrame;
+        const orbitFrames = Math.max(1, totalPause - CAMERA_ORBIT_HOLD_FRAMES);
+        const orbitProgress =
+            localFrame <= CAMERA_ORBIT_HOLD_FRAMES
+                ? 0
+                : Math.min(1, (localFrame - CAMERA_ORBIT_HOLD_FRAMES) / orbitFrames);
+        const orbitAngle = -0.6 + orbitProgress * 1.0;
+        const orbitX = Math.sin(orbitAngle) * CAMERA_ORBIT_X_RADIUS;
+        const orbitZ = (Math.cos(orbitAngle) - Math.cos(-0.6)) * CAMERA_ORBIT_Z_RADIUS;
+        const orbitLookX = Math.sin(orbitAngle) * CAMERA_ORBIT_LOOK_X_RADIUS;
+
+        return {
+            camX: m.xCenter + CAMERA_SWEEP_X_OFFSET + orbitX,
+            camY: m.yCenter + 2,
+            lookX: m.xCenter + orbitLookX,
+            lookY: m.yCenter,
+            camZOffset: CAMERA_SWEEP_Z_OFFSET + orbitZ
+        };
+    }
+
+    if (frame <= milestones[0].arriveFrame) {
+        return getMilestoneState(milestones[0]);
+    }
+
     const last = milestones[milestones.length - 1];
-    if (frame >= last.arriveFrame) return last[key];
+    if (frame >= last.leaveFrame) {
+        return getMilestoneState(last);
+    }
 
-    for (let i = 0; i < milestones.length - 1; i++) {
+    for (let i = 0; i < milestones.length; i++) {
         const cur = milestones[i];
-        const next = milestones[i + 1];
-
+        
         if (frame >= cur.arriveFrame && frame <= cur.leaveFrame) {
-            return cur[key];
+            return getMilestoneState(cur, frame - cur.arriveFrame);
         }
-        if (frame > cur.leaveFrame && frame < next.arriveFrame) {
-            const progress = (frame - cur.leaveFrame) / (next.arriveFrame - cur.leaveFrame);
-            // Smooth step easing
-            const eased = progress * progress * (3 - 2 * progress);
-            return cur[key] + (next[key] - cur[key]) * eased;
+
+        if (i < milestones.length - 1) {
+            const next = milestones[i + 1];
+            if (frame > cur.leaveFrame && frame < next.arriveFrame) {
+                const p = (frame - cur.leaveFrame) / (next.arriveFrame - cur.leaveFrame);
+                // Smooth step easing for flyways as well
+                const eased = p * p * (3 - 2 * p);
+                const startState = getMilestoneState(cur, cur.leaveFrame - cur.arriveFrame);
+                const endState = getMilestoneState(next, 0);
+                
+                return {
+                    camX: startState.camX + (endState.camX - startState.camX) * eased,
+                    camY: startState.camY + (endState.camY - startState.camY) * eased,
+                    lookX: startState.lookX + (endState.lookX - startState.lookX) * eased,
+                    lookY: startState.lookY + (endState.lookY - startState.lookY) * eased,
+                    camZOffset: startState.camZOffset + (endState.camZOffset - startState.camZOffset) * eased
+                };
+            }
         }
     }
-    return 0;
+    
+    return getMilestoneState(last);
+}
+
+export function getSceneLayoutMetrics() {
+    return {
+        towerRange: [TOWER_ROW_Z - TOWER_DEPTH / 2, TOWER_ROW_Z + TOWER_DEPTH / 2] as const,
+        roadRange: null,
+    };
+}
+
+type CinematicCameraState = {
+    camX: number;
+    camY: number;
+    camZ: number;
+    lookX: number;
+    lookY: number;
+    lookZ: number;
+};
+
+export function getCinematicCameraState(cinematicFrame: number): CinematicCameraState {
+    const firstMilestone = milestones[0];
+    const lastMilestone = milestones[milestones.length - 1];
+    const startState = getCameraState(lastMilestone.leaveFrame);
+
+    const rampTarget: CinematicCameraState = {
+        camX: lastMilestone.xCenter + 120,
+        camY: 260,
+        camZ: 340,
+        lookX: lastMilestone.xCenter - 50,
+        lookY: 78,
+        lookZ: 0
+    };
+    const overviewEnd: CinematicCameraState = {
+        camX: firstMilestone.xCenter - 70,
+        camY: 225,
+        camZ: 290,
+        lookX: firstMilestone.xCenter + 80,
+        lookY: 62,
+        lookZ: 0
+    };
+    const returnStart: CinematicCameraState = {
+        camX: firstMilestone.xCenter - 50,
+        camY: 120,
+        camZ: 185,
+        lookX: firstMilestone.xCenter + 30,
+        lookY: 48,
+        lookZ: 0
+    };
+    const returnEnd: CinematicCameraState = {
+        camX: lastMilestone.xCenter + 80,
+        camY: 132,
+        camZ: 165,
+        lookX: lastMilestone.xCenter - 40,
+        lookY: 56,
+        lookZ: 0
+    };
+
+    if (cinematicFrame <= CINEMATIC_RAMP_FRAMES) {
+        const rampProgress = Math.min(1, cinematicFrame / CINEMATIC_RAMP_FRAMES);
+        const speedRamp = rampProgress < 0.4
+            ? (rampProgress / 0.4) * 0.9
+            : 0.9 + ((rampProgress - 0.4) / 0.6) * 0.1;
+        const t = speedRamp * speedRamp * (3 - 2 * speedRamp);
+
+        return {
+            camX: interpolate(t, [0, 1], [startState.camX, rampTarget.camX]),
+            camY: interpolate(t, [0, 1], [startState.camY, rampTarget.camY]),
+            camZ: interpolate(t, [0, 1], [55 + startState.camZOffset, rampTarget.camZ]),
+            lookX: interpolate(t, [0, 1], [startState.lookX, rampTarget.lookX]),
+            lookY: interpolate(t, [0, 1], [startState.lookY, rampTarget.lookY]),
+            lookZ: interpolate(t, [0, 1], [10, rampTarget.lookZ])
+        };
+    }
+
+    if (cinematicFrame <= CINEMATIC_RAMP_FRAMES + CINEMATIC_OVERVIEW_FRAMES) {
+        const overviewFrame = cinematicFrame - CINEMATIC_RAMP_FRAMES;
+        const progress = Math.min(1, overviewFrame / CINEMATIC_OVERVIEW_FRAMES);
+        const eased = progress * progress * (3 - 2 * progress);
+        const glideY = Math.sin(progress * Math.PI) * 18;
+        const glideZ = Math.sin(progress * Math.PI * 1.2) * 16;
+
+        return {
+            camX: interpolate(eased, [0, 1], [rampTarget.camX, overviewEnd.camX]),
+            camY: interpolate(eased, [0, 1], [rampTarget.camY, overviewEnd.camY]) + glideY,
+            camZ: interpolate(eased, [0, 1], [rampTarget.camZ, overviewEnd.camZ]) + glideZ,
+            lookX: interpolate(eased, [0, 1], [rampTarget.lookX, overviewEnd.lookX]),
+            lookY: interpolate(eased, [0, 1], [rampTarget.lookY, overviewEnd.lookY]),
+            lookZ: 0
+        };
+    }
+
+    if (cinematicFrame <= CINEMATIC_RAMP_FRAMES + CINEMATIC_OVERVIEW_FRAMES + CINEMATIC_TURN_FRAMES) {
+        const turnFrame = cinematicFrame - CINEMATIC_RAMP_FRAMES - CINEMATIC_OVERVIEW_FRAMES;
+        const progress = Math.min(1, turnFrame / CINEMATIC_TURN_FRAMES);
+        const eased = progress * progress * (3 - 2 * progress);
+
+        return {
+            camX: interpolate(eased, [0, 1], [overviewEnd.camX, returnStart.camX]),
+            camY: interpolate(eased, [0, 1], [overviewEnd.camY, returnStart.camY]),
+            camZ: interpolate(eased, [0, 1], [overviewEnd.camZ, returnStart.camZ]),
+            lookX: interpolate(eased, [0, 1], [overviewEnd.lookX, returnStart.lookX]),
+            lookY: interpolate(eased, [0, 1], [overviewEnd.lookY, returnStart.lookY]),
+            lookZ: 0
+        };
+    }
+
+    const returnFrame = cinematicFrame - CINEMATIC_RAMP_FRAMES - CINEMATIC_OVERVIEW_FRAMES - CINEMATIC_TURN_FRAMES;
+    const returnProgress = Math.min(1, returnFrame / CINEMATIC_RETURN_FRAMES);
+    const eased = returnProgress * returnProgress * (3 - 2 * returnProgress);
+    const swayY = Math.sin(returnProgress * Math.PI * 1.5) * 10;
+    const swayZ = Math.sin(returnProgress * Math.PI) * 14;
+    const leadLookX = Math.sin(returnProgress * Math.PI) * 12;
+
+    return {
+        camX: interpolate(eased, [0, 1], [returnStart.camX, returnEnd.camX]),
+        camY: interpolate(eased, [0, 1], [returnStart.camY, returnEnd.camY]) + swayY,
+        camZ: interpolate(eased, [0, 1], [returnStart.camZ, returnEnd.camZ]) + swayZ,
+        lookX: interpolate(eased, [0, 1], [returnStart.lookX, returnEnd.lookX]) + leadLookX,
+        lookY: interpolate(eased, [0, 1], [returnStart.lookY, returnEnd.lookY]),
+        lookZ: 0
+    };
 }
 
 const Flag = ({ country, position }: { country: string, position: [number, number, number] }) => {
@@ -243,6 +417,13 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
     const domainFontSize = Math.min(2.4, 30 / item.domain.length);
     const typeBadgeWidth = Math.max(7, item.type.length * 1.0 + 2.0);
 
+    // Universal roulette/slot-machine scramble for domain, visits, and rank
+    // DELAYED: Text starts spinning after 120 frames (~2 full seconds)
+    const scrambleProgress = interpolate(animFrame, [120, 180], [0, 1], { extrapolateRight: 'clamp', extrapolateLeft: 'clamp' });
+    const decodedDomain = assembleScramble(item.domain, scrambleProgress, `${index}-domain`);
+    const decodedVisits = assembleScramble(formatVisits(item.monthlyVisits), scrambleProgress, `${index}-visits`);
+    const decodedRank = assembleScramble(`#${rank}`, scrambleProgress, `${index}-rank`);
+
     if (!isReady) return null; // Complete invisibility during structural delay
 
     // --- LOD: During the final cinematic flyover, show full dashboard without complex animations ---
@@ -305,7 +486,7 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
                 </group>
 
                 <Text position={[0, 12 + rankDropY, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold" fillOpacity={opacity / 0.88}>
-                    #{rank}
+                    {decodedRank}
                 </Text>
 
                 <group position={[0, textDropY, 0]}>
@@ -313,10 +494,10 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
                         {animFrame > 20 && <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />}
                     </Suspense>
                     <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold" fillOpacity={opacity / 0.88}>
-                        {item.domain}
+                        {decodedDomain}
                     </Text>
                     <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold" fillOpacity={opacity / 0.88}>
-                        {formatVisits(item.monthlyVisits)}
+                        {decodedVisits}
                     </Text>
                     <group position={[0, -13.5, 0.3]}>
                         <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}>
@@ -367,9 +548,9 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
                 )}
 
                 <group position={[0, posY_txt, 0]}>
-                    <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">#{rank}</Text>
-                    <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">{item.domain}</Text>
-                    <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{formatVisits(item.monthlyVisits)}</Text>
+                    <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedRank}</Text>
+                    <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">{decodedDomain}</Text>
+                    <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedVisits}</Text>
                     <group position={[0, -13.5, 0.3]}>
                         <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}><meshStandardMaterial color="#2563EB" /></RoundedBox>
                         <Text position={[0, 0, 0.12]} color="#ffffff" fontSize={1.4} anchorX="center" anchorY="middle" fontWeight="bold">{item.type.toUpperCase()}</Text>
@@ -396,7 +577,7 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
                     <lineBasicMaterial color="#00E5FF" linewidth={3} transparent opacity={0.6} />
                 </lineSegments>
 
-                <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">#{rank}</Text>
+                <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedRank}</Text>
 
                 <Suspense fallback={null}>
                     {animFrame > 40 && <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />}
@@ -443,12 +624,12 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
                         <lineSegments geometry={sharedEdgesGeo}>
                             <lineBasicMaterial color="#00E5FF" linewidth={3} transparent opacity={0.6} />
                         </lineSegments>
-                        <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">#{rank}</Text>
+                        <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedRank}</Text>
                         <Suspense fallback={null}>
                             <Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} />
                         </Suspense>
-                        <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">{item.domain}</Text>
-                        <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{formatVisits(item.monthlyVisits)}</Text>
+                        <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">{decodedDomain}</Text>
+                        <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedVisits}</Text>
                         <group position={[0, -13.5, 0.3]}>
                             <RoundedBox args={[typeBadgeWidth, 3, 0.2]} radius={0.3}><meshStandardMaterial color="#2563EB" /></RoundedBox>
                             <Text position={[0, 0, 0.12]} color="#ffffff" fontSize={1.4} anchorX="center" anchorY="middle" fontWeight="bold">{item.type.toUpperCase()}</Text>
@@ -471,10 +652,10 @@ const HologramDashboard = ({ item, yPos, rank, arriveFrame, index }: { item: typ
                     <lineBasicMaterial color="#00E5FF" linewidth={3} transparent opacity={0.6} />
                 </lineSegments>
 
-                {animFrame > 10 && <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">#{rank}</Text>}
+                {animFrame > 10 && <Text position={[0, 12, 0.3]} color="#9CA3AF" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedRank}</Text>}
                 {animFrame > 20 && <Suspense fallback={null}><Favicon domain={item.domain} yPos={4} zPos={0.3} opacity={0.88} /></Suspense>}
-                {animFrame > 30 && <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">{item.domain}</Text>}
-                {animFrame > 40 && <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{formatVisits(item.monthlyVisits)}</Text>}
+                {animFrame > 30 && <Text position={[0, -5, 0.3]} color="#ffffff" fontSize={domainFontSize} anchorX="center" anchorY="middle" fontWeight="bold">{decodedDomain}</Text>}
+                {animFrame > 40 && <Text position={[0, -9.5, 0.3]} color="#00FF9D" fontSize={4.0} anchorX="center" anchorY="middle" fontWeight="bold">{decodedVisits}</Text>}
 
                 {animFrame > 50 && (
                     <group position={[0, -13.5, 0.3]}>
@@ -690,14 +871,9 @@ const BackgroundEnvironment = () => {
             <directionalLight position={[20, 60, 30]} intensity={1.5} color="#fff" />
             <directionalLight position={[-10, 40, -10]} intensity={0.5} color="#aaddff" />
 
-            <mesh position={[600, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <mesh position={[600, GROUND_Y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
                 <planeGeometry args={[10000, 10000]} />
                 <meshStandardMaterial color="#7CB342" roughness={1} />
-            </mesh>
-
-            <mesh position={[600, 0.1, 8]} rotation={[-Math.PI / 2, 0, 0]}>
-                <planeGeometry args={[10000, 25]} />
-                <meshStandardMaterial color="#B0BEC5" roughness={0.9} />
             </mesh>
 
             {trees.map((t, idx) => (
@@ -720,7 +896,7 @@ const Tower = ({ item, index, arriveFrame }: { item: typeof data[0]; index: numb
     const isCinematic = frame > sequenceCompleteFrame;
 
     return (
-        <group position={[xPos, 0, 10]}>
+        <group position={[xPos, 0, TOWER_ROW_Z]}>
             {/* Monolith Pedestal */}
             <RoundedBox args={[TOWER_WIDTH, height, TOWER_DEPTH]} position={[0, height / 2, 0]} radius={0.5} smoothness={2}>
                 <meshStandardMaterial color="#0A0F1A" roughness={0.5} metalness={0.6} />
@@ -771,90 +947,23 @@ const CameraUpdater = () => {
     const sequenceCompleteFrame = lastMilestone.leaveFrame;
 
     if (frame <= sequenceCompleteFrame) {
-        // NORMAL TOWER-TO-TOWER LOGIC
-        const camX = getInterpolatedValue(frame, 'xCenter');
-        const targetY = getInterpolatedValue(frame, 'yCenter');
+        // NORMAL TOWER-TO-TOWER LOGIC uses guaranteed continuous camera states
+        const state = getCameraState(frame);
 
-        // The camera distances and views the hologram directly
-        const distanceOut = 55;
+        // The camera distances and views the hologram directly, with dynamic Z offset for wide shots
+        const distanceOut = 55 + (state.camZOffset || 0);
 
-        // Smooth transition into position, looking slightly down at the hologram center
-        camera.position.set(camX, targetY + 2, distanceOut);
-        camera.lookAt(camX, targetY, 10);
+        // Smooth transition into position
+        camera.position.set(state.camX, state.camY, distanceOut);
+        
+        // IMPORTANT: We make lookAt.x match camPosX or follow a linear path without centering
+        // By syncing lookX to camX, the camera never rotates along the Y axis, it slides strictly right.
+        camera.lookAt(state.lookX, state.lookY, 10);
     } else {
-        // --- CINEMATIC SPEED RAMP (30 Seconds) ---
-        // Phase 1 (0-2s / 0-120f): BLAZING fast pull-back from Google to wide shot
-        // Phase 2 (2-5s / 120-300f): Dramatic deceleration, camera settles into position
-        // Phase 3 (5-30s / 300-1800f): Slow majestic orbit around the entire cityscape
         const cinematicFrame = frame - sequenceCompleteFrame;
-
-        const cityCenter = (milestones.length * X_SPACING) / 2;
-        const startX = lastMilestone.xCenter;
-        const startY = lastMilestone.yCenter + 2;
-
-        // --- WIDE SHOT DESTINATION (where the camera "arrives" after the speed ramp) ---
-        const wideRadius = 750;
-        const wideY = 200;
-        const wideAngle = 0; // Directly in front
-
-        if (cinematicFrame <= 300) {
-            // === PHASE 1 + 2: SPEED RAMP (0 to 5 seconds) ===
-            // Use a custom curve: ultra-fast at start, then dramatically slows
-            // progress goes 0->1 over 300 frames (5 seconds)
-            const rampProgress = Math.min(1, cinematicFrame / 300);
-
-            // Speed ramp curve: shoots to ~90% in first 120 frames (2 sec), 
-            // then crawls the last 10% over 180 frames (3 sec)
-            const speedRamp = (p: number) => {
-                if (p < 0.4) {
-                    // First 40% of time (2 sec) covers 90% of distance
-                    return (p / 0.4) * 0.9;
-                } else {
-                    // Last 60% of time (3 sec) covers remaining 10%
-                    const local = (p - 0.4) / 0.6;
-                    return 0.9 + local * 0.1;
-                }
-            };
-            // Smooth the transitions with easing
-            const rawT = speedRamp(rampProgress);
-            const t = rawT * rawT * (3 - 2 * rawT); // smoothstep on top
-
-            // Position: from Google close-up to wide front view
-            const camX = interpolate(t, [0, 1], [startX, cityCenter + Math.sin(wideAngle) * wideRadius]);
-            const camZ = interpolate(t, [0, 1], [55, Math.cos(wideAngle) * wideRadius]);
-            const camY = interpolate(t, [0, 1], [startY, wideY]);
-
-            camera.position.set(camX, camY, camZ);
-
-            // Look: shift gaze from Google to center of city
-            const lookX = interpolate(t, [0, 1], [startX, cityCenter]);
-            const lookY = interpolate(t, [0, 1], [lastMilestone.yCenter, 60]);
-            camera.lookAt(lookX, lookY, 0);
-
-        } else {
-            // === PHASE 3: DYNAMIC ORBIT WITH VARIED ANGLES (5 to 15 seconds = 10s) ===
-            const orbitFrame = cinematicFrame - 300;
-            const orbitDuration = 600; // 10 seconds
-            const orbitProgress = Math.min(1, orbitFrame / orbitDuration);
-
-            // Wide dramatic sweep: almost 180 degrees around the scene
-            const angle = interpolate(orbitProgress, [0, 1], [wideAngle, 2.2], { extrapolateRight: 'clamp' });
-
-            // Dynamic radius: pull in closer mid-orbit, then back out
-            const dynRadius = interpolate(orbitProgress, [0, 0.3, 0.6, 1], [wideRadius, 550, 500, 700], { extrapolateRight: 'clamp' });
-
-            const camX = cityCenter + Math.sin(angle) * dynRadius;
-            const camZ = Math.cos(angle) * dynRadius;
-
-            // Elevation wave: dip down mid-orbit for variety, then rise high at the end
-            const camY = interpolate(orbitProgress, [0, 0.25, 0.5, 0.75, 1], [wideY, 120, 80, 180, 350], { extrapolateRight: 'clamp' });
-
-            camera.position.set(camX, camY, camZ);
-
-            // Always look at the center of the city
-            const lookY = interpolate(orbitProgress, [0, 0.5, 1], [60, 40, 100], { extrapolateRight: 'clamp' });
-            camera.lookAt(cityCenter, lookY, 0);
-        }
+        const state = getCinematicCameraState(cinematicFrame);
+        camera.position.set(state.camX, state.camY, state.camZ);
+        camera.lookAt(state.lookX, state.lookY, state.lookZ);
     }
 
     return null;
@@ -864,7 +973,7 @@ export const Scene = () => {
     const { width, height } = useVideoConfig();
 
     return (
-        <ThreeCanvas width={width} height={height} camera={{ position: [0, BASE_HEIGHT, 45], fov: 45, far: 8000 }}>
+        <ThreeCanvas width={width} height={height} camera={{ position: [0, BASE_HEIGHT, 45], fov: 45, near: 1, far: 7000 }}>
             <color attach="background" args={["#87CEEB"]} />
             <fog attach="fog" args={["#87CEEB", 500, 4500]} />
             <BackgroundEnvironment />
