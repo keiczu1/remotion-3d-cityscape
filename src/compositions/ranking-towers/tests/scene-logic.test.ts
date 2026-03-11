@@ -10,6 +10,7 @@ import {
     type AppearanceEvent,
     type ResolvedSoundCue,
 } from "../model/types";
+import { appearanceSoundLibrary } from "../sound/appearance-library";
 import {
     baseDurationInFrames,
     durationInFrames,
@@ -199,4 +200,25 @@ test("tech descriptors resolve to tech-reveal", () => {
         }),
         "tech-reveal",
     );
+});
+
+test("appearance sound library covers every supported profile", () => {
+    for (const profile of appearanceSoundProfiles) {
+        const recipes = appearanceSoundLibrary[profile];
+
+        assert.ok(Array.isArray(recipes));
+        assert.ok(recipes.length > 0);
+    }
+});
+
+test("appearance sound library uses public-relative asset paths", () => {
+    for (const recipes of Object.values(appearanceSoundLibrary)) {
+        for (const recipe of recipes) {
+            const layers = [recipe.transient, recipe.body, recipe.tail].filter(Boolean);
+
+            for (const layer of layers) {
+                assert.match(layer.src, /^sfx\/appearance\/.+\.(wav|mp3)$/);
+            }
+        }
+    }
 });
