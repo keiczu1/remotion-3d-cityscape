@@ -11,6 +11,7 @@ import {
     getSceneLayoutMetrics,
     getTowerRenderMode,
     getFocusedTowerIndex,
+    getTowerHeight,
     shouldPreloadTowerAssets,
     milestones,
     sequenceCompleteFrame,
@@ -124,4 +125,16 @@ test("duration in frames follows the slowed-tail formula exactly", () => {
         FINAL_CAMERA_SLOWDOWN_START_FRAME +
             (baseDurationInFrames - FINAL_CAMERA_SLOWDOWN_START_FRAME) * FINAL_CAMERA_SLOWDOWN_FACTOR
     );
+});
+
+test("tower heights clamp to a readable minimum and scale upward with larger inputs", () => {
+    assert.equal(getTowerHeight(0), 3);
+    assert.ok(getTowerHeight(2) > getTowerHeight(1));
+});
+
+test("milestones stay strictly ordered from first tower to last tower", () => {
+    for (let i = 1; i < milestones.length; i++) {
+        assert.ok(milestones[i].arriveFrame >= milestones[i - 1].arriveFrame);
+        assert.ok(milestones[i].leaveFrame >= milestones[i - 1].leaveFrame);
+    }
 });
