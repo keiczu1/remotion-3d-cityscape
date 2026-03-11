@@ -6,7 +6,12 @@ import * as THREE from "three";
 import { Text, RoundedBox } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { getFaviconTextureUrl, getFlagTextureUrl } from "./assets/asset-urls";
-import { preloadSharedTexture, useSharedTexture } from "./assets/texture-cache";
+import { preloadSharedTexture } from "./assets/texture-cache";
+import { Favicon } from "./components/Favicon";
+import { Flag } from "./components/Flag";
+import { assembleScramble, formatVisits } from "./components/dashboard-helpers";
+import { LaserStrike } from "./effects/LaserStrike";
+import { Shockwave } from "./effects/Shockwave";
 import {
     BASE_HEIGHT,
     GROUND_Y,
@@ -36,126 +41,7 @@ const treeLeavesGeo = new THREE.DodecahedronGeometry(3, 0);
 const treeLeavesMat = new THREE.MeshStandardMaterial({ color: "#4CAF50", roughness: 0.8 });
 const cloudGeo = new THREE.SphereGeometry(1, 6, 6);
 
-export function formatVisits(visits: number): string {
-    if (visits >= 1e9) {
-        return (visits / 1e9).toFixed(1) + " B";
-    }
-    if (visits >= 1e6) {
-        return (visits / 1e6).toFixed(1) + " M";
-    }
-    return visits.toString();
-}
 export { durationInFrames } from "./scene-logic";
-
-const Flag = ({ country, position }: { country: string, position: [number, number, number] }) => {
-    const texture = useSharedTexture(getFlagTextureUrl(country), "flag");
-    const frame = useCurrentFrame();
-
-    const uniforms = useMemo(() => ({
-        uTime: { value: 0 },
-        uTexture: { value: texture }
-    }), [texture]);
-
-    if (!texture) {
-        return null;
-    }
-
-    // Update time smoothly for waviness
-    uniforms.uTime.value = frame * 0.05;
-
-    return (
-        <mesh position={position} castShadow>
-            <planeGeometry args={[6, 4, 16, 16]} />
-            <shaderMaterial
-                vertexShader={`
-                    varying vec2 vUv;
-                    uniform float uTime;
-                    void main() {
-                        vUv = uv;
-                        vec3 pos = position;
-                        // wave effect: uv.x = 0 is left (pole), uv.x = 1 is right (edge)
-                        float wave = sin(pos.x * 2.0 - uTime * 3.0) * uv.x * 1.5;
-                        pos.z += wave;
-                        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-                    }
-                `}
-                fragmentShader={`
-                    uniform sampler2D uTexture;
-                    varying vec2 vUv;
-                    void main() {
-                        gl_FragColor = texture2D(uTexture, vUv);
-                    }
-                `}
-                uniforms={uniforms}
-                side={THREE.DoubleSide}
-            />
-        </mesh>
-    );
-};
-
-const Favicon = ({ domain, yPos, zPos, opacity }: { domain: string, yPos: number, zPos: number, opacity: number }) => {
-    const texture = useSharedTexture(getFaviconTextureUrl(domain), "favicon");
-
-    return (
-        <group position={[0, yPos, zPos]}>
-            {/* Cyan border glow to mimic real CSS border/box-shadow */}
-            <RoundedBox args={[11, 11, 0.1]} radius={1.5} smoothness={2} position={[0, 0, -0.1]}>
-                <meshBasicMaterial color="#00E5FF" transparent opacity={opacity * 0.8} />
-            </RoundedBox>
-
-            {/* White background with smooth rounded corners */}
-            <RoundedBox args={[10, 10, 0.15]} radius={1.3} smoothness={2} position={[0, 0, -0.05]}>
-                <meshBasicMaterial color="#ffffff" transparent opacity={opacity * 0.95} />
-            </RoundedBox>
-
-            {/* Favicon texture properly scaled down to recreate CSS "padding" effect */}
-            {texture && (
-                <mesh position={[0, 0, 0.1]}>
-                    <planeGeometry args={[7, 7]} />
-                    <meshBasicMaterial map={texture} transparent opacity={opacity} />
-                </mesh>
-            )}
-        </group>
-    );
-};
-
-const assembleScramble = (text: string, progress: number, seed: string) => {
-    if (progress >= 1) return text;
-    if (progress <= 0) return "";
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#@$%&*0123456789";
-    return text.split('').map((char, i) => {
-        if (char === ' ' || char === '.') return char;
-        const charProgress = i / text.length;
-        if (progress > charProgress + 0.15) return text[i];
-        return chars[Math.floor(random(`${seed}-${i}-${Math.floor(progress * 20)}`) * chars.length)];
-    }).join('');
-};
-
-const Shockwave = ({ frame, triggerFrame }: { frame: number, triggerFrame: number }) => {
-    const activeFrame = frame - triggerFrame;
-    if (activeFrame < 0 || activeFrame > 20) return null;
-    const size = interpolate(activeFrame, [0, 20], [0, 40], { extrapolateRight: 'clamp' });
-    const opacity = interpolate(activeFrame, [0, 15, 20], [1, 0.5, 0], { extrapolateRight: 'clamp' });
-    return (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-            <ringGeometry args={[size * 0.8, size, 32]} />
-            <meshBasicMaterial color="#00E5FF" transparent opacity={opacity} side={THREE.DoubleSide} />
-        </mesh>
-    );
-};
-
-const LaserStrike = ({ frame, triggerFrame }: { frame: number, triggerFrame: number }) => {
-    const activeFrame = frame - triggerFrame;
-    if (activeFrame < 0 || activeFrame > 15) return null;
-    const opacity = interpolate(activeFrame, [0, 5, 15], [1, 1, 0], { extrapolateRight: 'clamp' });
-    const scaleY = interpolate(activeFrame, [0, 5], [10, 0], { extrapolateRight: 'clamp' });
-    return (
-        <mesh position={[0, scaleY * 20, 0]}>
-            <cylinderGeometry args={[2, 2, scaleY * 40, 8]} />
-            <meshBasicMaterial color="#ffffff" transparent opacity={opacity} />
-        </mesh>
-    );
-};
 
 const preloadTowerAssets = (index: number) => {
     const item = reversedData[index];
