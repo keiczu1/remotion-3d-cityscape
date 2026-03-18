@@ -9,7 +9,9 @@ out.mp4
 out/
 build/
 .agent/
-.agents/
+.agents/*
+!.agents/skills/
+!.agents/skills/**
 .codex/
 .gemini/
 .worktrees/

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ranking Corridor Launch"
+  short_description: "Старт ranking corridor: вопросы и launch-card"
+  default_prompt: "Запусти новый ranking corridor проект: классифицируй тему, задай один пакет вопросов и после ответа собери launch-card."
