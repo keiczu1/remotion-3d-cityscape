@@ -33,9 +33,14 @@
 
 ## Минимальная структура `v1`
 
-Обязательный минимум:
+Обязательный минимум для launch-only контейнера:
 
 - `projects/<project-slug>/launch-card.md`
+
+Обязательный минимум для production-этапа
+production-этап наследует launch-only минимум и дополнительно требует:
+
+- `projects/<project-slug>/director-pass.md`
 - `projects/<project-slug>/asset-manifest.md`
 - `projects/<project-slug>/review-notes.md`
 - `projects/<project-slug>/data/`
@@ -47,9 +52,14 @@
 
 `README.md` проекта нужен только если проект живет дольше одной короткой сессии, требует handoff или накопил длинную историю решений.
 
+`director-pass.md` обязателен после утверждения `launch-card`, если проект дошел до production-этапа и готовится к `preview-gate`.
+
+`asset-manifest.md`, `review-notes.md`, `data/` и `exports/` не нужно материализовать на launch-этапе заранее. Они становятся обязательной частью контейнера, когда проект переходит в production-цикл.
+
 ## Роль файлов
 
 - `launch-card.md` — короткий контракт запуска ролика.
+- `director-pass.md` — короткий режиссерский проход на усиление сцен, вторичной жизни и эскалации между `launch-card` и `preview-gate`.
 - `asset-manifest.md` — снимок данных, источников и локальных ассетов.
 - `review-notes.md` — единый файл для `Предпросмотра`, `Финального утверждения` и `Аудита библиотеки`.
 - `data/` — локальные данные, research-notes и source snapshots.

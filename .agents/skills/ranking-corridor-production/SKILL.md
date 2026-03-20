@@ -1,6 +1,6 @@
 ---
 name: ranking-corridor-production
-description: "Веди `ranking corridor` проект после `launch-card`: создавай и обновляй project-артефакты, собирай данные и ассеты, делай `preview-gate`, проводи полную сборку только после review предпросмотра, фиксируй финальное утверждение и запускай аудит библиотеки только после финального статуса. Используй, когда у проекта уже есть `launch-card` или готовый project-container, и нужно продолжить рабочий цикл производства до preview, финальной сборки и постфинальной донастройки."
+description: "Веди `ranking corridor` проект после `launch-card`: создавай и обновляй project-артефакты, делай короткий `director pass`, собирай данные и ассеты, проходи `preview-gate`, проводи полную сборку только после review предпросмотра, фиксируй финальное утверждение и запускай аудит библиотеки только после финального статуса. Используй, когда у проекта уже есть `launch-card` или готовый project-container и нужно продолжить рабочий цикл производства."
 ---
 
 # Ranking Corridor Production
@@ -20,7 +20,9 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - `docs/canon/remotion-project-rules.md`
 - `docs/library/ranking-corridor-module-registry.md`
 - `docs/templates/ranking-corridor-launch-card-template.md`
+- `docs/templates/ranking-corridor-director-pass-template.md`
 - `docs/templates/ranking-corridor-asset-manifest-template.md`
+- `docs/templates/ranking-corridor-library-audit-template.md`
 - `docs/templates/ranking-corridor-review-notes-template.md`
 - `projects/README.md`
 
@@ -33,6 +35,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 Если есть `launch-card`, но нет подтвержденного результата review предпросмотра:
 
 - создай или обнови project-артефакты;
+- сделай `director pass`;
 - собери data snapshot и `asset-manifest`;
 - сделай `preview-gate`;
 - обнови `review-notes.md` в секции `Предпросмотр`;
@@ -69,6 +72,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 Если project-container отсутствует, создай минимум:
 
 - `projects/<project-slug>/launch-card.md`
+- `projects/<project-slug>/director-pass.md`
 - `projects/<project-slug>/asset-manifest.md`
 - `projects/<project-slug>/review-notes.md`
 - `projects/<project-slug>/data/`
@@ -80,9 +84,36 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Используй только шаблоны из `docs/templates/`.
 
-Если `launch-card.md`, `asset-manifest.md` или `review-notes.md` уже существуют, обновляй их, а не пересоздавай.
+Если `launch-card.md`, `director-pass.md`, `asset-manifest.md` или `review-notes.md` уже существуют, обновляй их, а не пересоздавай.
 
-## Шаг 2. Собери data snapshot и `asset-manifest`
+## Шаг 2. Сделай `director pass`
+
+Делай это после `launch-card` и до `preview-gate`.
+
+Опирайся на:
+
+- `docs/canon/ranking-corridor-working-mode.md`
+- `docs/templates/ranking-corridor-director-pass-template.md`
+
+Что обязательно:
+
+- не пересобирай ролик заново и не спорь с уже утвержденным creative-направлением без сильной причины;
+- зафиксируй, что остается стабильным из `launch-card`;
+- раздели ролик на `4-6` сцен;
+- отдельно продумай систему вторичной жизни;
+- покажи, как вторичная жизнь и мир эволюционируют от начала к финалу;
+- для каждой сцены объясни, чем изменение удерживает интерес и усиливает напряжение;
+- явно назови риски перегруза.
+
+Сохрани результат в:
+
+- `projects/<project-slug>/director-pass.md`
+
+Не меняй через `director pass` hero-модуль, базовую камеру или базовый ритм, зафиксированные в `launch-card`.
+
+Если у тебя появляется сильная идея такого изменения, не внедряй ее молча: пометь ее только как `design-only` заметку и не считай новой правдой проекта.
+
+## Шаг 3. Собери data snapshot и `asset-manifest`
 
 Делай это до preview-gate.
 
@@ -102,7 +133,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Не считай `asset-manifest` формальностью. Это рабочий контракт воспроизводимости.
 
-## Шаг 3. Сделай `preview-gate`
+## Шаг 4. Сделай `preview-gate`
 
 До полной сборки композиции ты обязан собрать preview-пакет.
 
@@ -110,12 +141,14 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 - репрезентативный набор примерно на `5` объектов по всей шкале;
 - реальный hero-модуль;
+- примененный `director pass`;
 - реальные данные;
 - реальные локальные ассеты хотя бы для preview-набора;
 - короткий вступительный фрагмент;
 - фрагмент с соседними объектами;
 - фрагмент ближе к лидерам;
 - стоп-кадр или крупный план по читаемости;
+- отдельный director-pass-проход: ранняя сцена, середина ролика и финальная треть должны отличаться по ощущению, а вторичная жизнь не должна проседать;
 - отдельный layout-pass на сложных случаях: длинные названия, крупные числа, широкие логотипы, плотные соседние объекты и разные дистанции камеры;
 - короткий фрагмент payoff.
 
@@ -123,6 +156,8 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 - какой пакет показан;
 - что именно проверяется;
+- как сработал `director pass` и держится ли вторичная жизнь;
+- не начинает ли вторичная жизнь перетягивать внимание с героя;
 - держится ли укладка данных на сложных случаях и где есть `layout-warning` или `layout-fail`;
 - решение админа:
   - `approve`
@@ -134,11 +169,11 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 После этого шага:
 
 - если `reject` — не иди в полную сборку композиции;
-- если `approve with changes` и правки затрагивают hero-модуль, укладку данных, фон, pacing, камеру или способ подачи контента — сначала обнови preview;
+- если `approve with changes` и правки затрагивают hero-модуль, укладку данных, `director pass`, вторичную жизнь, фон, pacing, камеру или способ подачи контента — сначала обнови preview;
 - если `approve with changes` касается мелких текстовых или data-правок без смены визуального языка — можно продолжать, но зафиксируй это в `review-notes.md`;
 - если `approve` — переходи дальше.
 
-## Шаг 4. Делай полную сборку композиции только после review предпросмотра
+## Шаг 5. Делай полную сборку композиции только после review предпросмотра
 
 Только после допустимого результата review предпросмотра:
 
@@ -163,13 +198,14 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Не уноси решения в переиспользуемый слой на этом этапе.
 
-## Шаг 5. Сделай verification и `Финальное утверждение`
+## Шаг 6. Сделай verification и `Финальное утверждение`
 
 Перед любым заявлением о готовности:
 
 - пройди техническую проверку по `docs/canon/remotion-project-rules.md`;
 - проверь математику сцены и duration;
 - проверь читаемость;
+- проверь, что режиссерская эскалация и вторичная жизнь не потерялись после полной сборки;
 - проверь, что сборка и базовые инженерные инварианты не сломаны.
 
 Затем обнови секцию `Финальное утверждение` в `review-notes.md` с одним из статусов:
@@ -180,12 +216,23 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Если статус `not-final`, не запускай аудит библиотеки.
 
-## Шаг 6. Запусти аудит библиотеки только после финального статуса
+## Шаг 7. Запусти аудит библиотеки только после финального статуса
 
 После `final-approved` или `final-approved-with-notes`:
 
-- пройди по новым решениям проекта;
-- отдели `project-local` от реально переиспользуемых кандидатов;
+- сначала проведи audit-first проход по новым решениям проекта;
+- опирайся на `docs/templates/ranking-corridor-library-audit-template.md`, если нужен user-facing prompt или короткий checklist этого этапа;
+- проверь отдельно категории:
+  - `camera preset`
+  - `timing preset`
+  - `reveal/effect module`
+  - `hero/object family`
+  - `background / ambient / secondary-life system`
+  - `utility / helper`
+- не пытайся обязательно найти кандидата в каждой категории;
+- если в категории зрелого кандидата нет, так и зафиксируй;
+- для каждого найденного кандидата зафиксируй, где он живет, чем подтвержден в финальном ролике и почему он reusable, а не тема-специфичный декор;
+- только после этого отдели `project-local` от реально переиспользуемых кандидатов;
 - обнови секцию `Аудит библиотеки` в `review-notes.md` и зафиксируй общий результат:
   - `no-promotion`
   - `auto-promotion-applied`
@@ -199,6 +246,8 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - `keep-design-only`
 - `promote-to-library`
 - `checkpoint-needed`
+
+Если кандидат относится к `camera preset` или `timing preset`, promotion может быть не только кодовым переносом, но и фиксацией preset-контракта в docs/registry, если нового library-модуля не требуется.
 
 Не добавляй в библиотеку:
 
@@ -221,6 +270,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 Перед финальным ответом проверь:
 
 - project-артефакты созданы или обновлены по шаблонам;
+- `director-pass.md` создан или обновлен и не спорит с `launch-card`;
 - `asset-manifest.md` содержит реальные локальные пути и исходные URL;
 - `review-notes.md` отражает текущее состояние проекта;
 - review предпросмотра или финальный статус действительно зафиксированы;

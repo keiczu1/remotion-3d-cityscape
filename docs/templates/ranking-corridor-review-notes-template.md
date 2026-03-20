@@ -16,6 +16,9 @@
 - Решение: `approve | approve with changes | reject`
 - Проверенный охват:
 - Что подтверждено:
+- Результат director-pass-проверки: `ok | warning | fail`
+- Director-pass-заметки: держится ли эскалация, живая ли вторичная жизнь, где есть просадка или перегруз
+- Перетягивает ли вторичная жизнь внимание с героя: `no | slight | yes`
 - Результат layout-проверки: `ok | warning | fail`
 - Layout-заметки: где есть `layout-warning` или `layout-fail`
 - Какие изменения обязательны:
@@ -38,11 +41,13 @@
 - Дата аудита:
 - Результат аудита: `no-promotion | auto-promotion-applied | checkpoint-needed`
 - Покрытие существующей библиотекой:
+- Проверенные категории:
+- Категории без зрелых кандидатов:
 - Обновления реестра:
 
-| candidateId | currentStatus | proposedDecision | targetPlacement | docsUpdated | notes |
-| --- | --- | --- | --- | --- | --- |
-| example-module | project-local | stay-project-local / keep-design-only / promote-to-library / checkpoint-needed | src/... or docs/library/... | docs touched | |
+| candidateId | candidateType | currentStatus | sourceLocation | reusableWhy | proposedDecision | targetPlacement | finalEvidence | docsUpdated | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| example-module | camera preset / timing preset / reveal/effect module / hero/object family / background / ambient / secondary-life system / utility / helper | project-local | src/... or projects/... | why it is reusable and not theme-specific | stay-project-local / keep-design-only / promote-to-library / checkpoint-needed | src/... or docs/library/... or docs-only contract | where it proved itself in final project | docs touched | |
 
 ## Общие заметки
 

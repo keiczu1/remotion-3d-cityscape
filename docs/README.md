@@ -27,6 +27,8 @@
 - `docs/templates/` — шаблоны project-артефактов.
 - `docs/templates/ranking-corridor-theme-to-concept-pack-template.md` — дефолтный helper-шаблон prompt для первого chat-first `concept-pack` по теме.
 - `docs/templates/ranking-corridor-theme-to-reverse-prompt-template.md` — более глубокий helper-шаблон для `reverse-style brief` уже после выбора направления.
+- `docs/templates/ranking-corridor-director-pass-template.md` — шаблон короткого режиссерского прохода между `launch-card` и `preview-gate`.
+- `docs/templates/ranking-corridor-library-audit-template.md` — шаблон post-final prompt для аудита библиотеки и promotion-кандидатов.
 - `docs/library/ranking-corridor-module-registry.md` — реестр модулей, уже перенесенных в библиотеку.
 - `docs/Examples/` — референсы и примеры, но не источник правил.
 
@@ -62,3 +64,5 @@
 - Если нужно создать или проверить project-container, открывай `projects/README.md`.
 - Если нужно сначала превратить короткую тему в понятные creative-направления, открывай `docs/templates/ranking-corridor-theme-to-concept-pack-template.md`.
 - Если после выбора направления нужен более глубокий `design-only` brief, открывай `docs/templates/ranking-corridor-theme-to-reverse-prompt-template.md`.
+- Если после `launch-card` нужно усилить сцены, вторичную жизнь и драматургию перед `preview-gate`, открывай `docs/templates/ranking-corridor-director-pass-template.md`.
+- Если проект уже финально утвержден и нужно провести аудит библиотеки, открывай `docs/templates/ranking-corridor-library-audit-template.md`.

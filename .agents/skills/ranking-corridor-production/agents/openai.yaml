@@ -1,4 +1,4 @@
 interface:
   display_name: "Ranking Corridor Production"
   short_description: "Production ranking corridor: ассеты, preview, полная сборка"
-  default_prompt: "Продолжи ranking corridor проект от launch-card: собери ассеты и данные, сделай preview-gate, после review доведи до полной сборки композиции, финального утверждения и аудита библиотеки."
+  default_prompt: "Продолжи ranking corridor проект от launch-card: сначала сделай director pass, затем собери ассеты и данные, пройди preview-gate, после review доведи до полной сборки композиции, финального утверждения и аудита библиотеки."

@@ -7,7 +7,7 @@ description: "Запускай новый проект формата `ranking c
 
 Запускай новый `ranking corridor` проект от темы через `concept-pack` до `launch-card` и останавливайся на этом этапе.
 
-Не переходи в `preview-gate`, `asset-manifest`, код сцены, полную сборку композиции или аудит библиотеки.
+Не переходи в `director pass`, `preview-gate`, `asset-manifest`, код сцены, полную сборку композиции или аудит библиотеки.
 
 ## Сначала подними канон
 
@@ -243,6 +243,7 @@ description: "Запускай новый проект формата `ranking c
 На этом skill заканчивается. Не делай здесь:
 
 - `asset-manifest`
+- `director pass`
 - `preview-gate`
 - поиск и сохранение ассетов
 - код сцены в `src/compositions/`
