@@ -15,3 +15,5 @@ build/
 .codex/
 .gemini/
 .worktrees/
+
+build

@@ -8,6 +8,7 @@
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@react-three/postprocessing": "^3.0.4",
     "@remotion/cli": "4.0.434",
     "@remotion/tailwind-v4": "4.0.434",
     "@remotion/three": "^4.0.434",
