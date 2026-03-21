@@ -25,3 +25,6 @@ export const FadeIn = () => {
 
 CSS transitions и CSS animations запрещены: они не будут корректно рендериться в Remotion.
 Tailwind animation classes тоже запрещены по той же причине.
+
+Если в проекте есть remap timeline или slowdown для камеры, все связанные reveal/focus/presentation-анимации должны использовать ту же систему времени, что и камера.
+Нельзя анимировать маршрут камеры по одному frame-space, а LOD, visibility или reveal по другому: это даёт рассинхрон, пропадание объектов и резкие стыки в пролётах.
