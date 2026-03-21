@@ -4,8 +4,8 @@
 
 - Slug проекта: `2026-03-20-most-visited-websites`
 - Человеческое название: Самые посещаемые сайты в мире
-- Обновлено: 2026-03-20
-- Статус манифеста: `preview-ready`
+- Обновлено: 2026-03-21
+- Статус манифеста: `final-ready`
 
 ## Снимок данных
 
@@ -35,3 +35,4 @@
 - Все ассеты полностью переиспользуются из reference-проекта `ranking-towers`
 - Новому проекту не нужна отдельная директория `public/ranking-corridor/most-visited-websites/` — favicons и flags уже доступны
 - После optimization-pass код не вводит новых project-local ассетов: воспроизводимость preview по данным и ассетам сохраняется
+- После final-approved и library-audit-pass asset-set не менялся: promotion затронул только reusable math/preset слой и документацию, без новых медиа-ассетов
