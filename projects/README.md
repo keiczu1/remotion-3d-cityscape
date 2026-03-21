@@ -59,7 +59,7 @@ production-этап наследует launch-only минимум и допол�
 ## Роль файлов
 
 - `launch-card.md` — короткий контракт запуска ролика.
-- `director-pass.md` — короткий режиссерский проход на усиление сцен, вторичной жизни и эскалации между `launch-card` и `preview-gate`.
+- `director-pass.md` — подробный режиссерский проход и основной этап content enrichment между `launch-card` и `preview-gate`.
 - `asset-manifest.md` — снимок данных, источников и локальных ассетов.
 - `review-notes.md` — единый файл для `Предпросмотра`, `Финального утверждения` и `Аудита библиотеки`.
 - `data/` — локальные данные, research-notes и source snapshots.
