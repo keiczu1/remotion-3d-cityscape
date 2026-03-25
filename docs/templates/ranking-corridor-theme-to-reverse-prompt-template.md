@@ -101,13 +101,13 @@
 Используй названия осей по-человечески, но рядом давай и технические id в скобках, если они очевидны:
 - `objectFamily`
 - `mainCameraFamily`
-- `timingFamily` только если не выбран implementation-locked `scenePresetPackage`
+- `timingFamily` только в редком исключительном axis-level режиме, если verified `scenePresetPackage` не выбран и пользователь явно подтверждает такой разбор
 - `heroRevealPackage`, если для выбранного `objectFamily` уже есть implementation-locked reveal-baseline
 - `backgroundFamily`
 - `assetRepresentationMode`
 - `showTone`
 
-Если для темы уже подходит registry-backed verified preset с `reusePolicy: implementation-locked`, фиксируй его как целостный `scenePresetPackage`, а не как два независимых выбора по `mainCameraFamily` и `timingFamily`.
+Если для темы уже подходит registry-backed verified preset с `reusePolicy: implementation-locked`, фиксируй его как целостный `scenePresetPackage`, а не как два независимых выбора по `mainCameraFamily` и `timingFamily`. Это package-first режим по умолчанию, а осевой разбор `camera / timing` в таком случае не показывается.
 Если для выбранного hero/object family уже подходит registry-backed reveal-baseline с `reusePolicy: implementation-locked`, фиксируй его как `heroRevealPackage`, а не как новый `revealSystem`.
 
 После этого выдай `reverse-style brief` в такой структуре:
