@@ -21,12 +21,50 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - `docs/library/ranking-corridor-module-registry.md`
 - `docs/templates/ranking-corridor-launch-card-template.md`
 - `docs/templates/ranking-corridor-director-pass-template.md`
+- `docs/templates/ranking-corridor-build-plan-template.md`
 - `docs/templates/ranking-corridor-asset-manifest-template.md`
 - `docs/templates/ranking-corridor-library-audit-template.md`
 - `docs/templates/ranking-corridor-review-notes-template.md`
 - `projects/README.md`
 
 Когда начинаешь писать или менять Remotion-код, также учитывай локальный skill `remotion-best-practices` и опирайся на текущий `src/compositions/ranking-towers/` как на reference implementation, а не как на жесткий закон.
+
+## Шаг 0. Определи фазу по файловому состоянию
+
+Перед любым действием:
+
+- сначала разреши целевой `project-slug`, а не придумывай его автоматически:
+  - если пользователь явно дал `project-slug` или путь к project-container, используй его;
+  - если `project-slug` явно не дан, сначала найди подходящий существующий container в `projects/` и предпочти продолжение уже начатого проекта;
+  - новый `project-slug` выбирай только если подходящего container действительно нет;
+  - если нашлось несколько правдоподобных container-кандидатов, не создавай новый молча: кратко запроси уточнение у пользователя;
+- после разрешения `project-slug` прочитай `projects/<project-slug>/launch-card.md`, если он уже есть;
+- прочитай `projects/<project-slug>/director-pass.md`, если он уже есть;
+- прочитай `projects/<project-slug>/build-plan.md`, если он уже есть;
+- прочитай `projects/<project-slug>/review-notes.md`, если он уже есть;
+- определи фазу не по памяти чата, а по содержимому и статусам в этих файлах.
+
+Правила routing:
+
+- если есть `launch-card.md`, но нет `director-pass.md` — сначала сделай `director pass`;
+- если есть `director-pass.md`, но нет `build-plan.md` — сначала собери `build-plan`;
+- если `build-plan.md` существует и в нем есть незавершенные задачи `preview-build` — продолжай с первой незавершенной задачи этой секции;
+- если `preview-build` завершен, но в `review-notes.md` нет допустимого решения по preview — сначала сделай `preview-gate`;
+- если preview уже дал `approve` или допустимый `approve with changes` и секция `post-preview-build` разблокирована — продолжай с первой незавершенной задачи этой секции;
+- если `build-plan.md` помечает задачу как завершенную, но минимальная сверка показывает расхождение с реальными файлами, верни задачу в `todo` или `blocked`, а не доверяй чекбоксу слепо.
+
+Минимальная сверка при возобновлении:
+
+- целевые файлы существуют;
+- файлы не пустые;
+- ожидаемые экспорты или точки входа присутствуют;
+- очевидные импорты и связи не сломаны.
+
+Полная сверка делается только на дорогих воротах:
+
+- перед `preview-gate`;
+- перед переходом к активному `post-preview-build`;
+- перед финальным заявлением о готовности.
 
 ## Работай как рабочий процесс с тремя состояниями
 
@@ -36,7 +74,8 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 - создай или обнови project-артефакты;
 - сделай `director pass`;
-- собери data snapshot и `asset-manifest`;
+- собери `build-plan`;
+- выполни задачи `preview-build`;
 - сделай `preview-gate`;
 - обнови `review-notes.md` в секции `Предпросмотр`;
 - остановись и жди решения админа.
@@ -45,7 +84,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Если review предпросмотра уже дал `approve` или `approve with changes` и нет блокера на re-preview:
 
-- доведи проект до полной сборки композиции;
+- выполни задачи `post-preview-build`;
 - сделай verification;
 - обнови секцию `Финальное утверждение` в `review-notes.md`;
 - остановись, если статус еще не финальный.
@@ -63,11 +102,13 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 Перед активной работой проверь, что у тебя есть:
 
 - тема и `launch-card`;
-- `project-slug` или возможность предложить его;
+- разрешенный `project-slug` или явный сигнал, что нового container еще нет;
 - понимание текущего состояния review;
 - доступ к проектному контейнеру или право его создать.
 
-Если `project-slug` еще не выбран, предложи или выбери его по канону `YYYY-MM-DD-short-topic-slug`.
+Если подходящий existing container уже найден, используй его `project-slug` и не создавай новый.
+
+Если подходящего container нет, предложи или выбери новый `project-slug` по канону `YYYY-MM-DD-short-topic-slug`.
 
 Если project-container отсутствует, создай минимум:
 
@@ -84,7 +125,9 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Используй только шаблоны из `docs/templates/`.
 
-Если `launch-card.md`, `director-pass.md`, `asset-manifest.md` или `review-notes.md` уже существуют, обновляй их, а не пересоздавай.
+Если `build-plan.md` еще не существует, создай его на шаге после `director pass`, а не заранее пустым placeholder-файлом.
+
+Если `launch-card.md`, `director-pass.md`, `build-plan.md`, `asset-manifest.md` или `review-notes.md` уже существуют, обновляй их, а не пересоздавай.
 
 ## Шаг 2. Сделай `director pass`
 
@@ -117,17 +160,58 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Если у тебя появляется сильная идея такого изменения, не внедряй ее молча: пометь ее только как `design-only` заметку и не считай новой правдой проекта.
 
-## Шаг 3. Собери data snapshot и `asset-manifest`
+## Шаг 3. Собери `build-plan`
 
-Делай это до preview-gate.
+Сделай это сразу после `director pass` и до активной реализации.
 
-Обязательный минимум:
+Опирайся на:
 
+- `docs/canon/ranking-corridor-working-mode.md`
+- `docs/templates/ranking-corridor-build-plan-template.md`
+
+Что обязательно:
+
+- сохрани результат в `projects/<project-slug>/build-plan.md`;
+- разложи ближайшую реализацию на `6-10` конкретных задач;
+- для каждой задачи явно зафиксируй `id`, `phase`, `status`, затронутые файлы, цель, критерий готовности и проверку;
+- держи только одну задачу в `in_progress`;
+- разделяй задачи на `preview-build` и `post-preview-build`;
+- считай `post-preview-build` заблокированным до допустимого решения по preview;
+- обнови top-level `Статус плана` осмысленно, а не формально:
+  - `draft` — только если план еще неполон, упирается в блокер или требует явного уточнения;
+  - `active` — когда план готов к исполнению и по нему идет работа;
+  - `preview-complete` — когда `preview-build` закрыт, preview-решение допустимо и `post-preview-build` разблокирован;
+  - `full-complete` — когда все задачи закрыты и verification пройден;
+- не превращай `build-plan` в новый большой PRD или архитектурный трактат.
+
+Используй такие типы задач как ориентир, а не как жесткий список:
+
+- data snapshot и типы;
+- scene-logic, milestones и camera math;
+- hero-модуль для preview-среза;
+- фон и secondary-life для preview-среза;
+- reveal / layout / payoff preview slices;
+- preview verification package;
+- post-preview full corridor;
+- polishing и финальная verification.
+
+`Build-plan` можно коротко показать пользователю как soft-checkpoint, но по умолчанию не жди отдельного обязательного approve, если только план не стал явно рискованным.
+
+## Шаг 4. Выполни задачи `preview-build` и собери data snapshot
+
+До `preview-gate` ты обязан пройти через задачи из секции `preview-build` в `build-plan.md`.
+
+Что обязательно:
+
+- отмечай текущую активную задачу как `in_progress`;
+- после завершения задачи обновляй ее статус в `build-plan.md`;
+- держи `Статус плана` в `active`, пока проект реально исполняется и еще не достиг `preview-complete` или `full-complete`;
+- не переходи к следующей задаче, пока текущая не закрыта или не помечена как `blocked`;
 - зафиксируй источники данных;
 - зафиксируй дату проверки данных;
 - сохрани локальную рабочую версию dataset в `projects/<project-slug>/data/`;
 - собери локальные ассеты;
-- сохрани исходные URL и статусы ассетов в `asset-manifest.md`.
+- сохрани исходные URL и статусы ассетов в `asset-manifest.md`;
 - если реальный data snapshot или реальные ассеты заметно меняют ощущение масштаба, плотность мира или характер фоновой активности, обнови `director pass` до `preview-gate`, а не держись за раннюю chat-first версию.
 
 Пути по умолчанию:
@@ -136,9 +220,16 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - публичные ассеты: `public/ranking-corridor/<project-slug>/`
 - preview exports: `projects/<project-slug>/exports/preview/`
 
+На этом этапе уже допустимо создавать и обновлять:
+
+- `src/compositions/<project-slug>/`
+- `public/ranking-corridor/<project-slug>/`
+
+Но только в объеме, нужном для `preview-build`, а не для полного ролика.
+
 Не считай `asset-manifest` формальностью. Это рабочий контракт воспроизводимости.
 
-## Шаг 4. Сделай `preview-gate`
+## Шаг 5. Сделай `preview-gate`
 
 До полной сборки композиции ты обязан собрать preview-пакет.
 
@@ -156,6 +247,12 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - отдельный director-pass-проход: ранняя сцена, середина ролика и финальная треть должны отличаться по ощущению, а вторичная жизнь не должна проседать;
 - отдельный layout-pass на сложных случаях: длинные названия, крупные числа, широкие логотипы, плотные соседние объекты и разные дистанции камеры;
 - короткий фрагмент payoff.
+
+Перед `preview-gate` сделай полную сверку:
+
+- запусти `npx tsc --noEmit` или эквивалентную техническую проверку;
+- проверь, что композиция открывается в Remotion Studio без runtime-ошибок;
+- проверь, что целевой preview-срез просматривается без явных layout/runtime-проблем.
 
 Зафиксируй preview-состояние в `review-notes.md`:
 
@@ -176,12 +273,14 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - если `reject` — не иди в полную сборку композиции;
 - если `approve with changes` и правки затрагивают hero-модуль, укладку данных, `director pass`, вторичную жизнь, фон, pacing, камеру или способ подачи контента — сначала обнови preview;
 - если `approve with changes` касается мелких текстовых или data-правок без смены визуального языка — можно продолжать, но зафиксируй это в `review-notes.md`;
+- если решение по preview допустимо, обнови `build-plan.md`: закрой фазу `preview-build`, разблокируй `post-preview-build`, выставь `Статус плана = preview-complete`, переключи `Текущую фазу` на `post-preview-build` и отметь следующую задачу;
 - если `approve` — переходи дальше.
 
-## Шаг 5. Делай полную сборку композиции только после review предпросмотра
+## Шаг 6. Делай `post-preview-build` только после review предпросмотра
 
 Только после допустимого результата review предпросмотра:
 
+- продолжай с первой незавершенной задачи секции `post-preview-build`;
 - достраивай полный dataset pass;
 - достраивай весь corridor;
 - собирай полный main pass;
@@ -196,22 +295,19 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Это не означает автоматический экспорт `.mp4`, `.mov` или другого финального медиафайла. Экспорт делается только по явному запросу пользователя.
 
-Когда начинается реальный build сцены, можно создавать и обновлять:
-
-- `src/compositions/<project-slug>/`
-- `public/ranking-corridor/<project-slug>/`
-
 Не уноси решения в переиспользуемый слой на этом этапе.
 
-## Шаг 6. Сделай verification и `Финальное утверждение`
+## Шаг 7. Сделай verification и `Финальное утверждение`
 
 Перед любым заявлением о готовности:
 
+- обнови статусы задач в `build-plan.md`;
 - пройди техническую проверку по `docs/canon/remotion-project-rules.md`;
 - проверь математику сцены и duration;
 - проверь читаемость;
 - проверь, что режиссерская эскалация и вторичная жизнь не потерялись после полной сборки;
 - проверь, что сборка и базовые инженерные инварианты не сломаны.
+- только после этого, если все задачи закрыты и verification реально пройден, переведи `Статус плана` в `full-complete`.
 
 Затем обнови секцию `Финальное утверждение` в `review-notes.md` с одним из статусов:
 
@@ -221,7 +317,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Если статус `not-final`, не запускай аудит библиотеки.
 
-## Шаг 7. Запусти аудит библиотеки только после финального статуса
+## Шаг 8. Запусти аудит библиотеки только после финального статуса
 
 После `final-approved` или `final-approved-with-notes`:
 
@@ -276,6 +372,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 - project-артефакты созданы или обновлены по шаблонам;
 - `director-pass.md` создан или обновлен и не спорит с `launch-card`;
+- `build-plan.md` создан или обновлен, отражает текущую фазу и не содержит двух активных задач одновременно;
 - `asset-manifest.md` содержит реальные локальные пути и исходные URL;
 - `review-notes.md` отражает текущее состояние проекта;
 - review предпросмотра или финальный статус действительно зафиксированы;

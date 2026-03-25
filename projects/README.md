@@ -37,10 +37,11 @@
 
 - `projects/<project-slug>/launch-card.md`
 
-Обязательный минимум для production-этапа
-production-этап наследует launch-only минимум и дополнительно требует:
+Обязательный минимум для production-цикла к моменту preview-ready работы
+production-цикл наследует launch-only минимум и дополнительно требует:
 
 - `projects/<project-slug>/director-pass.md`
+- `projects/<project-slug>/build-plan.md`
 - `projects/<project-slug>/asset-manifest.md`
 - `projects/<project-slug>/review-notes.md`
 - `projects/<project-slug>/data/`
@@ -54,12 +55,20 @@ production-этап наследует launch-only минимум и допол�
 
 `director-pass.md` обязателен после утверждения `launch-card`, если проект дошел до production-этапа и готовится к `preview-gate`.
 
+`build-plan.md` обязателен после `director-pass.md` и до `preview-gate`. Это project-local исполнительный чеклист, который разносит `preview-build` и `post-preview-build` и позволяет продолжать работу по файловому состоянию проекта.
+
+Практически это означает:
+
+- при первом materialize production-container можно создать стартовый минимум без `build-plan.md`;
+- сразу после `director-pass.md` `build-plan.md` должен быть материализован, чтобы контейнер достиг полного production minimum.
+
 `asset-manifest.md`, `review-notes.md`, `data/` и `exports/` не нужно материализовать на launch-этапе заранее. Они становятся обязательной частью контейнера, когда проект переходит в production-цикл.
 
 ## Роль файлов
 
 - `launch-card.md` — короткий контракт запуска ролика.
 - `director-pass.md` — подробный режиссерский проход и основной этап content enrichment между `launch-card` и `preview-gate`.
+- `build-plan.md` — project-local план реализации и декомпозиция задач между `director-pass.md` и production-сборкой.
 - `asset-manifest.md` — снимок данных, источников и локальных ассетов.
 - `review-notes.md` — единый файл для `Предпросмотра`, `Финального утверждения` и `Аудита библиотеки`.
 - `data/` — локальные данные, research-notes и source snapshots.

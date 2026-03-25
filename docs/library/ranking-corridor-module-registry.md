@@ -138,6 +138,7 @@
 Каждая запись должна содержать:
 
 - `moduleId`
+- `userFacingName`, если модуль должен предлагаться пользователю как готовый вариант
 - `status`
 - `moduleType`
 - `sourceProjects`
@@ -171,6 +172,7 @@
 ### 2. `rail-focus-vip-finale-v1`
 
 - `moduleId`: `rail-focus-vip-finale-v1`
+- `userFacingName`: `Прямой рельсовый фокус`
 - `status`: `library-module`
 - `moduleType`: `camera preset`
 - `sourceProjects`:
@@ -185,7 +187,25 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: код пока оставлен в проекте; extraction в отдельный library-module отложен до второго проекта, чтобы не зацементировать слишком ранний API поверх живой scene-math.
 
-### 3. `dashboard-card-reveal-effects-v1`
+### 3. `soft-side-orbit-classic-v1`
+
+- `moduleId`: `soft-side-orbit-classic-v1`
+- `userFacingName`: `Классический башенный проход`
+- `status`: `library-module`
+- `moduleType`: `camera preset`
+- `sourceProjects`:
+  - `ranking-towers`
+- `promotionReason`: базовый reference-композишен формата уже многоразово служит эталоном для launch- и production-решений; его камера и тайминг имеют устойчивый контракт, покрыты scene-logic тестами и остаются главным baseline-вариантом бокового corridor-прохода.
+- `contract`: мягкий corridor camera preset с боковым ракурсом около `3/4`, стартовым intro push-in без jump-cut handoff, `80` кадров на переход между объектами, `320` кадров на tower hold, `45` кадров статичного settle перед orbit drift и длинным cinematic tail с x3 slowdown в финале.
+- `placement`:
+  - registry-level contract
+  - текущая reference-реализация: `src/compositions/ranking-towers/scene/scene-logic.ts`
+  - camera runtime adapter: `src/compositions/ranking-towers/scene/camera-updater.tsx`
+- `docsUpdated`:
+  - `docs/library/ranking-corridor-module-registry.md`
+- `notes`: это осознанное legacy-reference исключение: `ranking-towers` предшествует project-container workflow, поэтому preset зафиксирован в реестре по текущей канонической reference-реализации и тестам, а не по `projects/<slug>/review-notes.md`.
+
+### 4. `dashboard-card-reveal-effects-v1`
 
 - `moduleId`: `dashboard-card-reveal-effects-v1`
 - `status`: `library-module`
@@ -202,7 +222,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: сам visual content карточки не поднимается в библиотеку автоматически; библиотечным стал именно motion/choreography слой.
 
-### 4. `three-instanced-batches-v1`
+### 5. `three-instanced-batches-v1`
 
 - `moduleId`: `three-instanced-batches-v1`
 - `status`: `library-module`
@@ -219,7 +239,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: конкретные particle systems и environment-sets остаются `project-local`; в библиотеку поднят только instancing foundation.
 
-### 5. `media-stele-shell-v1`
+### 6. `media-stele-shell-v1`
 
 - `moduleId`: `media-stele-shell-v1`
 - `status`: `library-module`
@@ -236,7 +256,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: полный `website stele hero` не промоутится целиком; библиотечным стал именно shell-арт-объект.
 
-### 6. `low-poly-cloud-v1`
+### 7. `low-poly-cloud-v1`
 
 - `moduleId`: `low-poly-cloud-v1`
 - `status`: `library-module`
@@ -253,7 +273,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: storm choreography, looping cloud lanes и lightning остаются проектным world-слоем.
 
-### 7. `wind-turbine-v1`
+### 8. `wind-turbine-v1`
 
 - `moduleId`: `wind-turbine-v1`
 - `status`: `library-module`
@@ -270,7 +290,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: сам сет из множества турбин и его распределение по глубине остаются project-local world-assembly.
 
-### 8. `forest-backdrop-v1`
+### 9. `forest-backdrop-v1`
 
 - `moduleId`: `forest-backdrop-v1`
 - `status`: `library-module`
@@ -288,7 +308,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: конкретная режиссура смены актов и весь `Digital Garden` не поднимаются целиком; библиотечным стал именно reusable forest-layer.
 
-### 9. `horizon-mountain-ridge-v1`
+### 10. `horizon-mountain-ridge-v1`
 
 - `moduleId`: `horizon-mountain-ridge-v1`
 - `status`: `library-module`
@@ -306,7 +326,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: солнце, облака и fog pacing остаются частью project-local environment direction.
 
-### 10. `highway-ribbon-v1`
+### 11. `highway-ribbon-v1`
 
 - `moduleId`: `highway-ribbon-v1`
 - `status`: `library-module`
@@ -324,7 +344,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: конкретная связка шоссе с этим городом/садом остаётся локальной; библиотечным стал сам reusable road-world primitive.
 
-### 11. `storm-effects-v1`
+### 12. `storm-effects-v1`
 
 - `moduleId`: `storm-effects-v1`
 - `status`: `library-module`

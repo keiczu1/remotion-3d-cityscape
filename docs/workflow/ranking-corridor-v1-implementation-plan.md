@@ -26,6 +26,7 @@
 - Этап 1: `ranking-corridor-launch` skill — выполнен.
 - Этап 2: шаблоны `launch-card`, `asset-manifest`, `review-notes` — выполнены.
 - Этап 3: `ranking-corridor-production` skill — выполнен.
+- Этап 3A: `build-plan` как bridge между `director pass` и preview/full build — выполнен.
 - Навигация docs, канон и registry приведены в рабочий вид.
 
 ### Еще не закрыто
@@ -50,7 +51,7 @@
 Следующий правильный шаг:
 
 1. Взять новую тему.
-2. Пройти pilot-pass по полному пути `topic -> question-pack -> launch-card -> asset-manifest -> preview-gate -> full project -> final approval -> library audit`.
+2. Пройти pilot-pass по полному пути `topic -> concept-pack -> question-pack (если нужен) -> launch-card -> director-pass -> build-plan -> preview-gate -> full project -> final approval -> library audit`.
 3. После пилота провести `post-pilot decision`.
 
 ## Checklist пилота
@@ -58,20 +59,23 @@
 Во время пилота должны быть пройдены такие этапы:
 
 1. Пользователь дает новую тему одной фразой.
-2. `ranking-corridor-launch` задает один пакет вопросов.
-3. После ответа собирается `launch-card`.
-4. `ranking-corridor-production` создает project-container и `asset-manifest`.
-5. Делается `preview-gate`.
-6. После review предпросмотра допускается полная сборка композиции.
-7. Фиксируется финальный статус проекта.
-8. После финального статуса запускается аудит библиотеки.
+2. `ranking-corridor-launch` сначала делает `concept-pack`, а затем при необходимости задает один пакет вопросов.
+3. После ответа создается `launch-card`.
+4. `ranking-corridor-production` создает `director-pass.md` и `build-plan.md`.
+5. Через `build-plan` собирается `preview-build`.
+6. Делается `preview-gate`.
+7. После review предпросмотра допускается `post-preview-build` и полная сборка композиции.
+8. Фиксируется финальный статус проекта.
+9. После финального статуса запускается аудит библиотеки.
 
 ## Acceptance checklist пилота
 
 Пилот считается пройденным только если одновременно выполнено все ниже:
 
 - новый проект стартовал без повторного длинного объяснения жанра;
-- ИИ задал один пакет вопросов и остановился на `launch-card`;
+- ИИ сделал `concept-pack`, а при реальных незакрытых развилках добавил не больше одного пакета вопросов, после чего остановился на `launch-card`;
+- после launch-этапа был создан `projects/<project-slug>/launch-card.md`;
+- между `director pass` и `preview-gate` был создан и использован `build-plan.md`;
 - production-ветка дошла до `preview-gate` раньше полной сборки композиции;
 - `review-notes.md` использовался как единый файл для `Предпросмотра`, `Финального утверждения` и `Аудита библиотеки`;
 - project-container соответствовал структуре из `projects/README.md`;
