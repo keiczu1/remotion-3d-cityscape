@@ -212,7 +212,8 @@ description: "Веди `ranking corridor` проект после `launch-card`:
   - `preview-complete` — когда `preview-build` закрыт, preview-решение допустимо и `post-preview-build` разблокирован;
   - `full-complete` — когда все задачи закрыты и verification пройден;
 - не превращай `build-plan` в новый большой PRD или архитектурный трактат.
-- сразу после создания или обновления `build-plan.md` запусти `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`.
+- сразу после создания или обновления `build-plan.md` запусти `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`;
+- не ставь `done` вручную для key preview task: для обычной проверки используй базовый режим валидатора, а для финального перехода запускай тот же скрипт в режиме `--finalize`.
 
 Считай `preview-build` не MVP и не rough scaffold, а `reference-anchored quality slice`.
 
@@ -302,7 +303,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - для `environment-preview` и `integrated-preview` также обнови `World slots covered`, `Scene coverage` и `Registry baselines used`;
 - `Scene coverage` держи по роли: для scene-specific `environment-preview` — ровно один scene-id, для `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`;
 - в `Registry baselines used` используй либо список `moduleId`, либо literal `none`, без самодельных формулировок;
-- после обновления статуса снова запусти `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`.
+- после этого не правь `Статус: done` вручную, а запускай `npm run validate:build-plan -- projects/<project-slug>/build-plan.md --finalize <task-id>`; этот же скрипт сам переведет задачу в `done`, обновит `Следующий шаг` и откажется писать файл, если evidence еще неполный.
 
 Пути по умолчанию:
 

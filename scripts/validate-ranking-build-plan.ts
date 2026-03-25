@@ -1,4 +1,4 @@
-import {existsSync, readFileSync} from 'node:fs';
+import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 
 type TaskPhase = 'preview-build' | 'post-preview-build';
@@ -41,6 +41,27 @@ type RegistryRevealModule = {
   reusePolicy: string;
   sourceOfTruthFiles: string[];
   lockedBehavior: string;
+};
+
+type CliOptions = {
+  buildPlanArg: string;
+  finalizeTaskId: string | null;
+};
+
+type BuildPlanScanTask = {
+  id: string;
+  phase: TaskPhase | null;
+  status: string;
+  previewRole: string;
+  lineIndex: number;
+  statusLineIndex: number;
+};
+
+type BuildPlanScan = {
+  currentPlanPhase: string;
+  nextStepLineIndex: number;
+  updatedLineIndex: number;
+  tasks: BuildPlanScanTask[];
 };
 
 const allowedPlanStatuses = new Set([
@@ -105,16 +126,226 @@ const requiredEnvironmentSlots = [
   'light-weather',
 ];
 
-const args = process.argv.slice(2);
+const normalizeMarkdownValue = (value: string) =>
+  value.trim().replace(/^`|`$/g, '').trim();
 
-if (args.length === 0) {
-  console.error(
-    'Использование: npm run validate:build-plan -- <path-to-build-plan.md>',
-  );
-  process.exit(1);
-}
+const parseCliArgs = (argv: string[]): CliOptions => {
+  let buildPlanArg = '';
+  let finalizeTaskId: string | null = null;
 
-const buildPlanArg = args[0];
+  for (let index = 0; index < argv.length; index++) {
+    const arg = argv[index];
+
+    if (arg === '--finalize') {
+      const maybeTaskId = argv[index + 1];
+      if (!maybeTaskId) {
+        console.error(
+          'Использование: npm run validate:build-plan -- <path-to-build-plan.md> [--finalize <task-id>]',
+        );
+        console.error('Для `--finalize` нужно явно указать task id.');
+        process.exit(1);
+      }
+      finalizeTaskId = maybeTaskId.trim();
+      index += 1;
+      continue;
+    }
+
+    if (!buildPlanArg) {
+      buildPlanArg = arg;
+      continue;
+    }
+
+    console.error(`Неизвестный аргумент: ${arg}`);
+    console.error(
+      'Использование: npm run validate:build-plan -- <path-to-build-plan.md> [--finalize <task-id>]',
+    );
+    process.exit(1);
+  }
+
+  if (!buildPlanArg) {
+    console.error(
+      'Использование: npm run validate:build-plan -- <path-to-build-plan.md> [--finalize <task-id>]',
+    );
+    process.exit(1);
+  }
+
+  return {buildPlanArg, finalizeTaskId};
+};
+
+const formatBuildPlanDate = () => {
+  const now = new Date();
+  const year = String(now.getFullYear());
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const replaceFieldLineValue = (planLines: string[], lineIndex: number, value: string) => {
+  const currentLine = planLines[lineIndex];
+  const fieldMatch = currentLine.match(/^(- [^:]+:\s*).+$/);
+
+  if (!fieldMatch) {
+    throw new Error(`Не удалось обновить поле в строке ${lineIndex + 1}.`);
+  }
+
+  planLines[lineIndex] = `${fieldMatch[1]}${value}`;
+};
+
+const scanBuildPlan = (planLines: string[]): BuildPlanScan => {
+  let currentPhase: TaskPhase | null = null;
+  let currentTask: BuildPlanScanTask | null = null;
+  let currentPlanPhase = '';
+  let nextStepLineIndex = -1;
+  let updatedLineIndex = -1;
+  const tasks: BuildPlanScanTask[] = [];
+
+  const pushCurrentTask = () => {
+    if (currentTask) {
+      tasks.push(currentTask);
+      currentTask = null;
+    }
+  };
+
+  for (let index = 0; index < planLines.length; index++) {
+    const line = planLines[index];
+
+    if (/^## Preview-build\b/.test(line)) {
+      pushCurrentTask();
+      currentPhase = 'preview-build';
+      continue;
+    }
+
+    if (/^## Post-preview-build\b/.test(line)) {
+      pushCurrentTask();
+      currentPhase = 'post-preview-build';
+      continue;
+    }
+
+    const taskMatch = line.match(/^###\s+([A-Z]{2}-\d+)\.\s+(.+)$/);
+    if (taskMatch) {
+      pushCurrentTask();
+      currentTask = {
+        id: taskMatch[1],
+        phase: currentPhase,
+        status: '',
+        previewRole: '',
+        lineIndex: index,
+        statusLineIndex: -1,
+      };
+      continue;
+    }
+
+    const fieldMatch = line.match(/^- ([^:]+):\s*(.*)$/);
+    if (!fieldMatch) {
+      continue;
+    }
+
+    const key = fieldMatch[1].trim();
+    const value = normalizeMarkdownValue(fieldMatch[2]);
+
+    if (!currentTask) {
+      if (key === 'Текущая фаза') {
+        currentPlanPhase = value;
+      }
+
+      if (key === 'Следующий шаг') {
+        nextStepLineIndex = index;
+      }
+
+      if (key === 'Обновлено') {
+        updatedLineIndex = index;
+      }
+
+      continue;
+    }
+
+    if (key === 'Статус') {
+      currentTask.status = value;
+      currentTask.statusLineIndex = index;
+    }
+
+    if (key === 'Preview role') {
+      currentTask.previewRole = value;
+    }
+  }
+
+  pushCurrentTask();
+
+  return {
+    currentPlanPhase,
+    nextStepLineIndex,
+    updatedLineIndex,
+    tasks,
+  };
+};
+
+const buildFinalizedText = (originalText: string, taskId: string) => {
+  const hadTrailingNewline = originalText.endsWith('\n');
+  const planLines = originalText.split('\n');
+  const scan = scanBuildPlan(planLines);
+  const targetTask = scan.tasks.find((task) => task.id === taskId);
+
+  if (!targetTask) {
+    throw new Error(`Задача \`${taskId}\` не найдена в build-plan.`);
+  }
+
+  if (!targetTask.phase) {
+    throw new Error(
+      `Задача \`${taskId}\` объявлена вне секции Preview-build/Post-preview-build и не может быть финализирована.`,
+    );
+  }
+
+  if (!scan.currentPlanPhase) {
+    throw new Error('В build-plan отсутствует top-level поле `Текущая фаза`.');
+  }
+
+  if (targetTask.phase !== scan.currentPlanPhase) {
+    throw new Error(
+      `Нельзя финализировать задачу \`${taskId}\` вне текущей фазы \`${scan.currentPlanPhase}\`.`,
+    );
+  }
+
+  if (targetTask.statusLineIndex < 0) {
+    throw new Error(`У задачи \`${taskId}\` не найдено поле \`Статус\`.`);
+  }
+
+  if (targetTask.status === 'done') {
+    throw new Error(`Задача \`${taskId}\` уже имеет статус \`done\`.`);
+  }
+
+  replaceFieldLineValue(planLines, targetTask.statusLineIndex, '`done`');
+
+  const remainingCurrentPhaseTasks = scan.tasks.filter((task) => {
+    if (task.phase !== targetTask.phase) {
+      return false;
+    }
+
+    const taskStatus = task.id === taskId ? 'done' : task.status;
+    return taskStatus !== 'done';
+  });
+
+  const nextStepValue =
+    targetTask.phase === 'preview-build'
+      ? (remainingCurrentPhaseTasks[0]?.id ?? 'preview-gate')
+      : (remainingCurrentPhaseTasks[0]?.id ?? 'final-approval');
+
+  if (scan.nextStepLineIndex >= 0) {
+    replaceFieldLineValue(planLines, scan.nextStepLineIndex, nextStepValue);
+  }
+
+  if (scan.updatedLineIndex >= 0) {
+    replaceFieldLineValue(planLines, scan.updatedLineIndex, formatBuildPlanDate());
+  }
+
+  const serialized = planLines.join('\n');
+  return hadTrailingNewline && !serialized.endsWith('\n')
+    ? `${serialized}\n`
+    : serialized;
+};
+
+const {buildPlanArg, finalizeTaskId} = parseCliArgs(process.argv.slice(2));
+
+
 const buildPlanPath = path.resolve(process.cwd(), buildPlanArg);
 
 if (!existsSync(buildPlanPath)) {
@@ -123,7 +354,19 @@ if (!existsSync(buildPlanPath)) {
 }
 
 const buildPlanDir = path.dirname(buildPlanPath);
-const text = readFileSync(buildPlanPath, 'utf8').replace(/\r\n/g, '\n');
+const originalText = readFileSync(buildPlanPath, 'utf8').replace(/\r\n/g, '\n');
+let text = originalText;
+
+if (finalizeTaskId) {
+  try {
+    text = buildFinalizedText(originalText, finalizeTaskId);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Не удалось перевести задачу ${finalizeTaskId} в \`done\`: ${message}`);
+    process.exit(1);
+  }
+}
+
 const lines = text.split('\n');
 
 const errors: string[] = [];
@@ -143,7 +386,7 @@ const pushCurrentTask = () => {
   }
 };
 
-const cleanValue = (value: string) => value.trim().replace(/^`|`$/g, '').trim();
+const cleanValue = normalizeMarkdownValue;
 
 const isPlaceholder = (value: string | undefined) => {
   if (value === undefined) {
@@ -872,6 +1115,7 @@ if (!directorPassReview.exists) {
 }
 
 const taskIds = new Set(tasks.map((task) => task.id));
+const taskById = new Map(tasks.map((task) => [task.id, task]));
 
 if (nextStep && !allowedNextSteps.has(nextStep) && !taskIds.has(nextStep)) {
   errors.push(
@@ -882,6 +1126,15 @@ if (nextStep && !allowedNextSteps.has(nextStep) && !taskIds.has(nextStep)) {
 let inProgressCount = 0;
 let inProgressTaskId: string | null = null;
 const environmentSceneTaskMap = new Map<string, string[]>();
+
+if (nextStep && taskById.has(nextStep)) {
+  const nextStepTask = taskById.get(nextStep)!;
+  if (fieldValue(nextStepTask, 'Статус') === 'done') {
+    errors.push(
+      `Поле \`Следующий шаг\` не может ссылаться на уже закрытую задачу \`${nextStep}\`.`,
+    );
+  }
+}
 
 for (const task of tasks) {
   const status = fieldValue(task, 'Статус');
@@ -1311,7 +1564,14 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`Build-plan валиден: ${path.relative(process.cwd(), buildPlanPath)}`);
+if (finalizeTaskId) {
+  writeFileSync(buildPlanPath, text, 'utf8');
+  console.log(
+    `Build-plan валиден, задача ${finalizeTaskId} переведена в \`done\`: ${path.relative(process.cwd(), buildPlanPath)}`,
+  );
+} else {
+  console.log(`Build-plan валиден: ${path.relative(process.cwd(), buildPlanPath)}`);
+}
 
 if (warnings.length > 0) {
   console.log('Предупреждения:');

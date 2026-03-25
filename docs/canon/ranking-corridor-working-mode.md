@@ -481,7 +481,8 @@ Package-first режим считается нормой по умолчанию
 
 Перед переводом key preview task в `done` ИИ также обязан:
 
-- запустить `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`;
+- не менять статус задачи в `build-plan.md` вручную;
+- для обычной проверки запускать `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`;
 - проверить композицию в браузере или Remotion Studio, а не только по коду;
 - явно зафиксировать способ этой проверки как `mcp-playwright | remotion-studio | built-in-browser`;
 - если у агента есть доступ к MCP Playwright или встроенному браузеру, использовать один из этих инструментов как основной способ visual-check, а не ограничиваться чтением кода;
@@ -491,6 +492,7 @@ Package-first режим считается нормой по умолчанию
 - для `environment-preview` и `integrated-preview` дополнительно зафиксировать `World slots covered`, `Scene coverage` и `Registry baselines used` внутри `build-plan.md`;
 - `Scene coverage` вести теми же machine-readable scene-id, что и в `director-pass`;
 - `Registry baselines used` заполнять либо списком registry `moduleId`, либо literal `none`.
+- после этого запускать `npm run validate:build-plan -- projects/<project-slug>/build-plan.md --finalize <task-id>`: этот же скрипт сам переводит task в `done`, обновляет `Следующий шаг` и отказывается писать файл, если evidence еще неполный.
 
 Жизненный цикл `Статуса плана`:
 

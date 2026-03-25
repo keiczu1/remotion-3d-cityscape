@@ -58,7 +58,9 @@
 - `Scene coverage` заполняй по роли: для scene-specific `environment-preview` это ровно один scene-id (`scene-1`), для `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`.
 - `Registry baselines used` заполняй списком `moduleId` через запятую. Если для world-slot в реестре нет подходящего baseline и задача опирается только на project-local baseline или новый слой, указывай literal `none`.
 - Для quality-checkpoint-задачи со статусом `done` обязательны непустые `Mini-review`, `Studio/browser check`, `Visual check method`, `Console/runtime check` и `Screenshot set`.
-- После каждого изменения статусов запускай `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`.
+- `Visual check method` агент выбирает сам из разрешенных вариантов `mcp-playwright | remotion-studio | built-in-browser`, но выбор должен быть явно зафиксирован до финализации задачи.
+- Для обычной проверки запускай `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`.
+- Для перевода key preview task в `done` не меняй статус вручную: используй `npm run validate:build-plan -- projects/<project-slug>/build-plan.md --finalize <task-id>`. Этот же скрипт сам переведет задачу в `done`, обновит `Следующий шаг` и остановится, если visual evidence или обязательные поля еще не готовы.
 
 ## Минимальная сверка при возобновлении
 

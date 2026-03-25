@@ -116,9 +116,10 @@
   - `docs/templates/ranking-corridor-build-plan-template.md`
   - `docs/templates/ranking-corridor-review-notes-template.md`
 - Что меняется:
-  - `build-plan` получает machine-check через отдельный валидатор;
+  - `build-plan` получает единый machine-check через `scripts/validate-ranking-build-plan.ts` без второго скрипта;
   - top-level поле `Следующий шаг` становится структурированным и проверяемым;
   - key preview tasks нельзя закрыть без browser/Studio-проверки, явного `Visual check method`, screenshot set и console/runtime evidence;
+  - тот же скрипт получает режим `--finalize <task-id>` и становится единственным gatekeeper для перевода key preview task в `done`;
   - preview review фиксирует visual checklist, `Метод browser/Studio-проверки` и ссылку на screenshot-артефакты.
 - Критерий готовности:
   - агент не может безошибочно пройти дальше с битым `build-plan`;
@@ -138,6 +139,7 @@
 - Проверить, что `projects/README.md` и `docs/README.md` знают про новый артефакт.
 - Проверить, что шаблон `build-plan` не позволяет закрыть `hero/camera/environment` без заполненных `Reference baseline`, `Reuse without changes`, `Allowed adaptation` и mini-review.
 - Проверить, что `npm run validate:build-plan -- <path>` падает на битом `build-plan` и проходит на корректном.
+- Проверить, что `npm run validate:build-plan -- <path> --finalize <task-id>` не пишет `done`, если visual evidence или обязательные поля еще не готовы.
 - Проверить, что `preview` контракт теперь требует browser/Studio-проверку, явный `Visual check method` и screenshot-артефакты.
 - Проверить, что `environment-preview` и `integrated-preview` требуют `World slots covered`, `Scene coverage` и `Registry baselines used`.
 - Проверить, что `Scene coverage` использует role-aware grammar: для scene-specific `environment-preview` это ровно один scene-id, а для `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`; `Registry baselines used` — только список `moduleId` или literal `none`.
