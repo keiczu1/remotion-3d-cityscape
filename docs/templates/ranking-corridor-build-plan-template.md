@@ -24,8 +24,9 @@
 ## Правила
 
 - `build-plan` живет только внутри `projects/<project-slug>/`.
+- `build-plan` создается только после явного approve режиссерского плана в секции `Режиссерский план` файла `review-notes.md`.
 - Он должен оставаться плоским и практичным, а не превращаться в новый большой PRD.
-- Обычно хватает `6-10` задач на весь цикл.
+- Обычно хватает `8-14` задач на весь цикл.
 - У задачи должен быть один понятный результат, а не размытый “разберись со сценой”.
 - В каждый момент времени только одна задача должна быть в статусе `in_progress`.
 - Секция `post-preview-build` остается заблокированной, пока в `review-notes.md` нет допустимого решения по `preview-gate`.
@@ -50,6 +51,12 @@
 - Нельзя переводить ключевую preview-задачу в `done`, если код компилируется, но результат все еще выглядит как бедный scaffold и нарушает `Non-negotiables`.
 - Внутри `preview-build` обязательно должны быть quality checkpoints для `hero-preview`, `camera-preview`, `environment-preview` и `integrated-preview`.
 - Для quality-checkpoint-задачи со статусом `in_progress` или `done` обязательны валидные `Reuse mode`, `Reference baseline` (если это не `greenfield-approved`), `Reuse without changes` и `Allowed adaptation`.
+- Для `environment-preview` и `integrated-preview` дополнительно обязательны `World slots covered`, `Scene coverage` и `Registry baselines used`.
+- Не сворачивай всю world-evolution в одну общую environment-задачу: разложи среду на отдельные scene-specific `environment-preview` задачи минимум для `scene-1`, `scene-2`, `scene-3` и `scene-4`.
+- Каждая scene-specific `environment-preview` задача должна иметь `Scene coverage` ровно с одним scene-id; `integrated-preview` собирает их вместе и покрывает минимум `scene-1, scene-2, scene-3, scene-4`.
+- `World slots covered` заполняй машинно читаемыми id через запятую. Обязательное ядро: `horizon, side-dressing, atmospheric-motion, directed-motion, ground, light-weather`. `payoff` добавляй только если эта задача реально покрывает поздние финальные акценты.
+- `Scene coverage` заполняй по роли: для scene-specific `environment-preview` это ровно один scene-id (`scene-1`), для `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`.
+- `Registry baselines used` заполняй списком `moduleId` через запятую. Если для world-slot в реестре нет подходящего baseline и задача опирается только на project-local baseline или новый слой, указывай literal `none`.
 - Для quality-checkpoint-задачи со статусом `done` обязательны непустые `Mini-review`, `Studio/browser check`, `Visual check method`, `Console/runtime check` и `Screenshot set`.
 - После каждого изменения статусов запускай `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`.
 
@@ -108,9 +115,9 @@
 
 ## Preview-build
 
-> Для ключевых preview-задач обязательно заполняй `Preview role`, `Reference baseline` (если это не `greenfield-approved`), `Reuse mode`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables`, `Studio/browser check`, `Visual check method`, `Console/runtime check`, `Screenshot set` и `Mini-review`. Если конкретная задача не относится к quality checkpoint, укажи `Preview role: support`.
+> Для ключевых preview-задач обязательно заполняй `Preview role`, `Reference baseline` (если это не `greenfield-approved`), `Reuse mode`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables`, `Studio/browser check`, `Visual check method`, `Console/runtime check`, `Screenshot set` и `Mini-review`. Для `environment-preview` и `integrated-preview` дополнительно обязательны `World slots covered`, `Scene coverage` и `Registry baselines used`. Если конкретная задача не относится к quality checkpoint, укажи `Preview role: support`. Среду не сворачивай в одну общую задачу: для minimum contract нужны отдельные scene-specific environment-задачи как минимум для `scene-1`, `scene-2`, `scene-3` и `scene-4`. Если в `launch-card.md` выбран `scenePresetPackage` с `reusePolicy: implementation-locked`, для `camera-preview` обязательны `Reuse mode: preset-reuse`, точный `Reference baseline` по `sourceOfTruthFiles` из registry и явный список зафиксированного поведения в `Reuse without changes`. Если в `launch-card.md` выбран `heroRevealPackage` с `reusePolicy: implementation-locked`, для `hero-preview` обязательны `Reuse mode: preset-reuse`, точный `Reference baseline` по `sourceOfTruthFiles` из registry и явный список зафиксированного reveal-поведения в `Reuse without changes`. Валидатор сверяет эти блоки не только локально по `build-plan.md`, но и против `launch-card.md`, registry и launch-card поля `что считается зафиксированным без пересборки`, которое должно совпадать с registry `lockedBehavior`.
 
-### BP-01. <краткое имя задачи>
+### BP-01. Data snapshot и типы
 - Статус: `todo | in_progress | blocked | done`
 - Preview role: `support | hero-preview | camera-preview | environment-preview | integrated-preview`
 - Файлы:
@@ -123,6 +130,9 @@
 - Allowed adaptation:
 - Greenfield justification:
 - Non-negotiables:
+- World slots covered: `environment-preview | integrated-preview only`
+- Scene coverage: `environment-preview -> scene-1 | integrated-preview -> scene-1, scene-2, scene-3, scene-4 | иначе пусто`
+- Registry baselines used: `environment-preview | integrated-preview only: module-id, another-module-id | none`
 - Studio/browser check: `pending | ok | warning | fail`
 - Visual check method: `pending | mcp-playwright | remotion-studio | built-in-browser`
 - Console/runtime check: `pending | ok | warning | fail`
@@ -135,9 +145,9 @@
   - Почему это уже не scaffold:
 - Блокеры или заметки:
 
-### BP-02. <краткое имя задачи>
+### BP-02. Camera preview / scene logic
 - Статус: `todo | in_progress | blocked | done`
-- Preview role: `support | hero-preview | camera-preview | environment-preview | integrated-preview`
+- Preview role: `camera-preview`
 - Файлы:
 - Цель:
 - Готово когда:
@@ -148,6 +158,15 @@
 - Allowed adaptation:
 - Greenfield justification:
 - Non-negotiables:
+- Для implementation-locked preset-пакета:
+  - `Reuse mode`: только `preset-reuse`
+  - `Reference baseline`: `sourceOfTruthFiles` выбранного registry-пакета
+  - `Reuse without changes`: camera path math, переходные тайминги, hold rhythm, scene progression, finale behavior
+  - `Allowed adaptation`: только data normalization, рабочие offsets, безопасная дистанция камеры и topic-specific framing
+  - validator cross-check: `build-plan.md` сверяется с выбранным `scenePresetPackage` из `launch-card.md`, exact `sourceOfTruthFiles` из registry и launch-card полем `что считается зафиксированным без пересборки`
+- World slots covered: `environment-preview | integrated-preview only`
+- Scene coverage: `environment-preview -> scene-1 | integrated-preview -> scene-1, scene-2, scene-3, scene-4 | иначе пусто`
+- Registry baselines used: `environment-preview | integrated-preview only: module-id, another-module-id | none`
 - Studio/browser check: `pending | ok | warning | fail`
 - Visual check method: `pending | mcp-playwright | remotion-studio | built-in-browser`
 - Console/runtime check: `pending | ok | warning | fail`
@@ -160,9 +179,9 @@
   - Почему это уже не scaffold:
 - Блокеры или заметки:
 
-### BP-03. <краткое имя задачи>
+### BP-03. Hero preview
 - Статус: `todo | in_progress | blocked | done`
-- Preview role: `support | hero-preview | camera-preview | environment-preview | integrated-preview`
+- Preview role: `hero-preview`
 - Файлы:
 - Цель:
 - Готово когда:
@@ -173,6 +192,15 @@
 - Allowed adaptation:
 - Greenfield justification:
 - Non-negotiables:
+- Для implementation-locked reveal-пакета:
+  - `Reuse mode`: только `preset-reuse`
+  - `Reference baseline`: `sourceOfTruthFiles` выбранного registry reveal-пакета
+  - `Reuse without changes`: activation / presentation gate, reveal staging order, shell-to-data choreography, timing метрики, effect family
+  - `Allowed adaptation`: только тема, материалы, layout-safe offsets, content slots и topic-specific поверхности
+  - validator cross-check: `build-plan.md` сверяется с выбранным `heroRevealPackage` из `launch-card.md`, exact `sourceOfTruthFiles` из registry, launch-card полем `что считается зафиксированным без пересборки` и совместимостью reveal-пакета с `objectFamily`
+- World slots covered: `environment-preview | integrated-preview only`
+- Scene coverage: `environment-preview -> scene-1 | integrated-preview -> scene-1, scene-2, scene-3, scene-4 | иначе пусто`
+- Registry baselines used: `environment-preview | integrated-preview only: module-id, another-module-id | none`
 - Studio/browser check: `pending | ok | warning | fail`
 - Visual check method: `pending | mcp-playwright | remotion-studio | built-in-browser`
 - Console/runtime check: `pending | ok | warning | fail`
@@ -185,9 +213,9 @@
   - Почему это уже не scaffold:
 - Блокеры или заметки:
 
-### BP-04. <краткое имя задачи>
+### BP-04. Environment preview для `scene-1`
 - Статус: `todo | in_progress | blocked | done`
-- Preview role: `support | hero-preview | camera-preview | environment-preview | integrated-preview`
+- Preview role: `environment-preview`
 - Файлы:
 - Цель:
 - Готово когда:
@@ -198,6 +226,9 @@
 - Allowed adaptation:
 - Greenfield justification:
 - Non-negotiables:
+- World slots covered:
+- Scene coverage: `scene-1`
+- Registry baselines used: `module-id, another-module-id | none`
 - Studio/browser check: `pending | ok | warning | fail`
 - Visual check method: `pending | mcp-playwright | remotion-studio | built-in-browser`
 - Console/runtime check: `pending | ok | warning | fail`
@@ -210,9 +241,9 @@
   - Почему это уже не scaffold:
 - Блокеры или заметки:
 
-### BP-05. <краткое имя задачи>
+### BP-05. Environment preview для `scene-2`
 - Статус: `todo | in_progress | blocked | done`
-- Preview role: `support | hero-preview | camera-preview | environment-preview | integrated-preview`
+- Preview role: `environment-preview`
 - Файлы:
 - Цель:
 - Готово когда:
@@ -223,6 +254,93 @@
 - Allowed adaptation:
 - Greenfield justification:
 - Non-negotiables:
+- World slots covered:
+- Scene coverage: `scene-2`
+- Registry baselines used: `module-id, another-module-id | none`
+- Studio/browser check: `pending | ok | warning | fail`
+- Visual check method: `pending | mcp-playwright | remotion-studio | built-in-browser`
+- Console/runtime check: `pending | ok | warning | fail`
+- Screenshot set:
+- Mini-review:
+  - Что было baseline:
+  - Что reuse-нуто без изменений:
+  - Что адаптировано под тему:
+  - Что еще пока слабое:
+  - Почему это уже не scaffold:
+- Блокеры или заметки:
+
+### BP-06. Environment preview для `scene-3`
+- Статус: `todo | in_progress | blocked | done`
+- Preview role: `environment-preview`
+- Файлы:
+- Цель:
+- Готово когда:
+- Проверка:
+- Reference baseline:
+- Reuse mode: `preset-reuse | structure-reuse | system-reuse | greenfield-approved`
+- Reuse without changes:
+- Allowed adaptation:
+- Greenfield justification:
+- Non-negotiables:
+- World slots covered:
+- Scene coverage: `scene-3`
+- Registry baselines used: `module-id, another-module-id | none`
+- Studio/browser check: `pending | ok | warning | fail`
+- Visual check method: `pending | mcp-playwright | remotion-studio | built-in-browser`
+- Console/runtime check: `pending | ok | warning | fail`
+- Screenshot set:
+- Mini-review:
+  - Что было baseline:
+  - Что reuse-нуто без изменений:
+  - Что адаптировано под тему:
+  - Что еще пока слабое:
+  - Почему это уже не scaffold:
+- Блокеры или заметки:
+
+### BP-07. Environment preview для `scene-4`
+- Статус: `todo | in_progress | blocked | done`
+- Preview role: `environment-preview`
+- Файлы:
+- Цель:
+- Готово когда:
+- Проверка:
+- Reference baseline:
+- Reuse mode: `preset-reuse | structure-reuse | system-reuse | greenfield-approved`
+- Reuse without changes:
+- Allowed adaptation:
+- Greenfield justification:
+- Non-negotiables:
+- World slots covered:
+- Scene coverage: `scene-4`
+- Registry baselines used: `module-id, another-module-id | none`
+- Studio/browser check: `pending | ok | warning | fail`
+- Visual check method: `pending | mcp-playwright | remotion-studio | built-in-browser`
+- Console/runtime check: `pending | ok | warning | fail`
+- Screenshot set:
+- Mini-review:
+  - Что было baseline:
+  - Что reuse-нуто без изменений:
+  - Что адаптировано под тему:
+  - Что еще пока слабое:
+  - Почему это уже не scaffold:
+- Блокеры или заметки:
+
+### BP-08. Integrated preview
+- Статус: `todo | in_progress | blocked | done`
+- Preview role: `integrated-preview`
+- Файлы:
+- Цель:
+- Готово когда:
+- Проверка:
+- Reference baseline:
+- Reuse mode: `preset-reuse | structure-reuse | system-reuse | greenfield-approved`
+- Reuse without changes:
+- Allowed adaptation:
+- Greenfield justification:
+- Non-negotiables:
+- World slots covered:
+- Scene coverage: `scene-1, scene-2, scene-3, scene-4`
+- Registry baselines used: `module-id, another-module-id | none`
 - Studio/browser check: `pending | ok | warning | fail`
 - Visual check method: `pending | mcp-playwright | remotion-studio | built-in-browser`
 - Console/runtime check: `pending | ok | warning | fail`

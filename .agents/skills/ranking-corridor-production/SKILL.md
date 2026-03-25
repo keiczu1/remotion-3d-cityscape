@@ -46,8 +46,9 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Правила routing:
 
-- если есть `launch-card.md`, но нет `director-pass.md` — сначала сделай `director pass`;
-- если есть `director-pass.md`, но нет `build-plan.md` — сначала собери `build-plan`;
+- если есть `launch-card.md`, но нет `director-pass.md` — сначала сделай `director pass`, обнови секцию `Режиссерский план` в `review-notes.md` до `pending` и остановись для approve пользователя;
+- если `director-pass.md` уже есть, но в `review-notes.md` нет секции `Режиссерский план` со статусом `approved` — сначала покажи пользователю режиссерский план и дождись approve, а не переходи дальше;
+- если есть `director-pass.md` и он уже approved в `review-notes.md`, но нет `build-plan.md` — сначала собери `build-plan`;
 - если `build-plan.md` существует и в нем есть незавершенные задачи `preview-build` — продолжай с первой незавершенной задачи этой секции;
 - если `preview-build` завершен, но в `review-notes.md` нет допустимого решения по preview — сначала сделай `preview-gate`;
 - если preview уже дал `approve` или допустимый `approve with changes` и секция `post-preview-build` разблокирована — продолжай с первой незавершенной задачи этой секции;
@@ -74,6 +75,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 - создай или обнови project-артефакты;
 - сделай `director pass`;
+- остановись на approve режиссерского плана;
 - собери `build-plan`;
 - выполни задачи `preview-build`;
 - сделай `preview-gate`;
@@ -125,7 +127,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 Используй только шаблоны из `docs/templates/`.
 
-Если `build-plan.md` еще не существует, создай его на шаге после `director pass`, а не заранее пустым placeholder-файлом.
+Если `build-plan.md` еще не существует, создай его только после явного approve режиссерского плана, а не заранее пустым placeholder-файлом и не автоматически сразу после draft-версии `director pass`.
 
 Если `launch-card.md`, `director-pass.md`, `build-plan.md`, `asset-manifest.md` или `review-notes.md` уже существуют, обновляй их, а не пересоздавай.
 
@@ -144,8 +146,20 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 - не пересобирай ролик заново и не спорь с уже утвержденным creative-направлением без сильной причины;
 - зафиксируй, что остается стабильным из `launch-card`;
-- раздели ролик на `4-6` сцен;
+- раздели ролик ровно на `4` сцены;
 - отдельно продумай систему вторичной жизни / фоновой активности;
+- для готовых world-элементов сначала читай `docs/library/ranking-corridor-module-registry.md`, а не анализируй весь репозиторий заново;
+- собирай вторичную жизнь как обязательное ядро world-slot, а не как свободный список эффектов:
+  - `horizon`
+  - `side-dressing`
+  - `atmospheric-motion`
+  - `directed-motion`
+  - `ground`
+  - `light-weather`
+- `payoff` используй как отдельный поздний акцентный слот, если у ролика есть самостоятельный финальный payoff, но не как обязательный слой для каждой scene-task;
+- если в реестре для world-slot есть подходящий модуль, предложи его первым;
+- `Окружение вдоль коридора` должно содержать минимум `2` семейства;
+- держи минимум `1` slot как сквозной якорь через весь ролик и минимум `3` slot, которые заметно меняются по сценам;
 - при необходимости пересобери предварительную `secondary-life system`, намеченную в `concept-pack`, если это не ломает `hero`, базовую камеру и базовый ритм;
 - описывай эту систему по-человечески и предметно: что видно на горизонте и в дальнем плане, какие art-объекты поддерживают мир, какие движения, анимации и смены происходят по сценам;
 - покажи, как вторичная жизнь и мир эволюционируют от начала к финалу;
@@ -155,6 +169,14 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 Сохрани результат в:
 
 - `projects/<project-slug>/director-pass.md`
+- `projects/<project-slug>/review-notes.md`
+
+После сохранения `director-pass.md` сразу обнови секцию `Режиссерский план` в `review-notes.md`:
+
+- если `director pass` создан впервые или materially обновлен — поставь `Решение: pending`;
+- кратко зафиксируй, что уже подтверждено и что пользователь должен проверить;
+- выставь `Можно ли переходить к build-plan: no`;
+- затем остановись и дождись явного approve пользователя, а не продолжай в `build-plan` автоматически.
 
 Не меняй через `director pass` hero-модуль, базовую камеру или базовый ритм, зафиксированные в `launch-card`.
 
@@ -162,7 +184,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 ## Шаг 3. Собери `build-plan`
 
-Сделай это сразу после `director pass` и до активной реализации.
+Сделай это только после явного approve режиссерского плана и до активной реализации.
 
 Опирайся на:
 
@@ -172,9 +194,13 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 Что обязательно:
 
 - сохрани результат в `projects/<project-slug>/build-plan.md`;
-- разложи ближайшую реализацию на `6-10` конкретных задач;
+- разложи ближайшую реализацию на `8-14` конкретных задач;
 - для каждой задачи явно зафиксируй `id`, `phase`, `status`, затронутые файлы, цель, критерий готовности и проверку;
 - для ключевых задач preview-качества (`camera`, `hero`, `environment`, `integrated-preview`) дополнительно зафиксируй `Reference baseline`, `Reuse mode`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables`, `Studio/browser check`, `Visual check method`, `Console/runtime check` и `Screenshot set`;
+- для `environment-preview` и `integrated-preview` дополнительно зафиксируй `World slots covered`, `Scene coverage` и `Registry baselines used`;
+- не собирай всю среду в одну общую environment-задачу: сделай отдельные `environment-preview` задачи минимум для `scene-1`, `scene-2`, `scene-3` и `scene-4`;
+- каждая scene-specific `environment-preview` задача должна иметь `Scene coverage` ровно с одним scene-id;
+- `integrated-preview` должен собирать минимум `scene-1, scene-2, scene-3, scene-4` вместе и проверять, что мир эволюционирует по сценам, а не только выглядит достойно в одном кадре;
 - используй top-level поле `Следующий шаг`, а не свободный текст `Следующая задача`;
 - в `Следующий шаг` записывай либо существующий `task id`, либо один из системных шагов `preview-gate | final-approval | library-audit | completed`;
 - держи только одну задачу в `in_progress`;
@@ -195,10 +221,20 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - для `camera`, `hero` и `environment` по умолчанию reuse идет от конкретной verified implementation или явно названного reference baseline, а не только от словесной идеи;
 - `Reference baseline` записывай как точный source-of-truth: `moduleId`, preset id, repo-relative путь к файлу или иной однозначный reference, а не как расплывчатое описание;
 - `Reuse mode` для key preview task не является свободным текстом и должен быть одним из: `preset-reuse | structure-reuse | system-reuse | greenfield-approved`;
+- если в `launch-card.md` выбран `scenePresetPackage` с `reusePolicy: implementation-locked`, для `camera-preview` по умолчанию обязателен `Reuse mode: preset-reuse`, а `Reference baseline` должен ссылаться на `sourceOfTruthFiles` выбранного пакета;
+- для такого implementation-locked пакета в `Reuse without changes` явно перечисляй camera path math, переходные тайминги, hold rhythm, базовую scene progression и finale behavior;
+- для такого implementation-locked пакета в `Allowed adaptation` оставляй только data normalization, рабочие offsets, безопасную дистанцию камеры и topic-specific framing без пересборки характера preset;
+- после обновления `build-plan.md` валидатор должен подтвердить, что `camera-preview` согласован с выбранным `scenePresetPackage` из `launch-card.md`, exact `sourceOfTruthFiles` из registry и launch-card полем `что считается зафиксированным без пересборки`, которое должно совпадать с registry `lockedBehavior`;
+- если в `launch-card.md` выбран `heroRevealPackage` с `reusePolicy: implementation-locked`, для `hero-preview` по умолчанию обязателен `Reuse mode: preset-reuse`, а `Reference baseline` должен ссылаться на `sourceOfTruthFiles` выбранного reveal-пакета;
+- для такого implementation-locked reveal-пакета в `Reuse without changes` явно перечисляй activation / presentation gate, reveal staging order, shell/data choreography, timing метрики и effect family;
+- для такого implementation-locked reveal-пакета в `Allowed adaptation` оставляй только тему, материалы, layout-safe offsets, content slots и topic-specific поверхности без пересборки reveal-характера;
+- после обновления `build-plan.md` валидатор должен подтвердить, что `hero-preview` согласован с выбранным `heroRevealPackage` из `launch-card.md`, exact `sourceOfTruthFiles` из registry, launch-card полем `что считается зафиксированным без пересборки` и совместимостью reveal-пакета с `objectFamily`;
 - `greenfield-approved` не является дефолтом: он допустим только если пользователь явно одобрил выход за пределы baseline или если в `launch-card.md` / `director-pass.md` уже зафиксировано отсутствие подходящего baseline;
 - если выбран `greenfield-approved`, до старта реализации заполни `Greenfield justification` и укажи источник решения;
 - если выбран любой reuse-режим кроме `greenfield-approved`, не начинай писать `hero`, `camera` или `environment` как greenfield-модуль: сначала reuse baseline, потом theme adaptation;
 - для key preview task со статусом `in_progress` или `done` `Reuse mode`, `Reference baseline` (если это не `greenfield-approved`), `Reuse without changes` и `Allowed adaptation` уже должны быть заполнены;
+- `Scene coverage` записывай только в машинно читаемом виде: для scene-specific `environment-preview` это ровно один id (`scene-1`), а для `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`; человекочитаемые названия сцен в `director-pass` должны ссылаться на те же id;
+- `Registry baselines used` записывай либо списком registry `moduleId` через запятую, либо literal `none`, если registry-backed baseline для world-slot отсутствует;
 - в `preview-build` важнее глубина ключевых слоев, чем попытка быстро закрыть больше задач за один проход;
 - нельзя считать задачу `done`, если код компилируется, но результат все еще выглядит как бедный scaffold и нарушает `Non-negotiables`.
 
@@ -214,6 +250,8 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - polishing и финальная verification.
 
 `Build-plan` можно коротко показать пользователю как soft-checkpoint, но по умолчанию не жди отдельного обязательного approve, если только план не стал явно рискованным.
+
+Это не отменяет обязательный approve режиссерского плана: без `Решение: approved` в секции `Режиссерский план` workflow не идет дальше.
 
 ## Шаг 4. Выполни задачи `preview-build` и собери data snapshot
 
@@ -232,13 +270,18 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - собери локальные ассеты;
 - сохрани исходные URL и статусы ассетов в `asset-manifest.md`;
 - если реальный data snapshot или реальные ассеты заметно меняют ощущение масштаба, плотность мира или характер фоновой активности, обнови `director pass` до `preview-gate`, а не держись за раннюю chat-first версию.
+- если такое обновление materially меняет world-slot, scene structure, escalation или payoff, верни секцию `Режиссерский план` в `pending`, обнови `review-notes.md` и снова остановись до approve пользователя.
 
 Для `preview-build` обязательно пройди через такие quality checkpoints:
 
 - `hero-preview` — один контрольный объект должен уже выглядеть как честный quality slice, а не как placeholder;
+- если для текущего hero/object family уже есть reveal-baseline, `hero-preview` без анимации появления не проходит quality bar и не может считаться `done`;
 - `camera-preview` — камера и тайминги должны быть узнаваемо близки к выбранному preset или baseline, а не только совпадать по API;
-- `environment-preview` — среда должна уже давать depth, secondary-life и ощущение мира, а не пустой scaffold;
-- `integrated-preview` — на контрольном срезе hero, camera и environment должны работать вместе как единая сцена.
+- если выбран implementation-locked `scenePresetPackage`, `camera-preview` не пишется с нуля: reuse-ится рабочая реализация выбранного пакета, а отклонения требуют отдельного согласования;
+- если валидатор не видит exact `sourceOfTruthFiles` выбранного implementation-locked пакета в `Reference baseline`, такая задача не может считаться корректно оформленной;
+- `environment-preview` — среда должна уже давать depth, secondary-life и ощущение мира, а не пустой scaffold, и покрывать world-slot, выбранные в `director pass`;
+- `environment-preview` делай посценным: каждая environment-задача отвечает за одну конкретную сцену, а не за всю world-evolution сразу;
+- `integrated-preview` — на контрольном срезе hero, camera и environment должны работать вместе как единая сцена и держать минимум `4` сцены world-evolution.
 
 Перед переводом ключевой preview-задачи в `done` коротко зафиксируй mini-review:
 
@@ -256,6 +299,9 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - проверь console/runtime без игнорирования ошибок и missing-asset warning;
 - сохрани screenshot set в `projects/<project-slug>/exports/preview-checks/`;
 - обнови в `build-plan.md` поля `Studio/browser check`, `Visual check method`, `Console/runtime check` и `Screenshot set`;
+- для `environment-preview` и `integrated-preview` также обнови `World slots covered`, `Scene coverage` и `Registry baselines used`;
+- `Scene coverage` держи по роли: для scene-specific `environment-preview` — ровно один scene-id, для `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`;
+- в `Registry baselines used` используй либо список `moduleId`, либо literal `none`, без самодельных формулировок;
 - после обновления статуса снова запусти `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`.
 
 Пути по умолчанию:
@@ -304,6 +350,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - какой пакет показан;
 - что именно проверяется;
 - как сработал `director pass` и держится ли вторичная жизнь;
+- какие world-slot из `director pass` реально реализованы и как они меняются по сценам;
 - не начинает ли вторичная жизнь перетягивать внимание с героя;
 - держится ли укладка данных на сложных случаях и где есть `layout-warning` или `layout-fail`;
 - результат browser/Studio-проверки;

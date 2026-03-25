@@ -74,7 +74,7 @@
 - какая метрика подразумевается;
 - нужен ли поиск в интернете;
 - какой режим визуального представления ближе теме;
-- какой `showTone` и `timingFamily` подходят по умолчанию.
+- какой `showTone` и `backgroundFamily` подходят по умолчанию, и нужен ли вообще отдельный `timingFamily` или тема сразу ложится на implementation-locked `scenePresetPackage`.
 
 ### 2. Concept-pack и один пакет ответов
 
@@ -132,12 +132,23 @@
 
 - один рекомендуемый вариант из канонической базы;
 - при желании `1-2` альтернативы только из канонической базы;
+- если registry-backed verified-вариант в реестре помечен как `reusePolicy: implementation-locked`, предлагать его как готовый `пакет сцены и камеры`, а не как отдельно комбинируемые оси;
 - сначала использовать существующие preset-семейства и registry-backed verified-варианты, а не придумывать новые имена;
 - если вариант берется из канона, показывать его под человеческим canonical name из канона и canonical id в скобках;
 - если вариант берется из реестра, показывать `userFacingName` первым, а технический `moduleId` вторым слоем;
 - не переименовывать `soft-side-orbit`, `rail-focus`, `rail-crescendo`, `balanced-show`, `showcase-premium`, `crescendo-to-leaders` или `chapter-pulse` в новые ярлыки вроде `sweep-standard`, `low-angle epic`, `dynamic-steps`;
 - `ai-custom` допустим только если пользователь сам прямо просит кастом или явно подтверждает выход за пределы канонической базы;
+- если implementation-locked пакет не выбран, можно дополнительно показать один рекомендуемый timing preset из канонической базы и при желании `1-2` альтернативы только из канонической базы;
 - возможность принять пользовательский кастомный вариант одной фразой.
+
+Если для выбранного `objectFamily` уже есть registry-backed implementation-locked reveal-baseline, ИИ должен в том же `concept-pack` сразу после блока про камеру добавить короткий блок `✨ Появление объекта`:
+
+- показывать reveal не как свободный эффект, а как готовый `heroRevealPackage`;
+- если подходящий reveal-пакет в базе один, показывать его как рекомендуемый baseline без лишней развилки;
+- если подходящих reveal-пакетов несколько, показывать один рекомендуемый и при желании одну альтернативу только из registry;
+- называть reveal-пакет по-человечески, рядом можно дать технический `moduleId`;
+- коротко пояснять характер появления: activation / presentation gate, reveal staging и shell-to-data choreography;
+- не придумывать новый reveal, пока пользователь сам не просит выйти за пределы базы или registry действительно пуст.
 
 По умолчанию ИИ не должен без причины изобретать новый маршрут камеры или новый ритм с нуля, если тема хорошо ложится на уже существующие preset-семейства.
 
@@ -159,9 +170,10 @@
 - не собирать варианты заново из отдельных family-осей `camera / timing / background`;
 - количество вариантов должно совпадать с реально доступной проверенной базой; если в базе `2` подходящих варианта, ИИ показывает ровно `2`;
 - показывать их по-человечески как цельные готовые варианты в формате `Вариант 1. ...`, `Вариант 2. ...`; если в записи реестра есть `userFacingName`, его нужно использовать первым;
-- у каждого варианта коротко фиксировать вид камеры, характер ритма/подачи и только вторым слоем давать технический `moduleId`;
+- у каждого варианта коротко фиксировать вид камеры, характер ритма/подачи и только вторым слоем давать технический `moduleId`; если preset в реестре имеет `reusePolicy: implementation-locked`, этот вариант считается готовым implementation package, а не только creative-направлением;
 - не подмешивать family-варианты вроде `rail-crescendo`, если они не зафиксированы в реестре как проверенные;
 - не предлагать `ai-custom`, пока пользователь сам не просит выйти за пределы проверенной базы.
+- если для выбранного `objectFamily` уже есть registry-backed implementation-locked reveal-baseline, после блока `🎥 Проверенные варианты подачи` ИИ добавляет блок `✨ Проверенные варианты появления` только с reveal-пакетами из registry, совместимыми с этим `objectFamily`.
 
 Если остаются реально нужные развилки по данным, языку или другим важным условиям, ИИ добавляет к тому же сообщению один компактный пакет вопросов.
 
@@ -233,12 +245,20 @@
 - `dataSourceMode`;
 - `languageMode`;
 - `objectFamily`;
+- `scenePresetPackage`, если выбран registry-backed implementation-locked вариант;
+- `heroRevealPackage`, если для выбранного `objectFamily` уже есть registry-backed implementation-locked reveal baseline;
+- `objectFamily` должен иметь явный `id`: без него validator не может проверить совместимость `heroRevealPackage`;
 - `mainCameraFamily`;
-- `timingFamily`;
-- источник выбора камеры и ритма: `preset | user-custom | ai-custom`;
-- краткое воспроизводимое описание логики камеры и ритма, если выбран `user-custom` или `ai-custom`;
+- `timingFamily`, только если не выбран implementation-locked `scenePresetPackage`;
+- источник выбора камеры: `preset | user-custom | ai-custom`; для ритма это поле нужно только если не выбран implementation-locked `scenePresetPackage`;
+- краткое воспроизводимое описание логики камеры и ритма, если выбран `user-custom` или `ai-custom`; при implementation-locked `scenePresetPackage` отдельную новую логику ритма не фиксировать;
 - краткую причину, почему каноническая база не подошла, если выбран `ai-custom`;
 - если камера или ритм взяты из реестра, использовать `userFacingName` как основное название, а `moduleId` фиксировать в `id`;
+- если выбран `scenePresetPackage` с `reusePolicy: implementation-locked`, `mainCameraFamily` не является новым выбором, а лишь дублирует пакет для читаемости, а `timingFamily` вообще не фиксируется как отдельное решение и считается унаследованным от выбранного пакета;
+- для implementation-locked `scenePresetPackage` в `launch-card.md` обязательны не только `id`, `политика reuse` и `source-of-truth files`, но и поле `что считается зафиксированным без пересборки`, которое должно дублировать registry `lockedBehavior`;
+- если для выбранного `objectFamily` в registry уже есть reveal-baseline с `reusePolicy: implementation-locked`, фиксировать его как `heroRevealPackage`, а не как расплывчатый `revealSystem`;
+- для такого `heroRevealPackage` анимация появления считается частью hero-модуля и не выносится в отдельный пользовательский выбор без особой причины;
+- для implementation-locked `heroRevealPackage` в `launch-card.md` обязательны не только `id`, `политика reuse` и `source-of-truth files`, но и поле `что считается зафиксированным без пересборки`, которое должно дублировать registry `lockedBehavior`;
 - `backgroundFamily`;
 - источник выбора фона: `preset | theme-default | user-custom | ai-custom`;
 - `assetRepresentationMode`;
@@ -252,7 +272,7 @@
 - источник утверждения core-направления: `concept-pack | verified-preset | explicit-user-text | user-approved-default`;
 - краткую фиксацию утвержденного creative-направления;
 - краткую фиксацию логики укладки данных на hero-модуле;
-- пометку, что `revealSystem` работает в режиме максимальной вариативности;
+- режим системы появления: `registry-first-default | approved-custom`;
 - что зафиксировано референсом;
 - что допускает адаптацию;
 - какие решения пока имеют статус `design-only`;
@@ -279,6 +299,14 @@
 
 После утверждения `launch-card` ИИ делает подробный `director pass` перед `preview-gate`.
 
+После создания или материального обновления `director-pass.md` ИИ обязан остановиться и дождаться явного approve пользователя по секции `Режиссерский план` в `review-notes.md`.
+
+До этого approve нельзя:
+
+- переходить к `build-plan`;
+- начинать `preview-build`;
+- считать режиссерский план закрытым только потому, что файл уже существует.
+
 Это основной этап `content enrichment` для уже выбранного ролика.
 
 Практическая файловая форма `director pass` задается в:
@@ -291,18 +319,30 @@
 
 Он должен:
 
-- делить ролик на `4-6` сцен или глав;
+- делить ролик ровно на `4` сцены или главы;
 - продумывать, как от сцены к сцене эволюционируют мир, атмосфера, дальний план и вторичная жизнь;
 - усиливать драматургию, progression и удержание внимания;
 - подводить ролик к более сильной кульминации у лидеров и в финале;
-- выбирать приемы по теме, а не по фиксированному чеклисту эффектов;
+- выбирать приемы по теме, а не по фиксированному списку эффектов;
 - иметь право пересобирать и дообогащать предварительную `secondary-life system`, намеченную в `concept-pack`, если это не ломает утвержденные `hero`, камеру и ритм.
 
 Особенно важно:
 
 - вторичная жизнь фона — это не декоративное приложение, а один из главных носителей живости, масштаба и напряжения;
 - под этим слоем понимаются не только живые объекты или организмы, а любая фоновая активность: атмосфера, дальний план, механика мира, свет, погода, воздух, редкие события и прочие слои интереса вне hero-модуля;
-- режиссерский проход обязан отдельно продумать, что в мире слегка происходит почти всегда, какие редкие акценты появляются по сценам и как эта фоновая активность эволюционирует к финалу.
+- режиссерский проход обязан собирать вторичную жизнь не как свободный абзац про атмосферу, а как обязательное ядро world-slot:
+  - `horizon` — `Опорный объект на горизонте`
+  - `side-dressing` — `Окружение вдоль коридора`
+  - `atmospheric-motion` — `Атмосферное движение`
+  - `directed-motion` — `Направленное движение`
+  - `ground` — `Основа поверхности`
+  - `light-weather` — `Свет и погодная программа`
+- отдельный late-game слот `payoff` допустим и рекомендуется, если у ролика есть самостоятельные поздние акценты, но он не считается обязательным для каждой scene-task наравне с ядром мира;
+- для каждого world-slot ИИ сначала смотрит `docs/library/ranking-corridor-module-registry.md`, а не повторно сканирует весь репозиторий;
+- если в реестре для слота есть подходящий модуль, он должен быть предложен первым;
+- новый элемент допустим как `adapt-from-base` или `new-layer-over-base`, а не как молчаливый greenfield-дефолт;
+- `Окружение вдоль коридора` должно содержать минимум `2` семейства элементов;
+- минимум `1` world-slot должен оставаться сквозным якорем через весь ролик, а минимум `3` world-slot должны заметно меняться по сценам;
 - этот слой нужно описывать не только как настроение, но и предметно: что зритель видит на горизонте, какие art-объекты и фоновые слои делают мир узнаваемым, какие движения и анимации там живут, какие сценические смены происходят по ходу ролика.
 
 `Director pass` не должен:
@@ -324,11 +364,13 @@
 
 - общую режиссерскую цель;
 - систему вторичной жизни;
+- обязательные world-slot и их базовые источники из реестра или явное отсутствие подходящей базы;
 - достаточно глубокое описание фоновой активности: что в мире происходит почти всегда, где появляются акценты, как этот слой усиливается или успокаивается по сценам и как он работает на payoff;
 - человеческое и конкретное описание этого слоя, а не только абстрактную декларацию атмосферы: что видно в дальнем плане и на горизонте, какие есть art-объекты, какие движения, анимации и смены состояний мира удерживают интерес;
 - при необходимости этот слой можно раскладывать на базовый слой, акценты, quiet-зоны и payoff-логику, но это не должно превращаться в механический чеклист;
 - что остается стабильным из `launch-card`;
-- разбивку на `4-6` сцен;
+- разбивку ровно на `4` сцены;
+- явную посценную эволюцию world-slot, а не только общие фразы про “усиление атмосферы”;
 - что меняется в мире по сценам;
 - чем именно это удерживает интерес и усиливает напряжение;
 - где есть риск перегруза и что лучше оставить в статусе `design-only`.
@@ -337,9 +379,11 @@
 
 Если после реального data/asset snapshot становится ясно, что ощущение масштаба, плотность мира или характер фоновой активности должны быть уточнены, `director pass` обновляется перед `preview-gate`, а не считается закрытым навсегда по ранней chat-first версии.
 
+Если такое обновление materially меняет world-slot, сценическую структуру, escalation, payoff или характер фоновой активности, прежнее approve режиссерского плана считается устаревшим: секция `Режиссерский план` в `review-notes.md` возвращается в `pending`, и ИИ снова ждет явного approve пользователя.
+
 ### 5. Build-plan и декомпозиция реализации
 
-После `director pass` и до активной реализации ИИ обязан собрать project-local `build-plan`.
+Только после явного approve режиссерского плана и до активной реализации ИИ обязан собрать project-local `build-plan`.
 
 Практическая файловая форма задается в:
 
@@ -358,9 +402,11 @@
 Он должен:
 
 - жить в `projects/<project-slug>/build-plan.md`;
-- разложить ближайшую реализацию на `6-10` конкретных задач;
+- разложить ближайшую реализацию на `8-14` конкретных задач;
 - для каждой задачи фиксировать `id`, `phase`, `status`, затронутые файлы, цель, критерий готовности и проверку;
 - для ключевых задач preview-качества (`camera`, `hero`, `environment`, `integrated-preview`) дополнительно фиксировать `Reference baseline`, `Reuse mode`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables`, `Studio/browser check`, `Visual check method`, `Console/runtime check` и `Screenshot set`;
+- для `environment-preview` и `integrated-preview` дополнительно фиксировать `World slots covered`, `Scene coverage` и `Registry baselines used`;
+- не сворачивать всю world-evolution в одну общую environment-задачу: для minimum contract нужны отдельные scene-specific `environment-preview` задачи минимум для `scene-1`, `scene-2`, `scene-3` и `scene-4`;
 - держать только одну задачу в `in_progress`;
 - явно разделять `preview-build` и `post-preview-build`;
 - считать `post-preview-build` заблокированным до допустимого решения по `preview-gate`;
@@ -376,13 +422,25 @@
 - для `camera`, `hero` и `environment` по умолчанию reuse идет от конкретной verified implementation или явно названного reference baseline, а не только от словесной идеи;
 - `Reference baseline` должен указывать на точный source-of-truth: `moduleId`, preset id, repo-relative путь к файлу или иной однозначный reference, а не на расплывчатое описание;
 - `Reuse mode` для key preview task не является свободным текстом и должен быть одним из: `preset-reuse | structure-reuse | system-reuse | greenfield-approved`;
+- если в `launch-card.md` выбран `scenePresetPackage` с `reusePolicy: implementation-locked`, для `camera-preview` по умолчанию обязателен `Reuse mode: preset-reuse`, а `Reference baseline` должен ссылаться на `sourceOfTruthFiles` выбранного пакета;
+- для такого implementation-locked пакета `Reuse without changes` должен явно перечислять camera path math, переходные тайминги, hold rhythm, базовую scene progression и finale behavior;
+- для такого implementation-locked пакета `Allowed adaptation` ограничивается data normalization, рабочими offsets, безопасной дистанцией камеры и topic-specific framing без пересборки характера preset;
+- валидатор `build-plan` сверяет этот контракт не только по полям самой camera-задачи, но и против `scenePresetPackage` из `launch-card.md`, registry `sourceOfTruthFiles` и launch-card поля `что считается зафиксированным без пересборки`, которое должно совпадать с registry `lockedBehavior`;
+- если в `launch-card.md` выбран `heroRevealPackage` с `reusePolicy: implementation-locked`, для `hero-preview` по умолчанию обязателен `Reuse mode: preset-reuse`, а `Reference baseline` должен ссылаться на `sourceOfTruthFiles` выбранного reveal-пакета;
+- для такого implementation-locked `heroRevealPackage` `Reuse without changes` должен явно перечислять activation / presentation gate, reveal staging order, shell-to-data choreography, timing метрики и effect family;
+- для такого implementation-locked `heroRevealPackage` `Allowed adaptation` ограничивается темой, материалами, layout-safe offsets, content slots и topic-specific поверхностью без пересборки reveal-характера;
+- валидатор `build-plan` сверяет этот контракт не только по полям самой hero-задачи, но и против `heroRevealPackage` из `launch-card.md`, registry `sourceOfTruthFiles`, launch-card поля `что считается зафиксированным без пересборки` и совместимости reveal-пакета с `objectFamily`;
 - `greenfield-approved` не является дефолтом: он допустим только если пользователь явно одобрил выход за пределы baseline или если в `launch-card.md` / `director-pass.md` уже зафиксировано отсутствие подходящего baseline;
 - если выбран `greenfield-approved`, ИИ обязан зафиксировать `Greenfield justification` с источником решения; без этого стартовать реализацию нельзя;
 - если выбран любой reuse-режим кроме `greenfield-approved`, ИИ не имеет права разрабатывать `hero`, `camera` или `environment` "с нуля" и должен сначала опереться на baseline-код, а уже потом адаптировать тему;
 - для key preview task со статусом `in_progress` или `done` `Reuse mode`, `Reference baseline` (если это не `greenfield-approved`), `Reuse without changes` и `Allowed adaptation` должны быть уже заполнены, а не оставлены на потом;
+- `Scene coverage` записывай в машинно читаемом виде: для scene-specific `environment-preview` это ровно один `scene-id` (`scene-1`), а для `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`; человекочитаемые `Сцена 1`, `Сцена 2` и так далее в `director-pass` должны ссылаться на те же scene-id;
+- каждая scene-specific `environment-preview` задача должна покрывать ровно один `scene-id`, а `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4` вместе;
+- `Registry baselines used` записывай либо списком `moduleId` через запятую, либо literal `none`, если подходящего registry-backed baseline для world-slot нет;
 - в `preview-build` важнее глубина ключевых слоев, чем попытка формально закрыть больше задач за один проход;
 - нельзя переводить задачу в `done`, если код компилируется, но результат все еще выглядит как бедный scaffold и нарушает `Non-negotiables`.
 - нельзя переводить key preview task в `done` без machine-check и visual evidence.
+- для `environment-preview` и `integrated-preview` нельзя переводить задачу в `done`, пока не зафиксировано, какие world-slot из `director pass` реально покрыты и какая scene-specific или integrated scene coverage реально проверена.
 
 Правило маршрутизации:
 
@@ -390,6 +448,8 @@
 - если задача в `build-plan.md` помечена как выполненная, но минимальная сверка показывает расхождение с реальным состоянием файлов, ИИ возвращает ее в `todo` или `blocked`, а не доверяет чекбоксу слепо.
 
 `Build-plan` можно коротко показать пользователю как soft-checkpoint, но по умолчанию он не требует отдельного обязательного approve, если только задача не стала продуктово или архитектурно рискованной.
+
+Это не отменяет отдельный обязательный approve для `director pass`: режиссерский план — жесткие ворота перед `build-plan`, а не такой же soft-checkpoint.
 
 Два уровня сверки:
 
@@ -405,9 +465,12 @@
 Обязательные quality checkpoints внутри `preview-build`:
 
 - `hero-preview` — один контрольный объект уже выглядит как честный quality slice, а не как placeholder;
+- если для выбранного hero/object family уже есть reveal-baseline, `hero-preview` не может оставаться статичным: анимация появления обязательна как часть quality slice;
 - `camera-preview` — камера и тайминги узнаваемо близки к выбранному preset или baseline, а не только совместимы по API;
-- `environment-preview` — среда уже дает depth, secondary-life и ощущение мира, а не пустой scaffold;
-- `integrated-preview` — на контрольном срезе hero, camera и environment работают вместе как единая сцена.
+- если выбран implementation-locked `scenePresetPackage`, `camera-preview` должен reuse-ить именно его рабочую реализацию, а не новую camera-math "по мотивам";
+- отсутствие exact `sourceOfTruthFiles` выбранного пакета в `Reference baseline` считается ошибкой контракта, а не допустимой интерпретацией;
+- `environment-preview` — среда уже дает depth, secondary-life и ощущение мира, а не пустой scaffold, и покрывает world-slot, выбранные в `director pass`;
+- `integrated-preview` — на контрольном срезе hero, camera и environment работают вместе как единая сцена и держат минимум `4` сцены world-evolution.
 
 Перед переводом ключевой preview-задачи в `done` ИИ обязан коротко зафиксировать mini-review:
 
@@ -426,6 +489,9 @@
 - проверить console/runtime без игнорирования ошибок и missing-asset warning;
 - сохранить screenshot-артефакты в `projects/<project-slug>/exports/preview-checks/`;
 - зафиксировать `Studio/browser check`, `Visual check method`, `Console/runtime check` и `Screenshot set` внутри `build-plan.md`.
+- для `environment-preview` и `integrated-preview` дополнительно зафиксировать `World slots covered`, `Scene coverage` и `Registry baselines used` внутри `build-plan.md`;
+- `Scene coverage` вести теми же machine-readable scene-id, что и в `director-pass`;
+- `Registry baselines used` заполнять либо списком registry `moduleId`, либо literal `none`.
 
 Жизненный цикл `Статуса плана`:
 
@@ -512,6 +578,8 @@
 - pacing на чтение;
 - один короткий фрагмент intro;
 - один короткий фрагмент payoff-поведения;
+- явную проверку того, какие world-slot из `director pass` реально реализованы;
+- явную проверку того, что минимум `4` сцены world-evolution читаются как разные по ощущению;
 - отдельную проверку вторичной жизни и режиссерской эскалации: ранняя сцена, середина ролика и финальная треть не должны ощущаться одинаковыми или мертвыми;
 - отдельную проверку укладки данных на сложных случаях: длинные названия, крупные числа, широкие логотипы, плотные соседние объекты и разные дистанции камеры;
 - реальные данные и реальные локальные ассеты хотя бы для preview-набора.
@@ -643,6 +711,7 @@
 Отдельное правило для preset-уровня:
 
 - `camera preset` и `timing preset` могут продвигаться не только как кодовый модуль, но и как registry/contract-level решение;
+- если `camera preset` в реестре помечен как `reusePolicy: implementation-locked`, он считается жестким implementation baseline для следующих проектов, а не только именованным creative-вариантом;
 - если логика уже существует в проекте и не требует нового library-модуля, promotion может ограничиться фиксацией preset-контракта и обновлением документации.
 
 После этого решается, что из нового решения остается:
@@ -745,6 +814,7 @@
 
 Для `review-notes.md` в `v1` зафиксированы такие статусы:
 
+- решение по режиссерскому плану: `pending | approved | revise`
 - результат director-pass-проверки: `ok | warning | fail`
 - решение по предпросмотру: `approve | approve with changes | reject`
 - финальный статус проекта: `final-approved | final-approved-with-notes | not-final`

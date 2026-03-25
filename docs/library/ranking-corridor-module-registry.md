@@ -26,6 +26,24 @@
 
 Такие решения должны оставаться в `projects/<project-slug>/review-notes.md`, в секции `Аудит библиотеки`.
 
+## Как `director pass` использует этот реестр
+
+Для готовых world-элементов source-of-truth находится здесь, а не в памяти чата и не в повторном обходе всего репозитория.
+
+Правила такие:
+
+- перед сборкой `secondary-life system` ИИ сначала читает этот реестр;
+- для каждого world-slot ИИ сначала предлагает подходящие registry-backed варианты;
+- если в реестре для слота есть подходящий модуль, он должен быть показан первым;
+- только если реестр не закрывает слот, ИИ может предложить `adapt-from-base` от project-local baseline или новый слой;
+- project-local код не считается общей базой по умолчанию, пока он не promoted в этот реестр.
+
+Практически это значит:
+
+- `director pass` не должен каждый раз заново анализировать весь проект, чтобы понять, “что у нас уже есть”;
+- он должен фильтровать готовые world-модули по их metadata из этого реестра;
+- новый элемент предлагается только как осознанное дополнение к базе, а не как молчаливый greenfield-дефолт.
+
 ## Базовая политика переноса в библиотеку
 
 Новый элемент не должен сразу считаться библиотекой.
@@ -131,6 +149,7 @@
 Для `camera preset` и `timing preset` допустим более легкий режим promotion:
 
 - если логика уже существует и не требует отдельного library-модуля, ИИ может оформить promotion как registry/contract-level решение;
+- если `camera preset` помечен как `reusePolicy: implementation-locked`, такое promotion означает не только naming-контракт, но и жесткий implementation baseline для следующих проектов;
 - в таком случае все равно нужно обновить реестр, `review-notes` проекта и связанные docs.
 
 ## Шаблон записи
@@ -147,6 +166,33 @@
 - `placement`
 - `docsUpdated`
 - `notes`
+
+Для записей типа `background / ambient / secondary-life system` дополнительно нужны:
+
+- `worldSlot`: одно или несколько значений из `horizon | side-dressing | atmospheric-motion | directed-motion | ground | light-weather | payoff`; если значений несколько, разделяй их через `|`
+- `environmentFamily`: одно или несколько значений из `nature | urban | arena | industrial | fantasy | neutral`; если значений несколько, разделяй их через `|`
+- `role`: `core | support | accent`
+- `combineWith`
+- `stageFit`
+- `costTier`: `low | medium | high`
+
+Для записей типа `camera preset` дополнительно нужны:
+
+- `presetScope`: `camera-only | scene-package`
+- `reusePolicy`: `implementation-locked | contract-only`
+- `sourceOfTruthFiles`: repo-relative файлы, которые считаются рабочей реализацией preset-пакета
+- `lockedBehavior`: что именно reuse-ится без пересборки
+- `allowedAdaptation`: что можно менять без выхода за пределы preset-характера
+- `forbiddenChanges`: какие отклонения требуют отдельного approve или `greenfield-approved`
+
+Для implementation-locked записей типа `reveal/effect module`, которые служат reveal-baseline для hero-модуля, дополнительно нужны:
+
+- `heroFamilyFit`: `image-pillar | tower-monolith | universal`
+- `reusePolicy`: `implementation-locked | contract-only`
+- `sourceOfTruthFiles`: repo-relative файлы, которые считаются рабочей реализацией reveal-пакета
+- `lockedBehavior`: что именно reuse-ится без пересборки
+- `allowedAdaptation`: что можно менять без выхода за пределы reveal-характера
+- `forbiddenChanges`: какие отклонения требуют отдельного approve или `greenfield-approved`
 
 ## Текущие записи
 
@@ -175,17 +221,25 @@
 - `userFacingName`: `Прямой рельсовый фокус`
 - `status`: `library-module`
 - `moduleType`: `camera preset`
+- `presetScope`: `scene-package`
+- `reusePolicy`: `implementation-locked`
 - `sourceProjects`:
   - `2026-03-20-most-visited-websites`
 - `promotionReason`: preset пережил финальный ролик, подтвердил читаемость лидерской зоны, мягкий cinematic-tail и исправление пропаданий/рывков без жёстких top-3 веток и без ручного rank-hardcode.
 - `contract`: непрерывный rail-focus corridor camera с data-driven VIP-focus по height percentile, замедленным финальным tail, единым remapped frame для camera/focus/detail-window/preload и screen-space fallback в wide flyover до перехода в `minimal`.
+- `sourceOfTruthFiles`:
+  - `src/compositions/most-visited-websites/scene/scene-logic.ts`
+  - `src/compositions/most-visited-websites/scene/camera-presentation.ts`
+- `lockedBehavior`: camera path math, переходные тайминги, hold rhythm, VIP-focus, scene progression contract и финальный cinematic tail reuse-ятся как единый пакет.
+- `allowedAdaptation`: data normalization, world-scale offsets, безопасная дистанция камеры, topic-specific framing и тонкая подстройка под hero/layout без смены характера preset.
+- `forbiddenChanges`: не переписывать scene-logic и timing windows с нуля, не смешивать preset с чужим timing family и не выключать VIP/finale behavior без отдельного approve.
 - `placement`:
   - registry-level contract
   - текущая reference-реализация: `src/compositions/most-visited-websites/scene/scene-logic.ts`
 - `docsUpdated`:
   - `projects/2026-03-20-most-visited-websites/review-notes.md`
   - `docs/library/ranking-corridor-module-registry.md`
-- `notes`: код пока оставлен в проекте; extraction в отдельный library-module отложен до второго проекта, чтобы не зацементировать слишком ранний API поверх живой scene-math.
+- `notes`: это не только visual preset, а жесткий implementation baseline. Код пока оставлен в проекте; extraction в отдельный library-module отложен до второго проекта, чтобы не зацементировать слишком ранний API поверх живой scene-math.
 
 ### 3. `soft-side-orbit-classic-v1`
 
@@ -193,17 +247,25 @@
 - `userFacingName`: `Классический башенный проход`
 - `status`: `library-module`
 - `moduleType`: `camera preset`
+- `presetScope`: `scene-package`
+- `reusePolicy`: `implementation-locked`
 - `sourceProjects`:
   - `ranking-towers`
 - `promotionReason`: базовый reference-композишен формата уже многоразово служит эталоном для launch- и production-решений; его камера и тайминг имеют устойчивый контракт, покрыты scene-logic тестами и остаются главным baseline-вариантом бокового corridor-прохода.
 - `contract`: мягкий corridor camera preset с боковым ракурсом около `3/4`, стартовым intro push-in без jump-cut handoff, `80` кадров на переход между объектами, `320` кадров на tower hold, `45` кадров статичного settle перед orbit drift и длинным cinematic tail с x3 slowdown в финале.
+- `sourceOfTruthFiles`:
+  - `src/compositions/ranking-towers/scene/scene-logic.ts`
+  - `src/compositions/ranking-towers/scene/camera-updater.tsx`
+- `lockedBehavior`: camera path math, переходные тайминги, tower hold, intro push-in, orbit drift contract и финальный slowdown reuse-ятся как единый сценический пакет.
+- `allowedAdaptation`: scale remap, рабочая дистанция камеры, безопасные offsets под другой hero/layout и data normalization без потери бокового `3/4` характера.
+- `forbiddenChanges`: не заменять preset на новый custom rail-path, не пересобирать hold/finale rhythm с нуля и не смешивать его с другим timing family без отдельного approve.
 - `placement`:
   - registry-level contract
   - текущая reference-реализация: `src/compositions/ranking-towers/scene/scene-logic.ts`
   - camera runtime adapter: `src/compositions/ranking-towers/scene/camera-updater.tsx`
 - `docsUpdated`:
   - `docs/library/ranking-corridor-module-registry.md`
-- `notes`: это осознанное legacy-reference исключение: `ranking-towers` предшествует project-container workflow, поэтому preset зафиксирован в реестре по текущей канонической reference-реализации и тестам, а не по `projects/<slug>/review-notes.md`.
+- `notes`: это осознанное legacy-reference исключение: `ranking-towers` предшествует project-container workflow, поэтому preset зафиксирован в реестре по текущей канонической reference-реализации и тестам, а не по `projects/<slug>/review-notes.md`. Для новых проектов он тоже считается жестким implementation baseline, а не только visual-настроением.
 
 ### 4. `dashboard-card-reveal-effects-v1`
 
@@ -259,8 +321,19 @@
 ### 7. `low-poly-cloud-v1`
 
 - `moduleId`: `low-poly-cloud-v1`
+- `userFacingName`: `Низкополигональные облака`
 - `status`: `library-module`
 - `moduleType`: `background / ambient / secondary-life system`
+- `worldSlot`: `atmospheric-motion`
+- `environmentFamily`: `nature | neutral`
+- `role`: `support`
+- `combineWith`:
+  - `horizon-mountain-ridge-v1`
+  - `forest-backdrop-v1`
+  - `storm-effects-v1`
+  - `highway-ribbon-v1`
+- `stageFit`: `scene-1 | scene-2 | scene-3 | scene-4`
+- `costTier`: `low`
 - `sourceProjects`:
   - `2026-03-20-most-visited-websites`
 - `promotionReason`: low-poly cloud форма уже выступает как чистый атмосферный примитив, который пригодится в разных corridor-мирах без завязки на тему сайтов.
@@ -276,8 +349,19 @@
 ### 8. `wind-turbine-v1`
 
 - `moduleId`: `wind-turbine-v1`
+- `userFacingName`: `Ветряные турбины`
 - `status`: `library-module`
 - `moduleType`: `background / ambient / secondary-life system`
+- `worldSlot`: `side-dressing`
+- `environmentFamily`: `industrial | nature`
+- `role`: `support`
+- `combineWith`:
+  - `forest-backdrop-v1`
+  - `horizon-mountain-ridge-v1`
+  - `highway-ribbon-v1`
+  - `low-poly-cloud-v1`
+- `stageFit`: `scene-1 | scene-2 | scene-3 | scene-4`
+- `costTier`: `low`
 - `sourceProjects`:
   - `2026-03-20-most-visited-websites`
 - `promotionReason`: ветряк — это уже самостоятельный reusable арт-объект, а не спецэффект одного проекта; он даёт читаемую дальнюю промышленную жизнь и не зависит от темы сайтов.
@@ -293,8 +377,19 @@
 ### 9. `forest-backdrop-v1`
 
 - `moduleId`: `forest-backdrop-v1`
+- `userFacingName`: `Лесной задник`
 - `status`: `library-module`
 - `moduleType`: `background / ambient / secondary-life system`
+- `worldSlot`: `side-dressing`
+- `environmentFamily`: `nature`
+- `role`: `core`
+- `combineWith`:
+  - `horizon-mountain-ridge-v1`
+  - `low-poly-cloud-v1`
+  - `wind-turbine-v1`
+  - `storm-effects-v1`
+- `stageFit`: `scene-1 | scene-2 | scene-3 | scene-4`
+- `costTier`: `medium`
 - `sourceProjects`:
   - `2026-03-20-most-visited-websites`
 - `promotionReason`: ранний плотный лес пережил финальный ролик, уже доказал визуальную устойчивость и не зависит от темы сайтов; это самостоятельный reusable world-backdrop для corridor-сцен.
@@ -311,8 +406,19 @@
 ### 10. `horizon-mountain-ridge-v1`
 
 - `moduleId`: `horizon-mountain-ridge-v1`
+- `userFacingName`: `Горный хребет на горизонте`
 - `status`: `library-module`
 - `moduleType`: `background / ambient / secondary-life system`
+- `worldSlot`: `horizon`
+- `environmentFamily`: `nature | neutral`
+- `role`: `core`
+- `combineWith`:
+  - `forest-backdrop-v1`
+  - `low-poly-cloud-v1`
+  - `storm-effects-v1`
+  - `highway-ribbon-v1`
+- `stageFit`: `scene-1 | scene-2 | scene-3 | scene-4`
+- `costTier`: `low`
 - `sourceProjects`:
   - `2026-03-20-most-visited-websites`
 - `promotionReason`: дальний mountain ridge уже работает как независимый world-horizon слой и не требует сайта-специфичных данных или hero-логики.
@@ -329,8 +435,19 @@
 ### 11. `highway-ribbon-v1`
 
 - `moduleId`: `highway-ribbon-v1`
+- `userFacingName`: `Шоссе с машинами`
 - `status`: `library-module`
 - `moduleType`: `background / ambient / secondary-life system`
+- `worldSlot`: `directed-motion`
+- `environmentFamily`: `urban | industrial | neutral`
+- `role`: `core`
+- `combineWith`:
+  - `horizon-mountain-ridge-v1`
+  - `wind-turbine-v1`
+  - `forest-backdrop-v1`
+  - `low-poly-cloud-v1`
+- `stageFit`: `scene-1 | scene-2 | scene-3 | scene-4`
+- `costTier`: `medium`
 - `sourceProjects`:
   - `2026-03-20-most-visited-websites`
 - `promotionReason`: ribbon-шоссе с трафиком и signage уже стало устойчивым мотивом окружения и стоит повторного использования в будущих corridor-world сценах.
@@ -347,8 +464,19 @@
 ### 12. `storm-effects-v1`
 
 - `moduleId`: `storm-effects-v1`
+- `userFacingName`: `Грозовые эффекты`
 - `status`: `library-module`
 - `moduleType`: `background / ambient / secondary-life system`
+- `worldSlot`: `atmospheric-motion | light-weather | payoff`
+- `environmentFamily`: `neutral | industrial | fantasy`
+- `role`: `accent`
+- `combineWith`:
+  - `low-poly-cloud-v1`
+  - `horizon-mountain-ridge-v1`
+  - `highway-ribbon-v1`
+  - `forest-backdrop-v1`
+- `stageFit`: `scene-2 | scene-3 | scene-4`
+- `costTier`: `high`
 - `sourceProjects`:
   - `2026-03-20-most-visited-websites`
 - `promotionReason`: storm-pass пережил production, оптимизацию и финальный review; instanced rain и directed lightning bursts уже имеют понятный reusable контракт и доказали пользу в performance-sensitive world-сценах.
@@ -361,3 +489,58 @@
   - `projects/2026-03-20-most-visited-websites/review-notes.md`
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: full storm dramaturgy всё ещё не считается целиком библиотечным миром; cloud lanes, sun fade и finale payoff продолжают жить в project-local environment direction.
+
+### 13. `image-pillar-dashboard-reveal-stack-v1`
+
+- `moduleId`: `image-pillar-dashboard-reveal-stack-v1`
+- `userFacingName`: `Появление стелы с dashboard-слоем`
+- `status`: `library-module`
+- `moduleType`: `reveal/effect module`
+- `heroFamilyFit`: `image-pillar`
+- `reusePolicy`: `implementation-locked`
+- `sourceProjects`:
+  - `2026-03-20-most-visited-websites`
+- `promotionReason`: финальный website-проект подтвердил, что связка projection gate, reveal-эффектов карточки и layered dashboard удерживает quality bar hero-модуля без статичного входа и без ручных one-off анимаций под каждый rank.
+- `contract`: reveal-пакет управляет activation / presentation gate, staged появлением dashboard-слоев, shell-to-data choreography, таймингом метрики и badge/rank-слоя, сохраняя читаемость hero при движении камеры и смене фаз `full -> standby -> minimal`.
+- `sourceOfTruthFiles`:
+  - `src/compositions/most-visited-websites/components/SteleDashboard.tsx`
+  - `src/lib/ranking-corridor/presentation/projection-gate.ts`
+  - `src/lib/ranking-corridor/presentation/card-reveal-effects.tsx`
+- `lockedBehavior`: activation / presentation gate, reveal staging order, shell-to-data choreography, timing метрики, badge/rank/data-card effect family reuse-ятся как единый пакет.
+- `allowedAdaptation`: тема, материалы, layout-safe offsets, content slots, topic-specific surface и data normalization без смены reveal-характера.
+- `forbiddenChanges`: не выключать reveal совсем, не заменять staged dashboard на статичную карточку, не переписывать gate/choreography с нуля без отдельного approve.
+- `placement`:
+  - registry-level contract
+  - текущая reference-реализация: `src/compositions/most-visited-websites/components/SteleDashboard.tsx`
+  - shared reveal foundation: `src/lib/ranking-corridor/presentation/projection-gate.ts`
+  - shared reveal effects: `src/lib/ranking-corridor/presentation/card-reveal-effects.tsx`
+- `docsUpdated`:
+  - `projects/2026-03-20-most-visited-websites/review-notes.md`
+  - `docs/library/ranking-corridor-module-registry.md`
+- `notes`: это жесткий reveal-baseline для image-first стел и похожих pillar-hero; проект может менять тему и наполнение, но не должен скатываться в статичный shell без reveal-пакета.
+
+### 14. `tower-hologram-dashboard-reveal-v1`
+
+- `moduleId`: `tower-hologram-dashboard-reveal-v1`
+- `userFacingName`: `Появление башни с голографическим dashboard`
+- `status`: `library-module`
+- `moduleType`: `reveal/effect module`
+- `heroFamilyFit`: `tower-monolith`
+- `reusePolicy`: `implementation-locked`
+- `sourceProjects`:
+  - `ranking-towers`
+- `promotionReason`: tower-reference уже многократно служил эталоном формата и подтвердил, что layered hologram reveal делает башню живой и драматичной без перегруза и без потери читаемости данных.
+- `contract`: reveal-пакет управляет staged включением голографического dashboard, shell-first входом башни, появлением данных и метрики поверх корпуса и синхронизацией с reveal-окном hero.
+- `sourceOfTruthFiles`:
+  - `src/compositions/ranking-towers/components/HologramDashboard.tsx`
+  - `src/compositions/ranking-towers/components/Tower.tsx`
+- `lockedBehavior`: shell-first reveal, hologram dashboard choreography, staged data appearance, timing метрики и общий reveal-характер башни reuse-ятся как единый пакет.
+- `allowedAdaptation`: тема, материалы, palette/glow, layout-safe offsets, content slots и scale remap без пересборки базовой reveal-драматургии.
+- `forbiddenChanges`: не убирать staged reveal, не заменять пакет статичным tower-state, не переписывать timing/choreography с нуля без отдельного approve.
+- `placement`:
+  - registry-level contract
+  - текущая reference-реализация: `src/compositions/ranking-towers/components/HologramDashboard.tsx`
+  - shell integration: `src/compositions/ranking-towers/components/Tower.tsx`
+- `docsUpdated`:
+  - `docs/library/ranking-corridor-module-registry.md`
+- `notes`: это implementation-locked reveal-baseline для tower/monolith hero-family; для новых башенных проектов он должен считаться default reveal-пакетом, а не только красивым референсом.
