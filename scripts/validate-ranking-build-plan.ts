@@ -16,6 +16,11 @@ type LaunchCardSelection = {
   exists: boolean;
   path: string;
   objectFamilyId: string;
+  heroPriority: string;
+  mediaLayoutPolicy: string;
+  laneCollisionPolicy: string;
+  protectedDataZone: string;
+  rankPlacement: string;
   scenePresetPackageId: string;
   scenePresetReusePolicy: string;
   scenePresetSourceOfTruthFiles: string[];
@@ -104,6 +109,11 @@ const allowedVisualMethods = new Set([
   'built-in-browser',
 ]);
 const allowedFinaleTailPolicies = new Set(['off', 'legacy-cinematic-slowdown']);
+const allowedHeroPriorities = new Set(['image-first', 'balanced', 'data-first']);
+const allowedMediaLayoutPolicies = new Set(['adaptive-safe', 'fixed', 'compact']);
+const allowedLaneCollisionPolicies = new Set(['hard-fit', 'soft-overlap']);
+const allowedProtectedDataZoneValues = new Set(['true', 'false']);
+const allowedRankPlacements = new Set(['above-media', 'on-media', 'integrated']);
 const allowedReuseModes = new Set([
   'preset-reuse',
   'structure-reuse',
@@ -530,6 +540,11 @@ const parseLaunchCardSelection = (): LaunchCardSelection => {
       exists: false,
       path: launchCardPath,
       objectFamilyId: '',
+      heroPriority: '',
+      mediaLayoutPolicy: '',
+      laneCollisionPolicy: '',
+      protectedDataZone: '',
+      rankPlacement: '',
       scenePresetPackageId: '',
       scenePresetReusePolicy: '',
       scenePresetSourceOfTruthFiles: [],
@@ -590,6 +605,11 @@ const parseLaunchCardSelection = (): LaunchCardSelection => {
     exists: true,
     path: launchCardPath,
     objectFamilyId: cleanValue(objectFields['id'] ?? ''),
+    heroPriority: cleanValue(objectFields['РїСЂРёРѕСЂРёС‚РµС‚ РіРµСЂРѕСЏ'] ?? ''),
+    mediaLayoutPolicy: cleanValue(objectFields['РїРѕР»РёС‚РёРєР° media-layout'] ?? ''),
+    laneCollisionPolicy: cleanValue(objectFields['РїРѕР»РёС‚РёРєР° СЃРѕСЃРµРґРЅРёС… РіСЂР°РЅРёС†'] ?? ''),
+    protectedDataZone: cleanValue(objectFields['Р·Р°С‰РёС‰РµРЅРЅР°СЏ data-zone'] ?? ''),
+    rankPlacement: cleanValue(objectFields['СЂР°Р·РјРµС‰РµРЅРёРµ СЂР°РЅРіР°'] ?? ''),
     scenePresetPackageId: cleanValue(scenePresetFields['id'] ?? ''),
     scenePresetReusePolicy: cleanValue(scenePresetFields['политика reuse'] ?? ''),
     scenePresetSourceOfTruthFiles: parseRepoRelativePaths(
@@ -1030,6 +1050,84 @@ if (launchCardSelection.exists && isPlaceholder(launchCardSelection.objectFamily
   );
 }
 
+if (launchCardSelection.exists) {
+  if (isPlaceholder(launchCardSelection.heroPriority)) {
+    errors.push(
+      'В launch-card поле `Тип главного объекта -> приоритет героя` обязательно и не может быть пустым.',
+    );
+  } else if (!allowedHeroPriorities.has(launchCardSelection.heroPriority)) {
+    errors.push(
+      'В launch-card поле `Тип главного объекта -> приоритет героя` должно быть одним из `image-first | balanced | data-first`.',
+    );
+  }
+
+  if (isPlaceholder(launchCardSelection.mediaLayoutPolicy)) {
+    errors.push(
+      'В launch-card поле `Тип главного объекта -> политика media-layout` обязательно и не может быть пустым.',
+    );
+  } else if (!allowedMediaLayoutPolicies.has(launchCardSelection.mediaLayoutPolicy)) {
+    errors.push(
+      'В launch-card поле `Тип главного объекта -> политика media-layout` должно быть одним из `adaptive-safe | fixed | compact`.',
+    );
+  }
+
+  if (isPlaceholder(launchCardSelection.laneCollisionPolicy)) {
+    errors.push(
+      'В launch-card поле `Тип главного объекта -> политика соседних границ` обязательно и не может быть пустым.',
+    );
+  } else if (!allowedLaneCollisionPolicies.has(launchCardSelection.laneCollisionPolicy)) {
+    errors.push(
+      'В launch-card поле `Тип главного объекта -> политика соседних границ` должно быть одним из `hard-fit | soft-overlap`.',
+    );
+  }
+
+  if (isPlaceholder(launchCardSelection.protectedDataZone)) {
+    errors.push(
+      'В launch-card поле `Тип главного объекта -> защищенная data-zone` обязательно и не может быть пустым.',
+    );
+  } else if (!allowedProtectedDataZoneValues.has(launchCardSelection.protectedDataZone)) {
+    errors.push(
+      'В launch-card поле `Тип главного объекта -> защищенная data-zone` должно быть `true` или `false`.',
+    );
+  }
+
+  if (isPlaceholder(launchCardSelection.rankPlacement)) {
+    errors.push(
+      'В launch-card поле `Тип главного объекта -> размещение ранга` обязательно и не может быть пустым.',
+    );
+  } else if (!allowedRankPlacements.has(launchCardSelection.rankPlacement)) {
+    errors.push(
+      'В launch-card поле `Тип главного объекта -> размещение ранга` должно быть одним из `above-media | on-media | integrated`.',
+    );
+  }
+
+  if (launchCardSelection.heroPriority === 'image-first') {
+    if (launchCardSelection.mediaLayoutPolicy !== 'adaptive-safe') {
+      errors.push(
+        'В launch-card для `heroPriority = image-first` поле `политика media-layout` должно быть `adaptive-safe`.',
+      );
+    }
+
+    if (launchCardSelection.laneCollisionPolicy !== 'hard-fit') {
+      errors.push(
+        'В launch-card для `heroPriority = image-first` поле `политика соседних границ` должно быть `hard-fit`.',
+      );
+    }
+
+    if (launchCardSelection.protectedDataZone !== 'true') {
+      errors.push(
+        'В launch-card для `heroPriority = image-first` поле `защищенная data-zone` должно быть `true`.',
+      );
+    }
+
+    if (launchCardSelection.rankPlacement !== 'above-media') {
+      errors.push(
+        'В launch-card для `heroPriority = image-first` поле `размещение ранга` должно быть `above-media`.',
+      );
+    }
+  }
+}
+
 let lockedScenePreset: RegistryCameraPreset | null = null;
 let lockedHeroRevealPackage: RegistryRevealModule | null = null;
 
@@ -1327,6 +1425,11 @@ for (const task of tasks) {
     const targetDurationBand = fieldValue(task, 'Target duration band');
     const finaleTailPolicy = fieldValue(task, 'Finale tail policy');
     const greenfieldJustification = fieldValue(task, 'Greenfield justification');
+    const heroPriority = fieldValue(task, 'Hero priority');
+    const mediaLayoutPolicy = fieldValue(task, 'Media layout policy');
+    const laneCollisionPolicy = fieldValue(task, 'Lane collision policy');
+    const protectedDataZone = fieldValue(task, 'Protected data zone');
+    const rankPlacement = fieldValue(task, 'Rank placement');
     const worldSlotsCovered = fieldValue(task, 'World slots covered');
     const sceneCoverage = fieldValue(task, 'Scene coverage');
     const registryBaselinesUsed = fieldValue(task, 'Registry baselines used');
@@ -1554,6 +1657,135 @@ for (const task of tasks) {
         errors.push(
           `Задача ${task.id}: для implementation-locked hero reveal package \`${lockedHeroRevealPackage.moduleId}\` поле \`Allowed adaptation\` должно явно ограничиваться темой, материалами, layout-safe offsets, content slots и topic-specific поверхностью.`,
         );
+      }
+    }
+
+    if (previewRole === 'hero-preview') {
+      if (heroPriority && !allowedHeroPriorities.has(heroPriority)) {
+        errors.push(
+          `Задача ${task.id}: поле \`Hero priority\` должно быть одним из \`image-first | balanced | data-first\`.`,
+        );
+      }
+
+      if (mediaLayoutPolicy && !allowedMediaLayoutPolicies.has(mediaLayoutPolicy)) {
+        errors.push(
+          `Задача ${task.id}: поле \`Media layout policy\` должно быть одним из \`adaptive-safe | fixed | compact\`.`,
+        );
+      }
+
+      if (laneCollisionPolicy && !allowedLaneCollisionPolicies.has(laneCollisionPolicy)) {
+        errors.push(
+          `Задача ${task.id}: поле \`Lane collision policy\` должно быть одним из \`hard-fit | soft-overlap\`.`,
+        );
+      }
+
+      if (protectedDataZone && !allowedProtectedDataZoneValues.has(protectedDataZone)) {
+        errors.push(
+          `Задача ${task.id}: поле \`Protected data zone\` должно быть \`true\` или \`false\`.`,
+        );
+      }
+
+      if (rankPlacement && !allowedRankPlacements.has(rankPlacement)) {
+        errors.push(
+          `Задача ${task.id}: поле \`Rank placement\` должно быть одним из \`above-media | on-media | integrated\`.`,
+        );
+      }
+
+      if (status !== 'todo') {
+        for (const fieldName of [
+          'Hero priority',
+          'Media layout policy',
+          'Lane collision policy',
+          'Protected data zone',
+          'Rank placement',
+        ]) {
+          if (isPlaceholder(task.fields[fieldName])) {
+            errors.push(
+              `Задача ${task.id}: для hero-preview со статусом \`${status}\` поле \`${fieldName}\` обязательно и не может быть пустым.`,
+            );
+          }
+        }
+
+        const heroContractPairs: Array<[string, string, string]> = [
+          ['Hero priority', heroPriority, launchCardSelection.heroPriority],
+          ['Media layout policy', mediaLayoutPolicy, launchCardSelection.mediaLayoutPolicy],
+          ['Lane collision policy', laneCollisionPolicy, launchCardSelection.laneCollisionPolicy],
+          ['Protected data zone', protectedDataZone, launchCardSelection.protectedDataZone],
+          ['Rank placement', rankPlacement, launchCardSelection.rankPlacement],
+        ];
+
+        for (const [fieldName, buildPlanValue, launchCardValue] of heroContractPairs) {
+          if (
+            !isPlaceholder(buildPlanValue) &&
+            !isPlaceholder(launchCardValue) &&
+            buildPlanValue !== launchCardValue
+          ) {
+            errors.push(
+              `Задача ${task.id}: поле \`${fieldName}\` должно совпадать с launch-card. Сейчас в build-plan = \`${buildPlanValue}\`, в launch-card = \`${launchCardValue}\`.`,
+            );
+          }
+        }
+      }
+
+      if (heroPriority === 'image-first') {
+        if (mediaLayoutPolicy && mediaLayoutPolicy !== 'adaptive-safe') {
+          errors.push(
+            `Задача ${task.id}: для \`Hero priority = image-first\` поле \`Media layout policy\` должно быть \`adaptive-safe\`.`,
+          );
+        }
+
+        if (laneCollisionPolicy && laneCollisionPolicy !== 'hard-fit') {
+          errors.push(
+            `Задача ${task.id}: для \`Hero priority = image-first\` поле \`Lane collision policy\` должно быть \`hard-fit\`.`,
+          );
+        }
+
+        if (protectedDataZone && protectedDataZone !== 'true') {
+          errors.push(
+            `Задача ${task.id}: для \`Hero priority = image-first\` поле \`Protected data zone\` должно быть \`true\`.`,
+          );
+        }
+
+        if (rankPlacement && rankPlacement !== 'above-media') {
+          errors.push(
+            `Задача ${task.id}: для \`Hero priority = image-first\` поле \`Rank placement\` должно быть \`above-media\`.`,
+          );
+        }
+
+        if (status !== 'todo') {
+          const imageFirstReuseRequirements = [
+            ['image', 'media', 'visual asset', 'изображ', 'спрайт'],
+            ['dominant', 'hierarchy', 'доминант', 'главн'],
+            ['protected', 'data-zone', 'data block', 'нижн', 'защищ'],
+            ['safe-gap', 'gap', 'зазор', 'отступ'],
+          ];
+
+          const missingImageFirstReuseMarkers = imageFirstReuseRequirements.filter(
+            (markers) => !hasAnyMarker(reuseWithoutChanges, markers),
+          );
+          if (missingImageFirstReuseMarkers.length > 0) {
+            errors.push(
+              `Задача ${task.id}: для \`Hero priority = image-first\` поле \`Reuse without changes\` должно явно перечислять image-dominant hierarchy, protected data-zone и safe-gap между media и нижним data-block.`,
+            );
+          }
+
+          const imageFirstAdaptationRequirements = [
+            ['theme', 'тема'],
+            ['material', 'материал'],
+            ['aspect', 'ratio', 'media frame', 'media-frame', 'рамк'],
+            ['typography', 'типограф'],
+            ['layout', 'offset', 'зазор', 'отступ'],
+          ];
+
+          const missingImageFirstAdaptationMarkers = imageFirstAdaptationRequirements.filter(
+            (markers) => !hasAnyMarker(allowedAdaptation, markers),
+          );
+          if (missingImageFirstAdaptationMarkers.length > 0) {
+            errors.push(
+              `Задача ${task.id}: для \`Hero priority = image-first\` поле \`Allowed adaptation\` должно явно ограничиваться темой, материалами, aspect-aware media frame, типографикой и layout-safe offsets.`,
+            );
+          }
+        }
       }
     }
 

@@ -33,6 +33,13 @@
   - название:
   - id:
   - краткая логика укладки данных:
+  - эти поля задают `objectFamily`, а не policy показа изображения
+  - приоритет героя: `image-first | balanced | data-first`
+  - политика media-layout: `adaptive-safe | fixed | compact`
+  - политика соседних границ: `hard-fit | soft-overlap`
+  - защищенная data-zone: `true | false`
+  - размещение ранга: `above-media | on-media | integrated`
+  - эти пять полей выше описывают cross-family media policy: их можно reuse-ить поверх разных семейств башен, не привязывая к одному стилю корпуса
 - Пакет сцены и камеры:
   - название:
     - для registry-backed implementation-locked варианта: `userFacingName`
@@ -80,9 +87,6 @@
   - источник выбора: `preset | theme-default | user-custom | ai-custom`
   - предварительная роль в шоу:
     - на launch-этапе только краткая предварительная атмосфера; детальная `secondary-life system` фиксируется позже в `director-pass`
-- Режим представления контента:
-  - название:
-  - id:
 - Стратегия длительности:
 - Система появления: `registry-first-default | approved-custom`
 

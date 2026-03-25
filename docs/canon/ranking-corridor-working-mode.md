@@ -261,6 +261,12 @@ Package-first режим считается нормой по умолчанию
 - `backgroundFamily`, но на launch-этапе обычно только как предварительный `theme-default`, а не как отдельное пользовательское решение;
 - источник выбора фона: `preset | theme-default | user-custom | ai-custom`;
 - `assetRepresentationMode`;
+- `heroPriority`: `image-first | balanced | data-first`;
+- `mediaLayoutPolicy`: `adaptive-safe | fixed | compact`;
+- `laneCollisionPolicy`: `hard-fit | soft-overlap`;
+- `protectedDataZone`;
+- `rankPlacement`;
+- эти поля описывают не стиль корпуса, а отдельный cross-family policy-слой hero-модуля: один и тот же контракт может жить поверх разных `objectFamily`
 - `durationStrategy`;
 - `showTone`;
 - `hookStyle`;
@@ -536,6 +542,12 @@ Package-first режим считается нормой по умолчанию
 - приоритет у скорости, качества, узнаваемости и визуальной чистоты;
 - все найденные ассеты сохраняются локально;
 - для каждого ассета нужно сохранить исходный URL.
+- `image-first` не означает просто “добавь фото”, а означает доминанту visual asset над вторичным текстом;
+- для `image-first` ИИ по умолчанию фиксирует `heroPriority = image-first`, `mediaLayoutPolicy = adaptive-safe`, `laneCollisionPolicy = hard-fit`, `protectedDataZone = true`, `rankPlacement = above-media`;
+- `hero/object family` и `media policy` нельзя смешивать: первое задает форму, материалы и характер башни, второе — как внутри любого подходящего семейства ведут себя media-frame, safe-gap, rank и protected data-zone;
+- в таком режиме media-зона может расти по ширине и высоте от реального aspect ratio, но только до первого безопасного ограничения: safe-line под рангом, safe-gap над data-zone и ширина lane без лезущего overlap в соседний объект;
+- data-zone при `image-first` считается защищенной: hero-изображение не должно перекрывать имя, метрику и нижний badge-блок;
+- если места не хватает, сначала упрощаются вторичные текстовые элементы и badge-детали, а не уменьшается главный visual asset без причины.
 
 Что считается нормой:
 
@@ -691,6 +703,7 @@ Package-first режим считается нормой по умолчанию
 - `timing preset`
 - `reveal/effect module`
 - `hero/object family`
+- `policy layer / layout policy`
 - `background / ambient / secondary-life system`
 - `utility / helper`
 

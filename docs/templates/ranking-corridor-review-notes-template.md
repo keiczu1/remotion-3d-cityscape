@@ -34,12 +34,15 @@
 - Перетягивает ли вторичная жизнь внимание с героя: `no | slight | yes`
 - Результат layout-проверки: `ok | warning | fail`
 - Layout-заметки: где есть `layout-warning` или `layout-fail`
+- Результат image-first policy-проверки: `ok | warning | fail | n/a`
+- Image-first policy-заметки: доминирует ли media, ранг над media, защищена ли data-zone, нет ли lane-overlap
 - Результат browser/Studio-проверки: `ok | warning | fail`
 - Метод browser/Studio-проверки: `mcp-playwright | remotion-studio | built-in-browser`
 - Результат console/runtime-проверки: `ok | warning | fail`
 - Папка screenshot-артефактов:
 - Visual checklist:
   - Hero / readability:
+  - Image-first / media policy:
   - Camera / pacing:
   - Environment / secondary-life:
   - Director-pass match:
@@ -69,7 +72,7 @@
 
 | candidateId | candidateType | currentStatus | sourceLocation | reusableWhy | proposedDecision | targetPlacement | finalEvidence | docsUpdated | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| example-module | camera preset / timing preset / reveal/effect module / hero/object family / background / ambient / secondary-life system / utility / helper | project-local | src/... or projects/... | why it is reusable and not theme-specific | stay-project-local / keep-design-only / promote-to-library / checkpoint-needed | src/... or docs/library/... or docs-only contract | where it proved itself in final project | docs touched | |
+| example-module | camera preset / timing preset / reveal/effect module / hero/object family / policy layer / layout policy / background / ambient / secondary-life system / utility / helper | project-local | src/... or projects/... | why it is reusable and not theme-specific | stay-project-local / keep-design-only / promote-to-library / checkpoint-needed | src/... or docs/library/... or docs-only contract | where it proved itself in final project | docs touched | |
 
 ## Общие заметки
 

@@ -385,6 +385,9 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - собирай полный main pass;
 - доводи payoff и polishing;
 - поддерживай канон `image-first`, если не зафиксирован осознанный особый случай.
+- если `launch-card` фиксирует `heroPriority = image-first`, не уменьшай главный visual asset ради удобства вторичного текста без явной причины: сначала защищай data-zone, упрощай вторичный текст и настраивай aspect-aware media-layout;
+- для `image-first` hero-preview держи `mediaLayoutPolicy = adaptive-safe`, `laneCollisionPolicy = hard-fit`, `protectedDataZone = true`, `rankPlacement = above-media`, если проект не зафиксировал осознанный special-case;
+- трактуй эти поля как отдельный cross-family policy-слой hero-модуля: они должны работать на разных семействах башен, а не только на одном project-local стиле;
 
 Под полной сборкой композиции здесь понимается:
 

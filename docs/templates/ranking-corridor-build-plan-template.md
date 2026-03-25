@@ -51,6 +51,7 @@
 - Нельзя переводить ключевую preview-задачу в `done`, если код компилируется, но результат все еще выглядит как бедный scaffold и нарушает `Non-negotiables`.
 - Внутри `preview-build` обязательно должны быть quality checkpoints для `hero-preview`, `camera-preview`, `environment-preview` и `integrated-preview`.
 - Для quality-checkpoint-задачи со статусом `in_progress` или `done` обязательны валидные `Reuse mode`, `Reference baseline` (если это не `greenfield-approved`), `Reuse without changes` и `Allowed adaptation`.
+- Для `hero-preview` дополнительно обязательны `Hero priority`, `Media layout policy`, `Lane collision policy`, `Protected data zone` и `Rank placement`: это отдельный policy-слой hero-модуля, а не дублирование `objectFamily`.
 - Для `environment-preview` и `integrated-preview` дополнительно обязательны `World slots covered`, `Scene coverage` и `Registry baselines used`.
 - Не сворачивай всю world-evolution в одну общую environment-задачу: разложи среду на отдельные scene-specific `environment-preview` задачи минимум для `scene-1`, `scene-2`, `scene-3` и `scene-4`.
 - Каждая scene-specific `environment-preview` задача должна иметь `Scene coverage` ровно с одним scene-id; `integrated-preview` собирает их вместе и покрывает минимум `scene-1, scene-2, scene-3, scene-4`.
@@ -119,6 +120,7 @@
 
 > Для ключевых preview-задач обязательно заполняй `Preview role`, `Reference baseline` (если это не `greenfield-approved`), `Reuse mode`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables`, `Studio/browser check`, `Visual check method`, `Console/runtime check`, `Screenshot set` и `Mini-review`. Для `environment-preview` и `integrated-preview` дополнительно обязательны `World slots covered`, `Scene coverage` и `Registry baselines used`. Если конкретная задача не относится к quality checkpoint, укажи `Preview role: support`. Среду не сворачивай в одну общую задачу: для minimum contract нужны отдельные scene-specific environment-задачи как минимум для `scene-1`, `scene-2`, `scene-3` и `scene-4`. Если в `launch-card.md` выбран `scenePresetPackage` с `reusePolicy: implementation-locked`, для `camera-preview` обязательны `Reuse mode: preset-reuse`, точный `Reference baseline` по `sourceOfTruthFiles` из registry и явный список зафиксированного поведения в `Reuse without changes`. Если в `launch-card.md` выбран `heroRevealPackage` с `reusePolicy: implementation-locked`, для `hero-preview` обязательны `Reuse mode: preset-reuse`, точный `Reference baseline` по `sourceOfTruthFiles` из registry и явный список зафиксированного reveal-поведения в `Reuse without changes`. Валидатор сверяет эти блоки не только локально по `build-plan.md`, но и против `launch-card.md`, registry и launch-card поля `что считается зафиксированным без пересборки`, которое должно совпадать с registry `lockedBehavior`.
 > Если выбран implementation-locked camera preset с `timingContract: adaptive`, для `camera-preview` дополнительно фиксируй `Object count`, `Target duration band`, `Timing policy` и `Finale tail policy`: это отдельный contract-level слой, чтобы count-aware retiming был явным, а не спрятанным в произвольном описании.
+> Для `hero-preview` поля `Hero priority`, `Media layout policy`, `Lane collision policy`, `Protected data zone` и `Rank placement` трактуются как cross-family media policy: валидатор сверяет их с `launch-card.md`, а не считает частью одного конкретного tower-стиля.
 
 ### BP-01. Data snapshot и типы
 - Статус: `todo | in_progress | blocked | done`
@@ -202,6 +204,11 @@
 - Reuse mode: `preset-reuse | structure-reuse | system-reuse | greenfield-approved`
 - Reuse without changes:
 - Allowed adaptation:
+- Hero priority:
+- Media layout policy:
+- Lane collision policy:
+- Protected data zone:
+- Rank placement:
 - Greenfield justification:
 - Non-negotiables:
 - Для implementation-locked reveal-пакета:
@@ -210,6 +217,15 @@
   - `Reuse without changes`: activation / presentation gate, reveal staging order, shell-to-data choreography, timing метрики, effect family
   - `Allowed adaptation`: только тема, материалы, layout-safe offsets, content slots и topic-specific поверхности
   - validator cross-check: `build-plan.md` сверяется с выбранным `heroRevealPackage` из `launch-card.md`, exact `sourceOfTruthFiles` из registry, launch-card полем `что считается зафиксированным без пересборки` и совместимостью reveal-пакета с `objectFamily`
+- Для `image-first` hero-модуля:
+  - `Hero priority`: `image-first`
+  - `Media layout policy`: `adaptive-safe`
+  - `Lane collision policy`: `hard-fit`
+  - `Protected data zone`: `true`
+  - `Rank placement`: `above-media`
+  - `Reuse without changes`: image-dominant hierarchy, protected нижний data-block, safe-gap между media и data-zone
+  - `Allowed adaptation`: тема, материалы, aspect-aware media frame, типографика и layout-safe offsets без отказа от image-first доминанты
+  - эти поля задают media policy hero-модуля и должны одинаково работать поверх разных `objectFamily`, а не только на одной теме или одной форме башни
 - World slots covered: `environment-preview | integrated-preview only`
 - Scene coverage: `environment-preview -> scene-1 | integrated-preview -> scene-1, scene-2, scene-3, scene-4 | иначе пусто`
 - Registry baselines used: `environment-preview | integrated-preview only: module-id, another-module-id | none`
