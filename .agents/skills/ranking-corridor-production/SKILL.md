@@ -174,7 +174,9 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - сохрани результат в `projects/<project-slug>/build-plan.md`;
 - разложи ближайшую реализацию на `6-10` конкретных задач;
 - для каждой задачи явно зафиксируй `id`, `phase`, `status`, затронутые файлы, цель, критерий готовности и проверку;
-- для ключевых задач preview-качества (`camera`, `hero`, `environment`, `integrated-preview`) дополнительно зафиксируй `Reference baseline`, `Reuse mode` и `Non-negotiables`;
+- для ключевых задач preview-качества (`camera`, `hero`, `environment`, `integrated-preview`) дополнительно зафиксируй `Reference baseline`, `Reuse mode`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables`, `Studio/browser check`, `Visual check method`, `Console/runtime check` и `Screenshot set`;
+- используй top-level поле `Следующий шаг`, а не свободный текст `Следующая задача`;
+- в `Следующий шаг` записывай либо существующий `task id`, либо один из системных шагов `preview-gate | final-approval | library-audit | completed`;
 - держи только одну задачу в `in_progress`;
 - разделяй задачи на `preview-build` и `post-preview-build`;
 - считай `post-preview-build` заблокированным до допустимого решения по preview;
@@ -184,12 +186,19 @@ description: "Веди `ranking corridor` проект после `launch-card`:
   - `preview-complete` — когда `preview-build` закрыт, preview-решение допустимо и `post-preview-build` разблокирован;
   - `full-complete` — когда все задачи закрыты и verification пройден;
 - не превращай `build-plan` в новый большой PRD или архитектурный трактат.
+- сразу после создания или обновления `build-plan.md` запусти `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`.
 
 Считай `preview-build` не MVP и не rough scaffold, а `reference-anchored quality slice`.
 
 Это означает:
 
 - для `camera`, `hero` и `environment` по умолчанию reuse идет от конкретной verified implementation или явно названного reference baseline, а не только от словесной идеи;
+- `Reference baseline` записывай как точный source-of-truth: `moduleId`, preset id, repo-relative путь к файлу или иной однозначный reference, а не как расплывчатое описание;
+- `Reuse mode` для key preview task не является свободным текстом и должен быть одним из: `preset-reuse | structure-reuse | system-reuse | greenfield-approved`;
+- `greenfield-approved` не является дефолтом: он допустим только если пользователь явно одобрил выход за пределы baseline или если в `launch-card.md` / `director-pass.md` уже зафиксировано отсутствие подходящего baseline;
+- если выбран `greenfield-approved`, до старта реализации заполни `Greenfield justification` и укажи источник решения;
+- если выбран любой reuse-режим кроме `greenfield-approved`, не начинай писать `hero`, `camera` или `environment` как greenfield-модуль: сначала reuse baseline, потом theme adaptation;
+- для key preview task со статусом `in_progress` или `done` `Reuse mode`, `Reference baseline` (если это не `greenfield-approved`), `Reuse without changes` и `Allowed adaptation` уже должны быть заполнены;
 - в `preview-build` важнее глубина ключевых слоев, чем попытка быстро закрыть больше задач за один проход;
 - нельзя считать задачу `done`, если код компилируется, но результат все еще выглядит как бедный scaffold и нарушает `Non-negotiables`.
 
@@ -214,7 +223,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 - отмечай текущую активную задачу как `in_progress`;
 - после завершения задачи обновляй ее статус в `build-plan.md`;
-- не пиши в чат, что текущая задача завершена или что началась следующая, пока в том же рабочем шаге не обновлены `build-plan.md`, поле `Следующая задача` и статус следующей активной задачи, независимо от того, как названы сами задачи;
+- не пиши в чат, что текущая задача завершена или что началась следующая, пока в том же рабочем шаге не обновлены `build-plan.md`, поле `Следующий шаг` и статус следующей активной задачи, независимо от того, как названы сами задачи;
 - держи `Статус плана` в `active`, пока проект реально исполняется и еще не достиг `preview-complete` или `full-complete`;
 - не переходи к следующей задаче, пока текущая не закрыта или не помечена как `blocked`;
 - зафиксируй источники данных;
@@ -239,11 +248,22 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - что еще пока слабое;
 - почему это уже не scaffold.
 
+Перед переводом key preview task в `done` обязательно сделай visual evidence gate:
+
+- открой композицию в браузере или Remotion Studio, а не ориентируйся только на код и скрипты;
+- явно зафиксируй способ этой проверки как `mcp-playwright | remotion-studio | built-in-browser`;
+- если у тебя есть доступ к MCP Playwright или встроенному браузеру, используй один из этих инструментов как основной способ visual-check вместо слепой оценки по коду;
+- проверь console/runtime без игнорирования ошибок и missing-asset warning;
+- сохрани screenshot set в `projects/<project-slug>/exports/preview-checks/`;
+- обнови в `build-plan.md` поля `Studio/browser check`, `Visual check method`, `Console/runtime check` и `Screenshot set`;
+- после обновления статуса снова запусти `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`.
+
 Пути по умолчанию:
 
 - dataset snapshot: `projects/<project-slug>/data/`
 - публичные ассеты: `public/ranking-corridor/<project-slug>/`
 - preview exports: `projects/<project-slug>/exports/preview/`
+- preview checks: `projects/<project-slug>/exports/preview-checks/`
 
 На этом этапе уже допустимо создавать и обновлять:
 
@@ -286,6 +306,11 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - как сработал `director pass` и держится ли вторичная жизнь;
 - не начинает ли вторичная жизнь перетягивать внимание с героя;
 - держится ли укладка данных на сложных случаях и где есть `layout-warning` или `layout-fail`;
+- результат browser/Studio-проверки;
+- какой именно метод browser/Studio-проверки использован;
+- результат console/runtime-проверки;
+- папку screenshot-артефактов;
+- короткий visual checklist по hero, camera, environment и director-pass match;
 - решение админа:
   - `approve`
   - `approve with changes`
@@ -298,7 +323,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - если `reject` — не иди в полную сборку композиции;
 - если `approve with changes` и правки затрагивают hero-модуль, укладку данных, `director pass`, вторичную жизнь, фон, pacing, камеру или способ подачи контента — сначала обнови preview;
 - если `approve with changes` касается мелких текстовых или data-правок без смены визуального языка — можно продолжать, но зафиксируй это в `review-notes.md`;
-- если решение по preview допустимо, обнови `build-plan.md`: закрой фазу `preview-build`, разблокируй `post-preview-build`, выставь `Статус плана = preview-complete`, переключи `Текущую фазу` на `post-preview-build` и отметь следующую задачу;
+- если решение по preview допустимо, обнови `build-plan.md`: закрой фазу `preview-build`, разблокируй `post-preview-build`, выставь `Статус плана = preview-complete`, переключи `Текущую фазу` на `post-preview-build`, обнови `Следующий шаг` и снова прогони валидатор;
 - если `approve` — переходи дальше.
 
 ## Шаг 6. Делай `post-preview-build` только после review предпросмотра

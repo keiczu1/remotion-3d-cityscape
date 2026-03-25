@@ -10,6 +10,7 @@
 - Создано:
 - Обновлено:
 - Статус запуска: `draft`
+- Источник утверждения core-направления: `concept-pack | verified-preset | explicit-user-text | user-approved-default`
 
 ## Базовый контракт
 
@@ -26,17 +27,24 @@
   - краткая логика укладки данных:
 - Тип главной камеры:
   - название:
+    - для registry-backed verified-варианта: `userFacingName`
   - id:
+    - для registry-backed verified-варианта: `moduleId`
   - источник выбора: `preset | user-custom | ai-custom`
   - краткое описание логики:
+  - обоснование кастома (если `ai-custom`):
 - Тип ритма:
   - название:
+    - для registry-backed verified-варианта: `userFacingName`
   - id:
+    - для registry-backed verified-варианта: `moduleId`
   - источник выбора: `preset | user-custom | ai-custom`
   - краткое описание логики:
+  - обоснование кастома (если `ai-custom`):
 - Тип фона:
   - название:
   - id:
+  - источник выбора: `preset | theme-default | user-custom | ai-custom`
   - предварительная роль в шоу:
 - Режим представления контента:
   - название:

@@ -33,7 +33,8 @@
     "build": "remotion bundle --bundle-cache=false",
     "test": "tsx --test",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc"
+    "lint": "eslint src && tsc",
+    "validate:build-plan": "tsx scripts/validate-ranking-build-plan.ts"
   },
   "sideEffects": [
     "*.css"

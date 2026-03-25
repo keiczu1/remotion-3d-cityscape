@@ -65,12 +65,32 @@
   - `docs/templates/ranking-corridor-build-plan-template.md`
 - Что меняется:
   - `preview-build` фиксируется как `reference-anchored quality slice`, а не как MVP или rough scaffold;
-  - для ключевых задач `camera`, `hero`, `environment` и `integrated-preview` появляются поля `Reference baseline`, `Reuse mode` и `Non-negotiables`;
+  - для ключевых задач `camera`, `hero`, `environment` и `integrated-preview` появляются поля `Reference baseline`, `Reuse mode`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables` и условный `Greenfield justification`;
   - внутри `preview-build` закрепляются quality checkpoints `hero-preview`, `camera-preview`, `environment-preview` и `integrated-preview`;
   - перед переводом ключевой preview-задачи в `done` агент обязан оставить короткий mini-review по baseline, reuse и качеству результата.
 - Критерий готовности:
   - verified preset и reference implementation reuse-ятся как базовая реализация, а не только как словесная идея;
+  - silent greenfield для `hero/camera/environment` больше не допускается: нужен либо reuse baseline, либо явно согласованный `greenfield-approved`;
   - слабый scaffold больше не может быть объявлен допустимым preview только потому, что код компилируется.
+
+## Этап 5. Добавить machine validation и visual evidence gate
+
+- Файлы:
+  - `scripts/validate-ranking-build-plan.ts`
+  - `package.json`
+  - `.agents/skills/ranking-corridor-production/SKILL.md`
+  - `docs/canon/ranking-corridor-working-mode.md`
+  - `docs/templates/ranking-corridor-build-plan-template.md`
+  - `docs/templates/ranking-corridor-review-notes-template.md`
+- Что меняется:
+  - `build-plan` получает machine-check через отдельный валидатор;
+  - top-level поле `Следующий шаг` становится структурированным и проверяемым;
+  - key preview tasks нельзя закрыть без browser/Studio-проверки, явного `Visual check method`, screenshot set и console/runtime evidence;
+  - preview review фиксирует visual checklist, `Метод browser/Studio-проверки` и ссылку на screenshot-артефакты.
+- Критерий готовности:
+  - агент не может безошибочно пройти дальше с битым `build-plan`;
+  - состояние `done без visual evidence` становится невалидным технически, а не только текстово нежелательным;
+  - состояние `browser check есть, но метод не указан` тоже становится невалидным технически.
 
 ## Проверки
 
@@ -80,6 +100,8 @@
   - `Step 0` для file-state routing;
   - правило `preview-build` -> `preview-gate` -> `post-preview-build`;
   - правило возобновления из частично выполненного `build-plan`;
-  - reference baseline и quality checkpoints для ключевых preview-задач.
+  - reference baseline, перечислимый `Reuse mode`, `Reuse without changes`, `Allowed adaptation` и quality checkpoints для ключевых preview-задач.
 - Проверить, что `projects/README.md` и `docs/README.md` знают про новый артефакт.
-- Проверить, что шаблон `build-plan` не позволяет закрыть `hero/camera/environment` без заполненного baseline и mini-review.
+- Проверить, что шаблон `build-plan` не позволяет закрыть `hero/camera/environment` без заполненных `Reference baseline`, `Reuse without changes`, `Allowed adaptation` и mini-review.
+- Проверить, что `npm run validate:build-plan -- <path>` падает на битом `build-plan` и проходит на корректном.
+- Проверить, что `preview` контракт теперь требует browser/Studio-проверку, явный `Visual check method` и screenshot-артефакты.

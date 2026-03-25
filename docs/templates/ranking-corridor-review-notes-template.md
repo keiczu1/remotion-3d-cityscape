@@ -21,6 +21,15 @@
 - Перетягивает ли вторичная жизнь внимание с героя: `no | slight | yes`
 - Результат layout-проверки: `ok | warning | fail`
 - Layout-заметки: где есть `layout-warning` или `layout-fail`
+- Результат browser/Studio-проверки: `ok | warning | fail`
+- Метод browser/Studio-проверки: `mcp-playwright | remotion-studio | built-in-browser`
+- Результат console/runtime-проверки: `ok | warning | fail`
+- Папка screenshot-артефактов:
+- Visual checklist:
+  - Hero / readability:
+  - Camera / pacing:
+  - Environment / secondary-life:
+  - Director-pass match:
 - Какие изменения обязательны:
 - Можно ли идти дальше без повторного предпросмотра:
 - Нужно ли обязательно повторить предпросмотр:
