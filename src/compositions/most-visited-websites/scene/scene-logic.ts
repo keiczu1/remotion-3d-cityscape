@@ -1,5 +1,7 @@
 import { interpolate } from "remotion";
 import * as THREE from "three";
+import { buildRailFocusVipFinaleTimingPlan } from "../../../lib/ranking-corridor/scene-presets/rail-focus-vip-finale-v1/timing";
+import { getCameraTimelineFrameFromPlan } from "../../../lib/ranking-corridor/scene-presets/shared-timing";
 
 import {
     STELE_DASHBOARD_BOTTOM_LOCAL_Y,
@@ -27,8 +29,6 @@ const CINEMATIC_RAMP_FRAMES = 300;
 const CINEMATIC_OVERVIEW_FRAMES = 540;
 const CINEMATIC_TURN_FRAMES = 180;
 const CINEMATIC_RETURN_FRAMES = 600;
-const FINAL_CINEMATIC_FRAMES =
-    CINEMATIC_RAMP_FRAMES + CINEMATIC_OVERVIEW_FRAMES + CINEMATIC_TURN_FRAMES + CINEMATIC_RETURN_FRAMES;
 
 /* Dolly-Push continuous camera mode */
 const CAMERA_ORBIT_HOLD_FRAMES = 60;
@@ -46,8 +46,6 @@ const CINEMATIC_VISIBILITY_VIEWPORT_WIDTH = 1920;
 const CINEMATIC_VISIBILITY_VIEWPORT_HEIGHT = 1080;
 const CINEMATIC_VISIBILITY_MARGIN_X = 0.06;
 const CINEMATIC_VISIBILITY_MARGIN_Y = 0.1;
-export const FINAL_CAMERA_SLOWDOWN_START_FRAME = Math.floor((4 * 60 * 60 + 42 * 60) * 0.9) + INTRO_DURATION_IN_FRAMES;
-export const FINAL_CAMERA_SLOWDOWN_FACTOR = 3;
 
 const cinematicVisibilityCamera = new THREE.PerspectiveCamera(
     45,
@@ -64,42 +62,33 @@ export const getSteleHeight = (relHeight: number) => {
     return Math.max(3, scaledHeight);
 };
 
-const getMilestones = () => {
-    let frame = INTRO_DURATION_IN_FRAMES;
-    const list: { arriveFrame: number; leaveFrame: number; xCenter: number; yCenter: number; index: number }[] = [];
+const timingPlan = buildRailFocusVipFinaleTimingPlan({
+    itemCount: reversedData.length,
+    introDurationFrames: INTRO_DURATION_IN_FRAMES,
+    strategy: "source-compatible",
+    finaleTailPolicy: "legacy-cinematic-slowdown",
+});
 
-    for (let i = 0; i < reversedData.length; i++) {
-        const item = reversedData[i];
-        const isFirstPlace = i === reversedData.length - 1;
-        const moveFrames = i === 0 ? 0 : 72; // -10% faster
-        // Делаем значимую паузу. Остальные места стоят ~4.8 сек (288 фреймов). 
-        // Если вы просили добавить задержку 5 сек на первом месте — ставим 600 фреймов (ровно 10 секунд).
-        const pauseFrames = isFirstPlace ? 600 : 288; 
-        const arriveFrame = frame + moveFrames;
-        const leaveFrame = arriveFrame + pauseFrames;
+const getMilestones = () =>
+    timingPlan.milestones.map((timingMilestone) => {
+        const item = reversedData[timingMilestone.index];
         const height = getSteleHeight(item.relHeight);
 
-        list.push({
-            index: i,
-            arriveFrame,
-            leaveFrame,
-            xCenter: i * X_SPACING,
+        return {
+            index: timingMilestone.index,
+            arriveFrame: timingMilestone.arriveFrame,
+            leaveFrame: timingMilestone.leaveFrame,
+            xCenter: timingMilestone.index * X_SPACING,
             yCenter: height + 20,
-        });
+        };
+    });
 
-        frame = leaveFrame;
-    }
-
-    const lastArrive = list[list.length - 1].leaveFrame;
-
-    return { milestones: list, baseDurationInFrames: lastArrive + FINAL_CINEMATIC_FRAMES + 60 };
-};
-
-export const { milestones, baseDurationInFrames } = getMilestones();
-export const sequenceCompleteFrame = milestones[milestones.length - 1].leaveFrame;
-const slowedTailFrames = baseDurationInFrames - FINAL_CAMERA_SLOWDOWN_START_FRAME;
-export const durationInFrames =
-    FINAL_CAMERA_SLOWDOWN_START_FRAME + slowedTailFrames * FINAL_CAMERA_SLOWDOWN_FACTOR;
+export const milestones = getMilestones();
+export const baseDurationInFrames = timingPlan.baseDurationInFrames;
+export const sequenceCompleteFrame = timingPlan.sequenceCompleteFrame;
+export const FINAL_CAMERA_SLOWDOWN_START_FRAME = timingPlan.finalCameraSlowdownStartFrame;
+export const FINAL_CAMERA_SLOWDOWN_FACTOR = timingPlan.finalCameraSlowdownFactor;
+export const durationInFrames = timingPlan.durationInFrames;
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const mix = (from: number, to: number, progress: number) => from + (to - from) * progress;
@@ -243,13 +232,16 @@ export const getSteleFocusLockFrame = (index: number) => {
 
 /* ---- Environment Act Boundaries ---- */
 // Act I: #40–#30 (indices 0–10), Act II: #29–#15 (indices 11–25), Act III: #14–#2 (indices 26–38), Finale: #1 (index 39)
-const ACT1_END_INDEX = 10;  // after position #30
-const ACT2_END_INDEX = 25;  // after position #15
-const ACT3_END_INDEX = 38;  // after position #2
+const {
+    scene1EndIndex: ACT1_END_INDEX,
+    scene2EndIndex: ACT2_END_INDEX,
+    scene3EndIndex: ACT3_END_INDEX,
+    finaleIndex: FINALE_INDEX,
+} = timingPlan.actBoundaries;
 export const ACT1_END_FRAME = milestones[ACT1_END_INDEX].leaveFrame;
 export const ACT2_END_FRAME = milestones[ACT2_END_INDEX].leaveFrame;
 export const ACT3_END_FRAME = milestones[ACT3_END_INDEX].leaveFrame;
-export const FINALE_FRAME = milestones[39]?.arriveFrame ?? milestones[milestones.length - 1].arriveFrame;
+export const FINALE_FRAME = milestones[FINALE_INDEX]?.arriveFrame ?? milestones[milestones.length - 1].arriveFrame;
 
 export function getEnvironmentState(frame: number) {
     // Determine which stele is currently in focus
@@ -286,16 +278,8 @@ export function getEnvironmentState(frame: number) {
 }
 
 export function getCameraTimelineFrame(frame: number) {
-    if (frame <= FINAL_CAMERA_SLOWDOWN_START_FRAME) {
-        return frame;
-    }
-
-    const slowedFrame =
-        FINAL_CAMERA_SLOWDOWN_START_FRAME + (frame - FINAL_CAMERA_SLOWDOWN_START_FRAME) / FINAL_CAMERA_SLOWDOWN_FACTOR;
-
-    return Math.min(baseDurationInFrames, slowedFrame);
+    return getCameraTimelineFrameFromPlan(timingPlan, frame);
 }
-
 export function isIntroFrame(frame: number) {
     return frame < INTRO_DURATION_IN_FRAMES;
 }

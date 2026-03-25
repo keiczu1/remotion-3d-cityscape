@@ -118,6 +118,7 @@
 ## Preview-build
 
 > Для ключевых preview-задач обязательно заполняй `Preview role`, `Reference baseline` (если это не `greenfield-approved`), `Reuse mode`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables`, `Studio/browser check`, `Visual check method`, `Console/runtime check`, `Screenshot set` и `Mini-review`. Для `environment-preview` и `integrated-preview` дополнительно обязательны `World slots covered`, `Scene coverage` и `Registry baselines used`. Если конкретная задача не относится к quality checkpoint, укажи `Preview role: support`. Среду не сворачивай в одну общую задачу: для minimum contract нужны отдельные scene-specific environment-задачи как минимум для `scene-1`, `scene-2`, `scene-3` и `scene-4`. Если в `launch-card.md` выбран `scenePresetPackage` с `reusePolicy: implementation-locked`, для `camera-preview` обязательны `Reuse mode: preset-reuse`, точный `Reference baseline` по `sourceOfTruthFiles` из registry и явный список зафиксированного поведения в `Reuse without changes`. Если в `launch-card.md` выбран `heroRevealPackage` с `reusePolicy: implementation-locked`, для `hero-preview` обязательны `Reuse mode: preset-reuse`, точный `Reference baseline` по `sourceOfTruthFiles` из registry и явный список зафиксированного reveal-поведения в `Reuse without changes`. Валидатор сверяет эти блоки не только локально по `build-plan.md`, но и против `launch-card.md`, registry и launch-card поля `что считается зафиксированным без пересборки`, которое должно совпадать с registry `lockedBehavior`.
+> Если выбран implementation-locked camera preset с `timingContract: adaptive`, для `camera-preview` дополнительно фиксируй `Object count`, `Target duration band`, `Timing policy` и `Finale tail policy`: это отдельный contract-level слой, чтобы count-aware retiming был явным, а не спрятанным в произвольном описании.
 
 ### BP-01. Data snapshot и типы
 - Статус: `todo | in_progress | blocked | done`
@@ -158,13 +159,22 @@
 - Reuse mode: `preset-reuse | structure-reuse | system-reuse | greenfield-approved`
 - Reuse without changes:
 - Allowed adaptation:
+- Object count:
+- Target duration band:
+- Timing policy:
+- Finale tail policy:
 - Greenfield justification:
 - Non-negotiables:
 - Для implementation-locked preset-пакета:
   - `Reuse mode`: только `preset-reuse`
   - `Reference baseline`: `sourceOfTruthFiles` выбранного registry-пакета
-  - `Reuse without changes`: camera path math, переходные тайминги, hold rhythm, scene progression, finale behavior
-  - `Allowed adaptation`: только data normalization, рабочие offsets, безопасная дистанция камеры и topic-specific framing
+  - `Reuse without changes`: camera path math, motion-характер preset, scene progression, intro/main handoff, VIP/tower orbit behavior
+  - `Allowed adaptation`: только data normalization, рабочие offsets, безопасная дистанция камеры, topic-specific framing и count-aware retiming через закрепленный timing policy
+  - `FPS contract`: текущие adaptive camera preset рассчитаны только на `60 fps`; build-plan не должен трактовать их как универсальные для другого fps
+  - `Object count`: фактическое количество объектов текущего проекта; для snapshot-проектов validator сверяет его с `supportedCountRange` выбранного preset и с actual count из `public/ranking-corridor/<project-slug>/data.json`
+  - `Target duration band`: exact `targetDurationBandSeconds` из registry для adaptive-пакета; это явный project-level audit trail budget-а, а не скрытая runtime-магия
+  - `Timing policy`: exact `timingPolicyId` из registry для adaptive-пакета
+  - `Finale tail policy`: `off | legacy-cinematic-slowdown` в рамках того, что разрешено registry-контрактом
   - validator cross-check: `build-plan.md` сверяется с выбранным `scenePresetPackage` из `launch-card.md`, exact `sourceOfTruthFiles` из registry и launch-card полем `что считается зафиксированным без пересборки`
 - World slots covered: `environment-preview | integrated-preview only`
 - Scene coverage: `environment-preview -> scene-1 | integrated-preview -> scene-1, scene-2, scene-3, scene-4 | иначе пусто`

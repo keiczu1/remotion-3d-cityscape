@@ -223,16 +223,22 @@
 - `moduleType`: `camera preset`
 - `presetScope`: `scene-package`
 - `reusePolicy`: `implementation-locked`
+- `timingContract`: `adaptive`
+- `supportedFps`: `60`
+- `timingPolicyId`: `rail-focus-vip-finale-v1/adaptive-v1`
+- `supportedCountRange`: `20-150`
+- `targetDurationBandSeconds`: `130-480`
+- `defaultFinaleTailPolicy`: `off`
 - `sourceProjects`:
   - `2026-03-20-most-visited-websites`
 - `promotionReason`: preset пережил финальный ролик, подтвердил читаемость лидерской зоны, мягкий cinematic-tail и исправление пропаданий/рывков без жёстких top-3 веток и без ручного rank-hardcode.
-- `contract`: непрерывный rail-focus corridor camera с data-driven VIP-focus по height percentile, замедленным финальным tail, единым remapped frame для camera/focus/detail-window/preload и screen-space fallback в wide flyover до перехода в `minimal`.
+- `contract`: непрерывный rail-focus corridor camera с data-driven VIP-focus по height percentile, единым remapped frame для camera/focus/detail-window/preload и count-aware timing policy, которая подстраивает main pass под `itemCount`, а финальный cinematic tail держит как optional policy, а не как обязательный default.
 - `sourceOfTruthFiles`:
   - `src/compositions/most-visited-websites/scene/scene-logic.ts`
   - `src/compositions/most-visited-websites/scene/camera-presentation.ts`
-- `lockedBehavior`: camera path math, переходные тайминги, hold rhythm, VIP-focus, scene progression contract и финальный cinematic tail reuse-ятся как единый пакет.
-- `allowedAdaptation`: data normalization, world-scale offsets, безопасная дистанция камеры, topic-specific framing и тонкая подстройка под hero/layout без смены характера preset.
-- `forbiddenChanges`: не переписывать scene-logic и timing windows с нуля, не смешивать preset с чужим timing family и не выключать VIP/finale behavior без отдельного approve.
+- `lockedBehavior`: camera path math, VIP-focus, scene progression geometry, intro-to-main handoff и cinematic framing reuse-ятся как единый motion-пакет.
+- `allowedAdaptation`: data normalization, world-scale offsets, безопасная дистанция камеры, topic-specific framing и count-aware retiming через `timingPolicyId` без смены характера preset.
+- `forbiddenChanges`: не переписывать camera path math с нуля, не смешивать preset с чужим motion family и не отключать VIP-focus без отдельного approve.
 - `placement`:
   - registry-level contract
   - текущая reference-реализация: `src/compositions/most-visited-websites/scene/scene-logic.ts`
@@ -249,16 +255,22 @@
 - `moduleType`: `camera preset`
 - `presetScope`: `scene-package`
 - `reusePolicy`: `implementation-locked`
+- `timingContract`: `adaptive`
+- `supportedFps`: `60`
+- `timingPolicyId`: `soft-side-orbit-classic-v1/adaptive-v1`
+- `supportedCountRange`: `20-150`
+- `targetDurationBandSeconds`: `140-550`
+- `defaultFinaleTailPolicy`: `off`
 - `sourceProjects`:
   - `ranking-towers`
 - `promotionReason`: базовый reference-композишен формата уже многоразово служит эталоном для launch- и production-решений; его камера и тайминг имеют устойчивый контракт, покрыты scene-logic тестами и остаются главным baseline-вариантом бокового corridor-прохода.
-- `contract`: мягкий corridor camera preset с боковым ракурсом около `3/4`, стартовым intro push-in без jump-cut handoff, `80` кадров на переход между объектами, `320` кадров на tower hold, `45` кадров статичного settle перед orbit drift и длинным cinematic tail с x3 slowdown в финале.
+- `contract`: мягкий corridor camera preset с боковым ракурсом около `3/4`, стартовым intro push-in без jump-cut handoff, orbit drift contract и count-aware timing policy, которая сохраняет башенный характер пролета, но пересчитывает hold cadence под `itemCount`; финальный slowdown допускается как legacy-policy, а не как обязательный default.
 - `sourceOfTruthFiles`:
   - `src/compositions/ranking-towers/scene/scene-logic.ts`
   - `src/compositions/ranking-towers/scene/camera-updater.tsx`
-- `lockedBehavior`: camera path math, переходные тайминги, tower hold, intro push-in, orbit drift contract и финальный slowdown reuse-ятся как единый сценический пакет.
-- `allowedAdaptation`: scale remap, рабочая дистанция камеры, безопасные offsets под другой hero/layout и data normalization без потери бокового `3/4` характера.
-- `forbiddenChanges`: не заменять preset на новый custom rail-path, не пересобирать hold/finale rhythm с нуля и не смешивать его с другим timing family без отдельного approve.
+- `lockedBehavior`: camera path math, intro push-in, orbit drift contract, tower-side `3/4` framing и базовая scene progression reuse-ятся как единый motion-пакет.
+- `allowedAdaptation`: scale remap, рабочая дистанция камеры, безопасные offsets под другой hero/layout, data normalization и count-aware retiming через `timingPolicyId` без потери бокового `3/4` характера.
+- `forbiddenChanges`: не заменять preset на новый custom rail-path, не пересобирать motion-характер с нуля и не смешивать его с другим motion family без отдельного approve.
 - `placement`:
   - registry-level contract
   - текущая reference-реализация: `src/compositions/ranking-towers/scene/scene-logic.ts`

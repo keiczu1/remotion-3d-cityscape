@@ -72,6 +72,8 @@
   - для ключевых задач `camera`, `hero`, `environment` и `integrated-preview` появляются поля `Reference baseline`, `Reuse mode`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables` и условный `Greenfield justification`;
   - если в `launch-card` выбран registry-backed camera preset с `reusePolicy: implementation-locked`, он трактуется как готовый `scenePresetPackage`, а не как soft creative-направление;
   - для такого пакета `camera-preview` обязан reuse-ить exact `sourceOfTruthFiles`, а не писать новую camera math и новые тайминги "по мотивам";
+  - если такой camera preset помечен как `timingContract: adaptive`, `camera-preview` обязан явно фиксировать `Object count`, `Target duration band`, `Timing policy` и `Finale tail policy`, а сам preset считается `60fps-only` через registry `supportedFps: 60`;
+  - actual `Object count` machine-check сейчас гарантирован для snapshot-проектов, где есть `public/ranking-corridor/<project-slug>/data.json`;
   - если для выбранного hero/object family в `launch-card` выбран registry-backed reveal baseline с `reusePolicy: implementation-locked`, он трактуется как готовый `heroRevealPackage`, а не как свободный `revealSystem`;
   - для такого пакета `hero-preview` обязан reuse-ить exact `sourceOfTruthFiles`, а не писать новую reveal-анимацию "по мотивам";
   - validator `build-plan` cross-check-ит это правило против `launch-card.md` и registry, а не только против локального текста задачи;

@@ -1,4 +1,6 @@
 import { interpolate } from "remotion";
+import { buildSoftSideOrbitClassicTimingPlan } from "../../../lib/ranking-corridor/scene-presets/soft-side-orbit-classic-v1/timing";
+import { getCameraTimelineFrameFromPlan } from "../../../lib/ranking-corridor/scene-presets/shared-timing";
 import { data } from "../model/data";
 
 export const reversedData = [...data].reverse();
@@ -20,8 +22,6 @@ const CINEMATIC_RAMP_FRAMES = 300;
 const CINEMATIC_OVERVIEW_FRAMES = 540;
 const CINEMATIC_TURN_FRAMES = 180;
 const CINEMATIC_RETURN_FRAMES = 600;
-const FINAL_CINEMATIC_FRAMES =
-    CINEMATIC_RAMP_FRAMES + CINEMATIC_OVERVIEW_FRAMES + CINEMATIC_TURN_FRAMES + CINEMATIC_RETURN_FRAMES;
 
 const CAMERA_SWEEP_X_OFFSET = 24;
 const CAMERA_SWEEP_Z_OFFSET = 16;
@@ -32,57 +32,42 @@ const CAMERA_ORBIT_HOLD_FRAMES = 45;
 const TOWER_PRELOAD_LEAD_FRAMES = 45;
 const FULL_DETAIL_RADIUS = 1;
 const STANDBY_RADIUS = 2;
-export const FINAL_CAMERA_SLOWDOWN_START_FRAME = 4 * 60 * 60 + 42 * 60 + INTRO_DURATION_IN_FRAMES;
-export const FINAL_CAMERA_SLOWDOWN_FACTOR = 3;
 
 export const getTowerHeight = (relHeight: number) => {
     const scaledHeight = Math.pow(relHeight, 1.45) * 6.5;
     return Math.max(scaledHeight, 3);
 };
 
-const getMilestones = () => {
-    let frame = INTRO_DURATION_IN_FRAMES;
-    const list: { arriveFrame: number; leaveFrame: number; xCenter: number; yCenter: number; index: number }[] = [];
+const timingPlan = buildSoftSideOrbitClassicTimingPlan({
+    itemCount: reversedData.length,
+    introDurationFrames: INTRO_DURATION_IN_FRAMES,
+    strategy: "source-compatible",
+    finaleTailPolicy: "legacy-cinematic-slowdown",
+});
 
-    for (let i = 0; i < reversedData.length; i++) {
-        const item = reversedData[i];
-        const moveFrames = i === 0 ? 0 : 80;
-        const pauseFrames = 320;
-        const arriveFrame = frame + moveFrames;
-        const leaveFrame = arriveFrame + pauseFrames;
+const getMilestones = () =>
+    timingPlan.milestones.map((timingMilestone) => {
+        const item = reversedData[timingMilestone.index];
         const height = getTowerHeight(item.relHeight);
 
-        list.push({
-            index: i,
-            arriveFrame,
-            leaveFrame,
-            xCenter: i * X_SPACING,
+        return {
+            index: timingMilestone.index,
+            arriveFrame: timingMilestone.arriveFrame,
+            leaveFrame: timingMilestone.leaveFrame,
+            xCenter: timingMilestone.index * X_SPACING,
             yCenter: height + 20,
-        });
+        };
+    });
 
-        frame = leaveFrame;
-    }
-
-    const lastArrive = list[list.length - 1].leaveFrame;
-
-    return { milestones: list, baseDurationInFrames: lastArrive + FINAL_CINEMATIC_FRAMES + 60 };
-};
-
-export const { milestones, baseDurationInFrames } = getMilestones();
-export const sequenceCompleteFrame = milestones[milestones.length - 1].leaveFrame;
-const slowedTailFrames = baseDurationInFrames - FINAL_CAMERA_SLOWDOWN_START_FRAME;
-export const durationInFrames =
-    FINAL_CAMERA_SLOWDOWN_START_FRAME + slowedTailFrames * FINAL_CAMERA_SLOWDOWN_FACTOR;
+export const milestones = getMilestones();
+export const baseDurationInFrames = timingPlan.baseDurationInFrames;
+export const sequenceCompleteFrame = timingPlan.sequenceCompleteFrame;
+export const FINAL_CAMERA_SLOWDOWN_START_FRAME = timingPlan.finalCameraSlowdownStartFrame;
+export const FINAL_CAMERA_SLOWDOWN_FACTOR = timingPlan.finalCameraSlowdownFactor;
+export const durationInFrames = timingPlan.durationInFrames;
 
 export function getCameraTimelineFrame(frame: number) {
-    if (frame <= FINAL_CAMERA_SLOWDOWN_START_FRAME) {
-        return frame;
-    }
-
-    const slowedFrame =
-        FINAL_CAMERA_SLOWDOWN_START_FRAME + (frame - FINAL_CAMERA_SLOWDOWN_START_FRAME) / FINAL_CAMERA_SLOWDOWN_FACTOR;
-
-    return Math.min(baseDurationInFrames, slowedFrame);
+    return getCameraTimelineFrameFromPlan(timingPlan, frame);
 }
 
 export function isIntroFrame(frame: number) {

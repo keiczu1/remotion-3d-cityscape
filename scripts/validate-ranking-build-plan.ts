@@ -33,6 +33,12 @@ type RegistryCameraPreset = {
   reusePolicy: string;
   sourceOfTruthFiles: string[];
   lockedBehavior: string;
+  timingContract: string;
+  supportedFps: number | null;
+  timingPolicyId: string;
+  defaultFinaleTailPolicy: string;
+  supportedCountRange: [number, number] | null;
+  targetDurationBandSeconds: [number, number] | null;
 };
 
 type RegistryRevealModule = {
@@ -64,6 +70,12 @@ type BuildPlanScan = {
   tasks: BuildPlanScanTask[];
 };
 
+type ProjectDataSnapshot = {
+  slug: string;
+  path: string;
+  count: number | null;
+};
+
 const allowedPlanStatuses = new Set([
   'draft',
   'active',
@@ -91,6 +103,7 @@ const allowedVisualMethods = new Set([
   'remotion-studio',
   'built-in-browser',
 ]);
+const allowedFinaleTailPolicies = new Set(['off', 'legacy-cinematic-slowdown']);
 const allowedReuseModes = new Set([
   'preset-reuse',
   'structure-reuse',
@@ -128,6 +141,74 @@ const requiredEnvironmentSlots = [
 
 const normalizeMarkdownValue = (value: string) =>
   value.trim().replace(/^`|`$/g, '').trim();
+
+const parseSupportedCountRange = (value: string): [number, number] | null => {
+  const match = value.trim().match(/^(\d+)\s*-\s*(\d+)$/);
+  if (!match) {
+    return null;
+  }
+
+  const min = Number(match[1]);
+  const max = Number(match[2]);
+
+  if (!Number.isInteger(min) || !Number.isInteger(max) || min <= 0 || max < min) {
+    return null;
+  }
+
+  return [min, max];
+};
+
+const parseTargetDurationBandSeconds = (value: string): [number, number] | null =>
+  parseSupportedCountRange(value);
+
+const parseSupportedFps = (value: string): number | null => {
+  const fps = Number.parseInt(value.trim(), 10);
+  return Number.isInteger(fps) && fps > 0 ? fps : null;
+};
+
+const formatNumericRange = (range: [number, number]) => `${range[0]}-${range[1]}`;
+
+const resolveProjectDataSnapshot = (buildPlanPath: string): ProjectDataSnapshot => {
+  const normalizedPath = buildPlanPath.replace(/\\/g, '/');
+  const slugMatch = normalizedPath.match(/\/projects\/([^/]+)\/build-plan\.md$/);
+  const slug = slugMatch?.[1] ?? '';
+  const dataPath = slug
+    ? path.resolve(process.cwd(), 'public', 'ranking-corridor', slug, 'data.json')
+    : '';
+
+  if (!slug || !dataPath || !existsSync(dataPath)) {
+    return {
+      slug,
+      path: dataPath,
+      count: null,
+    };
+  }
+
+  try {
+    const raw = JSON.parse(readFileSync(dataPath, 'utf8')) as {
+      total_entries?: unknown;
+      entries?: unknown;
+    };
+    const totalEntries =
+      typeof raw.total_entries === 'number' && Number.isInteger(raw.total_entries)
+        ? raw.total_entries
+        : Array.isArray(raw.entries)
+          ? raw.entries.length
+          : null;
+
+    return {
+      slug,
+      path: dataPath,
+      count: totalEntries && totalEntries > 0 ? totalEntries : null,
+    };
+  } catch {
+    return {
+      slug,
+      path: dataPath,
+      count: null,
+    };
+  }
+};
 
 const parseCliArgs = (argv: string[]): CliOptions => {
   let buildPlanArg = '';
@@ -347,6 +428,7 @@ const {buildPlanArg, finalizeTaskId} = parseCliArgs(process.argv.slice(2));
 
 
 const buildPlanPath = path.resolve(process.cwd(), buildPlanArg);
+const projectDataSnapshot = resolveProjectDataSnapshot(buildPlanPath);
 
 if (!existsSync(buildPlanPath)) {
   console.error(`Файл build-plan не найден: ${buildPlanPath}`);
@@ -409,7 +491,7 @@ const isPlaceholder = (value: string | undefined) => {
 const fieldValue = (task: Task, name: string) => cleanValue(task.fields[name] ?? '');
 const parseWorldSlots = (value: string) =>
   value
-    .split(/[,\|]/)
+    .split(/[,|]/)
     .map((part) => cleanValue(part))
     .filter(Boolean);
 const parseSceneCoverage = (value: string) =>
@@ -434,7 +516,7 @@ const parseRepoRelativePaths = (value: string) =>
   Array.from(
     new Set(
       (value.match(
-        /(?:src|public|projects|docs|scripts|\.agents)\/[A-Za-z0-9._\-\/]+/g,
+        /(?:src|public|projects|docs|scripts|\.agents)\/[A-Za-z0-9._\-/]+/g,
       ) ?? []
       ).map((part) => part.trim()),
     ),
@@ -552,6 +634,12 @@ const parseRegistryCameraPresets = () => {
   let currentReusePolicy = '';
   let currentSourceOfTruthFiles: string[] = [];
   let currentLockedBehavior = '';
+  let currentTimingContract = '';
+  let currentSupportedFps: number | null = null;
+  let currentTimingPolicyId = '';
+  let currentDefaultFinaleTailPolicy = '';
+  let currentSupportedCountRange: [number, number] | null = null;
+  let currentTargetDurationBandSeconds: [number, number] | null = null;
   let currentListField = '';
 
   const pushCurrentPreset = () => {
@@ -564,6 +652,12 @@ const parseRegistryCameraPresets = () => {
       reusePolicy: currentReusePolicy,
       sourceOfTruthFiles: currentSourceOfTruthFiles,
       lockedBehavior: currentLockedBehavior,
+      timingContract: currentTimingContract,
+      supportedFps: currentSupportedFps,
+      timingPolicyId: currentTimingPolicyId,
+      defaultFinaleTailPolicy: currentDefaultFinaleTailPolicy,
+      supportedCountRange: currentSupportedCountRange,
+      targetDurationBandSeconds: currentTargetDurationBandSeconds,
     });
   };
 
@@ -576,6 +670,12 @@ const parseRegistryCameraPresets = () => {
       currentReusePolicy = '';
       currentSourceOfTruthFiles = [];
       currentLockedBehavior = '';
+      currentTimingContract = '';
+      currentSupportedFps = null;
+      currentTimingPolicyId = '';
+      currentDefaultFinaleTailPolicy = '';
+      currentSupportedCountRange = null;
+      currentTargetDurationBandSeconds = null;
       currentListField = '';
       continue;
     }
@@ -603,6 +703,30 @@ const parseRegistryCameraPresets = () => {
 
       if (key === 'lockedBehavior') {
         currentLockedBehavior = value;
+      }
+
+      if (key === 'timingContract') {
+        currentTimingContract = value;
+      }
+
+      if (key === 'supportedFps') {
+        currentSupportedFps = parseSupportedFps(value);
+      }
+
+      if (key === 'timingPolicyId') {
+        currentTimingPolicyId = value;
+      }
+
+      if (key === 'defaultFinaleTailPolicy') {
+        currentDefaultFinaleTailPolicy = value;
+      }
+
+      if (key === 'supportedCountRange') {
+        currentSupportedCountRange = parseSupportedCountRange(value);
+      }
+
+      if (key === 'targetDurationBandSeconds') {
+        currentTargetDurationBandSeconds = parseTargetDurationBandSeconds(value);
       }
 
       continue;
@@ -1198,6 +1322,10 @@ for (const task of tasks) {
     const referenceBaseline = fieldValue(task, 'Reference baseline');
     const reuseWithoutChanges = fieldValue(task, 'Reuse without changes');
     const allowedAdaptation = fieldValue(task, 'Allowed adaptation');
+    const objectCountValue = fieldValue(task, 'Object count');
+    const timingPolicy = fieldValue(task, 'Timing policy');
+    const targetDurationBand = fieldValue(task, 'Target duration band');
+    const finaleTailPolicy = fieldValue(task, 'Finale tail policy');
     const greenfieldJustification = fieldValue(task, 'Greenfield justification');
     const worldSlotsCovered = fieldValue(task, 'World slots covered');
     const sceneCoverage = fieldValue(task, 'Scene coverage');
@@ -1228,10 +1356,25 @@ for (const task of tasks) {
         ['finale', 'финал'],
       ];
 
+      if (lockedScenePreset.timingContract === 'adaptive') {
+        reuseRequirements.splice(
+          0,
+          reuseRequirements.length,
+          ['camera path math', 'camera math', 'путь камеры'],
+          ['scene progression', 'progression', 'сценичес'],
+          ['handoff', 'push-in', 'intro/main'],
+          ['orbit', 'vip-focus', 'tower', 'motion', 'rail-focus'],
+        );
+      }
+
       const missingReuseMarkers = reuseRequirements.filter(
         (markers) => !hasAnyMarker(reuseWithoutChanges, markers),
       );
-      if (missingReuseMarkers.length > 0) {
+      if (missingReuseMarkers.length > 0 && lockedScenePreset.timingContract === 'adaptive') {
+        errors.push(
+          `Задача ${task.id}: для implementation-locked scene preset \`${lockedScenePreset.moduleId}\` с adaptive timing поле \`Reuse without changes\` должно явно перечислять motion-locked часть: camera path math, scene progression, intro/main handoff и orbit/VIP/tower behavior.`,
+        );
+      } else if (missingReuseMarkers.length > 0) {
         errors.push(
           `Задача ${task.id}: для implementation-locked scene preset \`${lockedScenePreset.moduleId}\` поле \`Reuse without changes\` должно явно перечислять camera path math, переходные тайминги, hold rhythm, scene progression и finale behavior, а не только общий текст.`,
         );
@@ -1244,13 +1387,122 @@ for (const task of tasks) {
         ['framing', 'кадрир'],
       ];
 
+      if (lockedScenePreset.timingContract === 'adaptive') {
+        adaptationRequirements.push(['timing', 'retiming', 'adaptive', 'count-aware']);
+      }
+
       const missingAdaptationMarkers = adaptationRequirements.filter(
         (markers) => !hasAnyMarker(allowedAdaptation, markers),
       );
-      if (missingAdaptationMarkers.length > 0) {
+      if (missingAdaptationMarkers.length > 0 && lockedScenePreset.timingContract === 'adaptive') {
+        errors.push(
+          `Задача ${task.id}: для implementation-locked scene preset \`${lockedScenePreset.moduleId}\` с adaptive timing поле \`Allowed adaptation\` должно явно ограничиваться data normalization, offsets, дистанцией камеры, topic-specific framing и count-aware retiming.`,
+        );
+      } else if (missingAdaptationMarkers.length > 0) {
         errors.push(
           `Задача ${task.id}: для implementation-locked scene preset \`${lockedScenePreset.moduleId}\` поле \`Allowed adaptation\` должно явно ограничиваться data normalization, offsets, дистанцией камеры и topic-specific framing.`,
         );
+      }
+
+      if (lockedScenePreset.timingContract === 'adaptive') {
+        const objectCount = Number.parseInt(objectCountValue, 10);
+        const declaredTargetDurationBand = parseTargetDurationBandSeconds(targetDurationBand);
+        if (!lockedScenePreset.supportedFps) {
+          warnings.push(
+            `Задача ${task.id}: adaptive scene preset \`${lockedScenePreset.moduleId}\` должен иметь в registry явный \`supportedFps\`.`,
+          );
+        }
+
+        if (!lockedScenePreset.targetDurationBandSeconds) {
+          errors.push(
+            `Задача ${task.id}: adaptive scene preset \`${lockedScenePreset.moduleId}\` должен иметь в registry явный \`targetDurationBandSeconds\`.`,
+          );
+        }
+
+        if (!objectCountValue) {
+          errors.push(
+            `Задача ${task.id}: для adaptive scene preset \`${lockedScenePreset.moduleId}\` поле \`Object count\` обязательно.`,
+          );
+        } else if (!Number.isInteger(objectCount) || objectCount <= 0) {
+          errors.push(
+            `Задача ${task.id}: поле \`Object count\` должно быть положительным целым числом.`,
+          );
+        } else if (
+          lockedScenePreset.supportedCountRange &&
+          (objectCount < lockedScenePreset.supportedCountRange[0] ||
+            objectCount > lockedScenePreset.supportedCountRange[1])
+        ) {
+          errors.push(
+            `Задача ${task.id}: \`Object count\` = ${objectCount} выходит за supportedCountRange preset \`${lockedScenePreset.moduleId}\` (${lockedScenePreset.supportedCountRange[0]}-${lockedScenePreset.supportedCountRange[1]}).`,
+          );
+        }
+
+        if (!projectDataSnapshot.count) {
+          warnings.push(
+            `Задача ${task.id}: для adaptive scene preset \`${lockedScenePreset.moduleId}\` validator должен подтвердить actual object count по project data snapshot. Не удалось прочитать count из \`${path.relative(process.cwd(), projectDataSnapshot.path || buildPlanPath)}\`.`,
+          );
+        } else if (
+          lockedScenePreset.supportedCountRange &&
+          (projectDataSnapshot.count < lockedScenePreset.supportedCountRange[0] ||
+            projectDataSnapshot.count > lockedScenePreset.supportedCountRange[1])
+        ) {
+          errors.push(
+            `Задача ${task.id}: actual project data count ${projectDataSnapshot.count} из \`${path.relative(process.cwd(), projectDataSnapshot.path)}\` выходит за supportedCountRange preset \`${lockedScenePreset.moduleId}\` (${lockedScenePreset.supportedCountRange[0]}-${lockedScenePreset.supportedCountRange[1]}).`,
+          );
+        } else if (Number.isInteger(objectCount) && objectCount > 0 && objectCount !== projectDataSnapshot.count) {
+          errors.push(
+            `Задача ${task.id}: \`Object count\` = ${objectCount} не совпадает с actual project data count ${projectDataSnapshot.count} из \`${path.relative(process.cwd(), projectDataSnapshot.path)}\`.`,
+          );
+        }
+
+        if (!targetDurationBand) {
+          errors.push(
+            `Задача ${task.id}: для adaptive scene preset \`${lockedScenePreset.moduleId}\` поле \`Target duration band\` обязательно.`,
+          );
+        } else if (!declaredTargetDurationBand) {
+          errors.push(
+            `Задача ${task.id}: поле \`Target duration band\` должно быть в формате \`min-max\` в секундах, например \`130-480\`.`,
+          );
+        } else if (
+          lockedScenePreset.targetDurationBandSeconds &&
+          (declaredTargetDurationBand[0] !== lockedScenePreset.targetDurationBandSeconds[0] ||
+            declaredTargetDurationBand[1] !== lockedScenePreset.targetDurationBandSeconds[1])
+        ) {
+          errors.push(
+            `Задача ${task.id}: \`Target duration band\` должна совпадать с registry \`targetDurationBandSeconds\` выбранного scene preset \`${lockedScenePreset.moduleId}\`: \`${formatNumericRange(lockedScenePreset.targetDurationBandSeconds)}\`.`,
+          );
+        }
+
+        if (!timingPolicy) {
+          errors.push(
+            `Задача ${task.id}: для adaptive scene preset \`${lockedScenePreset.moduleId}\` поле \`Timing policy\` обязательно.`,
+          );
+        } else if (
+          lockedScenePreset.timingPolicyId &&
+          normalizeContractText(timingPolicy) !== normalizeContractText(lockedScenePreset.timingPolicyId)
+        ) {
+          errors.push(
+            `Задача ${task.id}: \`Timing policy\` должна совпадать с registry \`timingPolicyId\` выбранного scene preset \`${lockedScenePreset.moduleId}\`: \`${lockedScenePreset.timingPolicyId}\`.`,
+          );
+        }
+
+        if (!finaleTailPolicy) {
+          errors.push(
+            `Задача ${task.id}: для adaptive scene preset \`${lockedScenePreset.moduleId}\` поле \`Finale tail policy\` обязательно.`,
+          );
+        } else if (!allowedFinaleTailPolicies.has(finaleTailPolicy)) {
+          errors.push(
+            `Задача ${task.id}: \`Finale tail policy\` должна быть одной из: ${Array.from(allowedFinaleTailPolicies).join(', ')}.`,
+          );
+        } else if (
+          lockedScenePreset.defaultFinaleTailPolicy &&
+          finaleTailPolicy !== lockedScenePreset.defaultFinaleTailPolicy &&
+          finaleTailPolicy !== 'legacy-cinematic-slowdown'
+        ) {
+          errors.push(
+            `Задача ${task.id}: \`Finale tail policy\` для preset \`${lockedScenePreset.moduleId}\` должна соответствовать registry default \`${lockedScenePreset.defaultFinaleTailPolicy}\` или явному legacy override.`,
+          );
+        }
       }
     }
 
