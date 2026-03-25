@@ -11,19 +11,16 @@ description: "Запускай новый проект формата `ranking c
 
 ## Сначала подними канон
 
-Перед работой используй такие источники:
+Сначала подними `AGENTS.md` и `docs/README.md`, а затем используй только нужных владельцев правил:
 
-- `AGENTS.md` — repo-session контракт, дефолты работы и обязательные локальные skills
-- `docs/README.md` — короткая карта активной документации
-- `docs/canon/ranking-corridor-format.md` — канон формата, разрешенные оси вариативности и семейства
-- `docs/canon/ranking-corridor-working-mode.md` — контракт `question-pack`, обязательные поля `launch-card` и stop-condition launch-этапа
-- `docs/library/ranking-corridor-module-registry.md` — если пользователь явно просит только уже проверенные preset-пакеты
-- `docs/templates/ranking-corridor-theme-to-concept-pack-template.md` — практический шаблон для первого человеческого `concept-pack`
-- `docs/templates/ranking-corridor-launch-card-template.md` — практическая файловая форма `launch-card`
-- `projects/README.md` — только если уже нужен файловый след проекта и материализация `project-container`
-- `docs/Examples/Ranking-towers-reverse-prompt.md` — только если нужен ближайший reference по текущему удачному ролику
-- `docs/Examples/Military.md` — только если тема тянет в более монументальную, архитектурную или военную адаптацию
-- `docs/templates/ranking-corridor-theme-to-reverse-prompt-template.md` — только если после выбора направления нужен более глубокий `design-only` brief
+- `docs/canon/ranking-corridor-format.md` — канон жанра, допустимые семейства и оси вариативности;
+- `docs/canon/ranking-corridor-working-mode.md` — контракт `question-pack`, обязательные поля `launch-card` и stop-condition launch-этапа;
+- `docs/templates/ranking-corridor-theme-to-concept-pack-template.md` — рабочая форма первого человеческого `concept-pack`;
+- `docs/templates/ranking-corridor-launch-card-template.md` — файловая форма `launch-card`;
+- `docs/library/ranking-corridor-module-registry.md` — только если нужен strict/verified preset mode;
+- `projects/README.md` — только если materialize-ится `project-container`;
+- `docs/Examples/Ranking-towers-reverse-prompt.md` и `docs/Examples/Military.md` — только как reference, а не как источник правил;
+- `docs/templates/ranking-corridor-theme-to-reverse-prompt-template.md` — только если после выбора направления нужен более глубокий `design-only` brief.
 
 Не дублируй канон внутри ответа, а опирайся на него.
 

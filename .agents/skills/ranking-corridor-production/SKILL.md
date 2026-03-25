@@ -11,21 +11,14 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 ## Сначала подними рабочий контекст
 
-Перед работой используй такие источники:
+Сначала подними `AGENTS.md` и `docs/README.md`, а затем используй нужных владельцев правил:
 
-- `AGENTS.md`
-- `docs/README.md`
-- `docs/canon/ranking-corridor-format.md`
-- `docs/canon/ranking-corridor-working-mode.md`
-- `docs/canon/remotion-project-rules.md`
-- `docs/library/ranking-corridor-module-registry.md`
-- `docs/templates/ranking-corridor-launch-card-template.md`
-- `docs/templates/ranking-corridor-director-pass-template.md`
-- `docs/templates/ranking-corridor-build-plan-template.md`
-- `docs/templates/ranking-corridor-asset-manifest-template.md`
-- `docs/templates/ranking-corridor-library-audit-template.md`
-- `docs/templates/ranking-corridor-review-notes-template.md`
-- `projects/README.md`
+- `docs/canon/ranking-corridor-format.md` — жанровый канон;
+- `docs/canon/ranking-corridor-working-mode.md` — фазы, статусы, stop-condition и контракты project-артефактов;
+- `docs/canon/remotion-project-rules.md` — технические инварианты Remotion-проекта;
+- `docs/library/ranking-corridor-module-registry.md` — registry truth для preset-пакетов, reveal-baseline и promoted reusable-layer;
+- `docs/templates/ranking-corridor-launch-card-template.md`, `docs/templates/ranking-corridor-director-pass-template.md`, `docs/templates/ranking-corridor-build-plan-template.md`, `docs/templates/ranking-corridor-asset-manifest-template.md`, `docs/templates/ranking-corridor-library-audit-template.md`, `docs/templates/ranking-corridor-review-notes-template.md` — файловая форма project-артефактов;
+- `projects/README.md` — владелец структуры `projects/<project-slug>/`.
 
 Когда начинаешь писать или менять Remotion-код, также учитывай локальный skill `remotion-best-practices` и опирайся на текущий `src/compositions/ranking-towers/` как на reference implementation, а не как на жесткий закон.
 
