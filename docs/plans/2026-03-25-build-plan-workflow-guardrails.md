@@ -57,6 +57,21 @@
   - ИИ больше не изобретает формат `build-plan` заново;
   - структура проекта и канон не расходятся.
 
+## Этап 4. Усилить качество preview-build через baseline и checkpoints
+
+- Файлы:
+  - `.agents/skills/ranking-corridor-production/SKILL.md`
+  - `docs/canon/ranking-corridor-working-mode.md`
+  - `docs/templates/ranking-corridor-build-plan-template.md`
+- Что меняется:
+  - `preview-build` фиксируется как `reference-anchored quality slice`, а не как MVP или rough scaffold;
+  - для ключевых задач `camera`, `hero`, `environment` и `integrated-preview` появляются поля `Reference baseline`, `Reuse mode` и `Non-negotiables`;
+  - внутри `preview-build` закрепляются quality checkpoints `hero-preview`, `camera-preview`, `environment-preview` и `integrated-preview`;
+  - перед переводом ключевой preview-задачи в `done` агент обязан оставить короткий mini-review по baseline, reuse и качеству результата.
+- Критерий готовности:
+  - verified preset и reference implementation reuse-ятся как базовая реализация, а не только как словесная идея;
+  - слабый scaffold больше не может быть объявлен допустимым preview только потому, что код компилируется.
+
 ## Проверки
 
 - Проверить поиском, что `build-plan` присутствует в каноне, `production` skill и шаблонах.
@@ -64,5 +79,7 @@
 - Проверить, что `production` skill содержит:
   - `Step 0` для file-state routing;
   - правило `preview-build` -> `preview-gate` -> `post-preview-build`;
-  - правило возобновления из частично выполненного `build-plan`.
+  - правило возобновления из частично выполненного `build-plan`;
+  - reference baseline и quality checkpoints для ключевых preview-задач.
 - Проверить, что `projects/README.md` и `docs/README.md` знают про новый артефакт.
+- Проверить, что шаблон `build-plan` не позволяет закрыть `hero/camera/environment` без заполненного baseline и mini-review.

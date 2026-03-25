@@ -174,6 +174,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - сохрани результат в `projects/<project-slug>/build-plan.md`;
 - разложи ближайшую реализацию на `6-10` конкретных задач;
 - для каждой задачи явно зафиксируй `id`, `phase`, `status`, затронутые файлы, цель, критерий готовности и проверку;
+- для ключевых задач preview-качества (`camera`, `hero`, `environment`, `integrated-preview`) дополнительно зафиксируй `Reference baseline`, `Reuse mode` и `Non-negotiables`;
 - держи только одну задачу в `in_progress`;
 - разделяй задачи на `preview-build` и `post-preview-build`;
 - считай `post-preview-build` заблокированным до допустимого решения по preview;
@@ -183,6 +184,14 @@ description: "Веди `ranking corridor` проект после `launch-card`:
   - `preview-complete` — когда `preview-build` закрыт, preview-решение допустимо и `post-preview-build` разблокирован;
   - `full-complete` — когда все задачи закрыты и verification пройден;
 - не превращай `build-plan` в новый большой PRD или архитектурный трактат.
+
+Считай `preview-build` не MVP и не rough scaffold, а `reference-anchored quality slice`.
+
+Это означает:
+
+- для `camera`, `hero` и `environment` по умолчанию reuse идет от конкретной verified implementation или явно названного reference baseline, а не только от словесной идеи;
+- в `preview-build` важнее глубина ключевых слоев, чем попытка быстро закрыть больше задач за один проход;
+- нельзя считать задачу `done`, если код компилируется, но результат все еще выглядит как бедный scaffold и нарушает `Non-negotiables`.
 
 Используй такие типы задач как ориентир, а не как жесткий список:
 
@@ -205,6 +214,7 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 
 - отмечай текущую активную задачу как `in_progress`;
 - после завершения задачи обновляй ее статус в `build-plan.md`;
+- не пиши в чат, что текущая задача завершена или что началась следующая, пока в том же рабочем шаге не обновлены `build-plan.md`, поле `Следующая задача` и статус следующей активной задачи, независимо от того, как названы сами задачи;
 - держи `Статус плана` в `active`, пока проект реально исполняется и еще не достиг `preview-complete` или `full-complete`;
 - не переходи к следующей задаче, пока текущая не закрыта или не помечена как `blocked`;
 - зафиксируй источники данных;
@@ -213,6 +223,21 @@ description: "Веди `ranking corridor` проект после `launch-card`:
 - собери локальные ассеты;
 - сохрани исходные URL и статусы ассетов в `asset-manifest.md`;
 - если реальный data snapshot или реальные ассеты заметно меняют ощущение масштаба, плотность мира или характер фоновой активности, обнови `director pass` до `preview-gate`, а не держись за раннюю chat-first версию.
+
+Для `preview-build` обязательно пройди через такие quality checkpoints:
+
+- `hero-preview` — один контрольный объект должен уже выглядеть как честный quality slice, а не как placeholder;
+- `camera-preview` — камера и тайминги должны быть узнаваемо близки к выбранному preset или baseline, а не только совпадать по API;
+- `environment-preview` — среда должна уже давать depth, secondary-life и ощущение мира, а не пустой scaffold;
+- `integrated-preview` — на контрольном срезе hero, camera и environment должны работать вместе как единая сцена.
+
+Перед переводом ключевой preview-задачи в `done` коротко зафиксируй mini-review:
+
+- что было `Reference baseline`;
+- что reuse-нуто без изменений;
+- что адаптировано под тему;
+- что еще пока слабое;
+- почему это уже не scaffold.
 
 Пути по умолчанию:
 
