@@ -107,6 +107,7 @@
 - выполнено: data/assets секции `working-mode` привязаны к `asset-manifest`, `launch-card` и `build-plan` как к владельцам файловой формы и field-level policy без ослабления `image-first` guardrails.
 - выполнено: нижний routing-блок `Где что должно жить` в `working-mode` сжат до owner-level карты слоев и статусных контрактов без повтора структуры контейнера и списка шаблонов.
 - выполнено: `review-notes` template очищен от длинного enum-примера library-audit таблицы; owner набора `candidateType` и `proposedDecision` оставлен канону.
+- выполнено: `asset-manifest` template очищен от длинного enum-примера inventory-строки; owner наборов `assetStatus`, `discoveredBy`, `quality` и `usageStage` оставлен канону.
 
 ## Что считать успехом
 

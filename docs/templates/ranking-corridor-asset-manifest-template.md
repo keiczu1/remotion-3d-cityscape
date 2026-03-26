@@ -21,9 +21,11 @@
 
 ## Инвентарь ассетов
 
+- Допустимые `assetStatus`, `discoveredBy`, `quality` и `usageStage` бери из `docs/canon/ranking-corridor-working-mode.md`.
+
 | assetId | rankingItem | assetKind | localPath | sourceUrl | sourceLabel | discoveredBy | assetStatus | quality | usageStage | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| example-asset | item-name | logo / cover / screenshot / flag / photo / hero-image / audio / dataset-snapshot | public/... | https://... | source name | ai / user / manual | selected / candidate / missing / rejected | high / medium / low | preview / full / both | |
+| example-asset | item-name | hero-image | public/... | https://... | source name | ai | selected | high | preview | |
 
 ## Очередь недостающих или заменяемых ассетов
 
