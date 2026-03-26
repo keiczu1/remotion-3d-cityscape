@@ -110,6 +110,7 @@
 - выполнено: `asset-manifest` template очищен от длинного enum-примера inventory-строки; owner наборов `assetStatus`, `discoveredBy`, `quality` и `usageStage` оставлен канону.
 - выполнено: `library-audit` helper-шаблон очищен от повторного перечисления candidate decisions; owner набора решений оставлен канону.
 - выполнено: в каноне и preview-review добавлен короткий дефолт `пол под башнями не темный: только light-tone или mid-tone` с явной preview-проверкой separation от подиума.
+- выполнено: `director pass` усилен правилом, что `ground` обязан быть живым evolving-слоем сцены, а не сухой плоской подложкой; практическая форма добавлена в director-pass template.
 
 ## Что считать успехом
 
