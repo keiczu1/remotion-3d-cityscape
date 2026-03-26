@@ -29,8 +29,8 @@
 - `docs/canon/remotion-project-rules.md` — технические правила и инварианты Remotion-проекта.
 - `projects/README.md` — единственный владелец структуры `projects/<project-slug>/`.
 - `docs/templates/` — шаблоны project-артефактов.
-- `docs/templates/ranking-corridor-theme-to-concept-pack-template.md` — дефолтный helper-шаблон prompt для первого chat-first `concept-pack` по теме.
-- `docs/templates/ranking-corridor-theme-to-reverse-prompt-template.md` — более глубокий helper-шаблон для `reverse-style brief` уже после выбора направления.
+- `docs/templates/ranking-corridor-theme-to-concept-pack-template.md` — дефолтный helper-шаблон prompt для первого chat-first `concept-pack` по теме: `4` режима опоры героя, hero-first выбор башни/стелы и `ANSI`-макет с раскладкой данных.
+- `docs/templates/ranking-corridor-theme-to-reverse-prompt-template.md` — более глубокий helper-шаблон для `reverse-style brief` уже после выбора направления, когда нужно развить выбранный hero/layout без перехода к коду.
 - `docs/templates/ranking-corridor-director-pass-template.md` — шаблон короткого режиссерского прохода между `launch-card` и `preview-gate`.
 - `docs/templates/ranking-corridor-build-plan-template.md` — шаблон project-local декомпозиции реализации между `director-pass.md` и `preview-gate`.
 - `docs/templates/ranking-corridor-library-audit-template.md` — шаблон post-final prompt для аудита библиотеки и promotion-кандидатов.
@@ -79,8 +79,8 @@
 - Если нужно понять сам жанр, открывай `docs/canon/ranking-corridor-format.md`.
 - Если нужно понять, как ИИ должен вести проект, открывай `docs/canon/ranking-corridor-working-mode.md`.
 - Если нужно создать или проверить project-container, открывай `projects/README.md`.
-- Если нужно сначала превратить короткую тему в понятные creative-направления, открывай `docs/templates/ranking-corridor-theme-to-concept-pack-template.md`.
-- Если после выбора направления нужен более глубокий `design-only` brief, открывай `docs/templates/ranking-corridor-theme-to-reverse-prompt-template.md`.
+- Если нужно сначала превратить короткую тему в понятные creative-направления и выбрать shell/layout героя, открывай `docs/templates/ranking-corridor-theme-to-concept-pack-template.md`.
+- Если после выбора направления нужен более глубокий `design-only` brief уже по выбранному hero/layout, открывай `docs/templates/ranking-corridor-theme-to-reverse-prompt-template.md`.
 - Если после `launch-card` нужно усилить сцены, вторичную жизнь и драматургию перед `preview-gate`, открывай `docs/templates/ranking-corridor-director-pass-template.md`.
 - Если после `director-pass.md` нужно разложить реализацию на проверяемые production-задачи и уметь возобновлять проект по файлам, открывай `docs/templates/ranking-corridor-build-plan-template.md`.
 - Если проект уже финально утвержден и нужно провести аудит библиотеки, открывай `docs/templates/ranking-corridor-library-audit-template.md`.

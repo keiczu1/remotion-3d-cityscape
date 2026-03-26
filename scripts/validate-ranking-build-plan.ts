@@ -1,6 +1,8 @@
 import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 
+import {validateRankingDataPath} from './validate-ranking-data-core';
+
 type TaskPhase = 'preview-build' | 'post-preview-build';
 
 type Task = {
@@ -15,6 +17,9 @@ type Task = {
 type LaunchCardSelection = {
   exists: boolean;
   path: string;
+  heroSupportModeName: string;
+  heroSupportModeId: string;
+  heroSupportModeReason: string;
   objectFamilyId: string;
   heroPriority: string;
   mediaLayoutPolicy: string;
@@ -114,6 +119,12 @@ const allowedMediaLayoutPolicies = new Set(['adaptive-safe', 'fixed', 'compact']
 const allowedLaneCollisionPolicies = new Set(['hard-fit', 'soft-overlap']);
 const allowedProtectedDataZoneValues = new Set(['true', 'false']);
 const allowedRankPlacements = new Set(['above-media', 'on-media', 'integrated']);
+const allowedHeroSupportModes = new Map([
+  ['reuse-exact', 'Точный базовый'],
+  ['adapt-from-base', 'Адаптация базы'],
+  ['new-within-grammar', 'Новый по канону'],
+  ['speculative', 'Новый эксперимент'],
+]);
 const allowedReuseModes = new Set([
   'preset-reuse',
   'structure-reuse',
@@ -539,6 +550,9 @@ const parseLaunchCardSelection = (): LaunchCardSelection => {
     return {
       exists: false,
       path: launchCardPath,
+      heroSupportModeName: '',
+      heroSupportModeId: '',
+      heroSupportModeReason: '',
       objectFamilyId: '',
       heroPriority: '',
       mediaLayoutPolicy: '',
@@ -597,6 +611,7 @@ const parseLaunchCardSelection = (): LaunchCardSelection => {
 
   const scenePresetFields = blockFields.get('Пакет сцены и камеры') ?? {};
   const heroRevealFields = blockFields.get('Пакет появления hero-модуля') ?? {};
+  const heroSupportModeFields = blockFields.get('Режим опоры героя') ?? {};
   const objectFields = blockFields.get('Тип главного объекта') ?? {};
   const cameraFields = blockFields.get('Тип главной камеры') ?? {};
   const timingFields = blockFields.get('Тип ритма') ?? {};
@@ -604,12 +619,15 @@ const parseLaunchCardSelection = (): LaunchCardSelection => {
   return {
     exists: true,
     path: launchCardPath,
+    heroSupportModeName: cleanValue(heroSupportModeFields['название'] ?? ''),
+    heroSupportModeId: cleanValue(heroSupportModeFields['id'] ?? ''),
+    heroSupportModeReason: cleanValue(heroSupportModeFields['краткая причина выбора'] ?? ''),
     objectFamilyId: cleanValue(objectFields['id'] ?? ''),
-    heroPriority: cleanValue(objectFields['РїСЂРёРѕСЂРёС‚РµС‚ РіРµСЂРѕСЏ'] ?? ''),
-    mediaLayoutPolicy: cleanValue(objectFields['РїРѕР»РёС‚РёРєР° media-layout'] ?? ''),
-    laneCollisionPolicy: cleanValue(objectFields['РїРѕР»РёС‚РёРєР° СЃРѕСЃРµРґРЅРёС… РіСЂР°РЅРёС†'] ?? ''),
-    protectedDataZone: cleanValue(objectFields['Р·Р°С‰РёС‰РµРЅРЅР°СЏ data-zone'] ?? ''),
-    rankPlacement: cleanValue(objectFields['СЂР°Р·РјРµС‰РµРЅРёРµ СЂР°РЅРіР°'] ?? ''),
+    heroPriority: cleanValue(objectFields['приоритет героя'] ?? ''),
+    mediaLayoutPolicy: cleanValue(objectFields['политика media-layout'] ?? ''),
+    laneCollisionPolicy: cleanValue(objectFields['политика соседних границ'] ?? ''),
+    protectedDataZone: cleanValue(objectFields['защищенная data-zone'] ?? ''),
+    rankPlacement: cleanValue(objectFields['размещение ранга'] ?? ''),
     scenePresetPackageId: cleanValue(scenePresetFields['id'] ?? ''),
     scenePresetReusePolicy: cleanValue(scenePresetFields['политика reuse'] ?? ''),
     scenePresetSourceOfTruthFiles: parseRepoRelativePaths(
@@ -1051,6 +1069,51 @@ if (launchCardSelection.exists && isPlaceholder(launchCardSelection.objectFamily
 }
 
 if (launchCardSelection.exists) {
+  const hasHeroSupportModeData =
+    !isPlaceholder(launchCardSelection.heroSupportModeName) ||
+    !isPlaceholder(launchCardSelection.heroSupportModeId) ||
+    !isPlaceholder(launchCardSelection.heroSupportModeReason);
+
+  if (!hasHeroSupportModeData) {
+    warnings.push(
+      'В launch-card пока отсутствует блок `Режим опоры героя`. Для legacy-карточек это временно допустимо, но новые launch-card должны фиксировать `reuse-exact | adapt-from-base | new-within-grammar | speculative` отдельным блоком.',
+    );
+  } else {
+    if (isPlaceholder(launchCardSelection.heroSupportModeId)) {
+      errors.push(
+        'В launch-card блок `Режим опоры героя -> id` не может быть пустым, если сам блок уже используется.',
+      );
+    } else if (!allowedHeroSupportModes.has(launchCardSelection.heroSupportModeId)) {
+      errors.push(
+        'В launch-card поле `Режим опоры героя -> id` должно быть одним из `reuse-exact | adapt-from-base | new-within-grammar | speculative`.',
+      );
+    }
+
+    const expectedHeroSupportModeName = allowedHeroSupportModes.get(
+      launchCardSelection.heroSupportModeId,
+    );
+
+    if (isPlaceholder(launchCardSelection.heroSupportModeName)) {
+      warnings.push(
+        'В launch-card для блока `Режим опоры героя` желательно явно заполнять человеческое название рядом с техническим `id`.',
+      );
+    } else if (
+      expectedHeroSupportModeName &&
+      normalizeContractText(launchCardSelection.heroSupportModeName) !==
+        normalizeContractText(expectedHeroSupportModeName)
+    ) {
+      warnings.push(
+        `В launch-card поле \`Режим опоры героя -> название\` желательно держать согласованным с \`${launchCardSelection.heroSupportModeId}\`: ожидается \`${expectedHeroSupportModeName}\`.`,
+      );
+    }
+
+    if (isPlaceholder(launchCardSelection.heroSupportModeReason)) {
+      warnings.push(
+        'В launch-card для блока `Режим опоры героя` желательно кратко фиксировать причину выбора, чтобы не терялась логика reuse.',
+      );
+    }
+  }
+
   if (isPlaceholder(launchCardSelection.heroPriority)) {
     errors.push(
       'В launch-card поле `Тип главного объекта -> приоритет героя` обязательно и не может быть пустым.',
@@ -2032,6 +2095,33 @@ if (currentPlanPhase === 'preview-build') {
 
 if (currentPlanPhase === 'post-preview-build' && nextStep === 'preview-gate') {
   errors.push('После перехода в post-preview-build `Следующий шаг` уже не может быть `preview-gate`.');
+}
+
+const shouldRunProjectDataValidation =
+  Boolean(projectDataSnapshot.slug) &&
+  (nextStep === 'preview-gate' ||
+    currentPlanPhase === 'post-preview-build' ||
+    (currentPlanPhase === 'preview-build' && remainingPreviewTasks.length === 0));
+
+if (shouldRunProjectDataValidation) {
+  if (!projectDataSnapshot.path || !existsSync(projectDataSnapshot.path)) {
+    errors.push(
+      `Перед \`preview-gate\` должен существовать project-local data snapshot: ${path.relative(process.cwd(), projectDataSnapshot.path || buildPlanPath)}.`,
+    );
+  } else {
+    const projectDataValidation = validateRankingDataPath(
+      projectDataSnapshot.path,
+      process.cwd(),
+    );
+
+    for (const dataError of projectDataValidation.errors) {
+      errors.push(`Data snapshot: ${dataError}`);
+    }
+
+    for (const dataWarning of projectDataValidation.warnings) {
+      warnings.push(`Data snapshot: ${dataWarning}`);
+    }
+  }
 }
 
 if (errors.length > 0) {
