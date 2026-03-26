@@ -104,6 +104,7 @@
 - выполнено: field-by-field пересказ `launch-card` контракта в `working-mode` сжат до уровня обязательных слоев и implementation-locked оговорок;
 - выполнено: build-plan секция `working-mode` сжата до owner-level контракта, а точные field-level и finalize детали оставлены template/validator слою;
 - выполнено: секции `director pass`, `preview-gate` и preview-review в `working-mode` сжаты до owner-level контракта без изменения approve/preview guardrails.
+- выполнено: data/assets секции `working-mode` привязаны к `asset-manifest`, `launch-card` и `build-plan` как к владельцам файловой формы и field-level policy без ослабления `image-first` guardrails.
 
 ## Что считать успехом
 
