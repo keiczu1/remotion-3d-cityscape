@@ -42,15 +42,7 @@
 4. `docs/canon/remotion-project-rules.md`
 5. `projects/README.md`
 
-Роли документов такие:
-
-- `docs/canon/ranking-corridor-format.md` — канон жанра и допустимой вариативности.
-- `docs/canon/ranking-corridor-working-mode.md` — рабочий цикл, статусы, `preview-gate` и контракты project-артефактов.
-- `docs/canon/remotion-project-rules.md` — технические инварианты Remotion-проекта.
-- `projects/README.md` — единственный владелец структуры `projects/<project-slug>/`.
-- `docs/templates/` — шаблоны project-артефактов.
-- `docs/library/ranking-corridor-module-registry.md` — реестр уже подтвержденных библиотечных модулей.
-- `docs/Examples/` — сильные референсы, но не источник правил.
+Подробная карта владельцев документации, активного контура и рабочего/исторического слоя живет в `docs/README.md`.
 
 ## Обязательные локальные skills
 
@@ -71,15 +63,11 @@
 Для нового запроса по умолчанию используй такой маршрут:
 
 1. Если есть только тема, запускай `ranking-corridor-launch`.
-2. Сделай первичную классификацию темы.
-3. Задай один пакет действительно нужных вопросов.
-4. Точные ограничения пакета вопросов и практическую форму `launch-card` бери из `docs/canon/ranking-corridor-working-mode.md` и `docs/templates/ranking-corridor-launch-card-template.md`.
-5. После ответа собери короткую `launch-card`.
-6. Не переходи в production-этап на launch-этапе.
-7. Если у проекта уже есть `launch-card`, переходи в `ranking-corridor-production`.
-8. В production обязательно пройди через `preview-gate` до полной сборки композиции.
-9. Полная сборка композиции не означает автоматический экспорт финального медиафайла.
-10. Аудит библиотеки запускай только после финального статуса проекта.
+2. Пройди chat-first launch-контур: первичная классификация, короткий `concept-pack`, при необходимости один пакет вопросов, затем `launch-card`.
+3. Точный контракт launch-этапа и форму `launch-card` бери из `docs/canon/ranking-corridor-working-mode.md` и `docs/templates/ranking-corridor-launch-card-template.md`.
+4. Не переходи в production-этап на launch-этапе.
+5. Если у проекта уже есть `launch-card`, переходи в `ranking-corridor-production`.
+6. В production обязательно пройди через `preview-gate` до полной сборки композиции; аудит библиотеки запускай только после финального статуса проекта.
 
 ## Структура проекта
 
