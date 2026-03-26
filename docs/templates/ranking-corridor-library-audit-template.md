@@ -10,11 +10,7 @@
 
 - список реально проверенных кандидатов на promotion;
 - явная фиксация категорий, где кандидатов нет;
-- решение по каждому кандидату:
-  - `stay-project-local`
-  - `keep-design-only`
-  - `promote-to-library`
-  - `checkpoint-needed`
+- решение по каждому кандидату из статусного контракта `docs/canon/ranking-corridor-working-mode.md`;
 - применение только очевидных promotion-кандидатов.
 
 ## Практический контур
@@ -54,11 +50,7 @@
 - где она живет в проекте;
 - чем подтверждена в финальном ролике;
 - почему это reusable, а не тема-специфичный декор;
-- какое решение предлагаешь:
-  - `stay-project-local`
-  - `keep-design-only`
-  - `promote-to-library`
-  - `checkpoint-needed`
+- какое решение из канона предлагаешь для кандидата.
 
 Отдельное правило:
 - для `camera preset` и `timing preset` promotion может быть не только кодовым переносом, но и registry/contract-level решением, если новый library-модуль не нужен.
