@@ -21,13 +21,12 @@
 
 ## Выбор формата
 
-> Если выбран registry-backed verified preset с `reusePolicy: implementation-locked`, фиксируй его как единый `Пакет сцены и камеры`: в этом случае камера, ритм и базовая scene progression не подбираются по отдельности и не смешиваются с другими preset-family без отдельного пересогласования.
-> Для такого пакета `launch-card.md` становится частью machine-check: validator `build-plan` сверяет `camera-preview` с выбранным `Пакетом сцены и камеры`, его registry `sourceOfTruthFiles` и полем `что считается зафиксированным без пересборки`, которое должно дублировать registry `lockedBehavior`.
-> Для такого пакета `Тип ритма` не является отдельным выбором. Он считается унаследованным от `Пакета сцены и камеры` и может быть опущен.
-> Для такого пакета `Тип главной камеры` тоже не является самостоятельным выбором. Это только производное read-only поле для читаемости и оно может быть опущено, если `Пакет сцены и камеры` уже зафиксирован однозначно.
-> Если для выбранного `objectFamily` уже есть registry-backed reveal-baseline с `reusePolicy: implementation-locked`, фиксируй его как `Пакет появления hero-модуля`: validator `build-plan` сверяет `hero-preview` с выбранным пакетом, его registry `sourceOfTruthFiles` и полем `что считается зафиксированным без пересборки`, которое должно дублировать registry `lockedBehavior`.
-> Поле `Тип главного объекта -> id` обязательно: validator использует его как machine-readable `objectFamily` для проверки совместимости `heroRevealPackage`.
-> `Тип фона` на launch-этапе по умолчанию остается только предварительным `theme-default`: без отдельной режиссерской world-assembly и без отдельного вопроса пользователю, если тема не требует явной развилки.
+> Короткий machine-check reminder:
+> - implementation-locked registry preset оформляется как единый `Пакет сцены и камеры`; `Тип главной камеры` и `Тип ритма` в этом режиме остаются только производными read-only полями и могут быть опущены;
+> - validator `build-plan` сверяет этот пакет по `source-of-truth files` и полю `что считается зафиксированным без пересборки`, которое должно совпадать с registry `lockedBehavior`;
+> - implementation-locked reveal-baseline оформляется как `Пакет появления hero-модуля` и так же сверяется по `source-of-truth files` и `lockedBehavior`;
+> - поле `Тип главного объекта -> id` обязательно: это machine-readable `objectFamily` для проверки совместимости `heroRevealPackage`;
+> - `Тип фона` на launch-этапе по умолчанию остается только предварительным `theme-default`.
 
 - Тип главного объекта:
   - название:

@@ -99,6 +99,7 @@
 - выполнено: собрана карта владельцев правил и карта дублей для безопасной дедупликации следующих слоев;
 - выполнено: верхние owner-lists в `ranking-corridor-launch` и `ranking-corridor-production` сокращены без изменения execution-логики;
 - выполнено: вводные workflow-пояснения в helper-шаблонах сокращены и привязаны к `working-mode` как владельцу процесса;
+- выполнено: validator-aware reminders в `launch-card` и `build-plan` template сжаты без изменения полей, enum и machine-check требований;
 - в работе: следующий pass по operational-дублям между каноном, шаблонами и validator-aware текстом.
 
 ## Что считать успехом

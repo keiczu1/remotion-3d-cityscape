@@ -44,24 +44,19 @@
   - `preview-complete` — `preview-build` закрыт и `post-preview-build` разблокирован;
   - `full-complete` — все задачи закрыты и verification пройден.
 - `Preview-build` в этом шаблоне означает не MVP и не rough scaffold, а `reference-anchored quality slice`.
-- Для ключевых задач preview-качества (`camera`, `hero`, `environment`, `integrated-preview`) обязателен `Reference baseline`, машинно читаемый `Reuse mode`, список `Non-negotiables` и явная граница между reuse и адаптацией.
-- Для `camera`, `hero` и `environment` reuse по умолчанию идет от verified implementation или явно названного reference baseline, а не только от словесной идеи.
-- `Reference baseline` должен указывать на точный source-of-truth: `moduleId`, preset id, repo-relative путь к файлу или иной однозначный reference, а не на расплывчатое описание "что-то вроде стелы".
+- Для key preview task (`hero-preview`, `camera-preview`, `environment-preview`, `integrated-preview`) обязательны machine-readable `Reuse mode`, точный `Reference baseline` (если это не `greenfield-approved`), явная граница между `Reuse without changes` и `Allowed adaptation`, а также список `Non-negotiables`.
+- Для `camera`, `hero` и `environment` reuse по умолчанию идет от verified implementation или явно названного baseline, а не от словесной идеи; `Reference baseline` должен указывать на точный source-of-truth: `moduleId`, preset id, repo-relative путь или иной однозначный reference.
 - `Reuse mode` для key preview task должен быть одним из: `preset-reuse | structure-reuse | system-reuse | greenfield-approved`.
-- `greenfield-approved` не является дефолтом. Он допустим только если пользователь явно согласовал выход за пределы baseline или если в артефактах проекта зафиксировано, что подходящего baseline нет.
-- Если выбран `greenfield-approved`, обязательно заполни `Greenfield justification` с источником решения: сообщение пользователя, `launch-card.md` или `director-pass.md`. Во всех остальных случаях поле оставляй пустым.
-- Если выбран любой reuse-режим кроме `greenfield-approved`, поле `Reference baseline` не может быть пустым или декоративным.
-- `Studio/browser check = ok | warning` допустим только вместе с непустым `Visual check method`: нельзя писать "проверено", не указав, чем именно реально смотрели композицию.
-- Нельзя переводить ключевую preview-задачу в `done`, если код компилируется, но результат все еще выглядит как бедный scaffold и нарушает `Non-negotiables`.
-- Внутри `preview-build` обязательно должны быть quality checkpoints для `hero-preview`, `camera-preview`, `environment-preview` и `integrated-preview`.
+- `greenfield-approved` не является дефолтом: он допустим только при явном согласовании или если отсутствие подходящего baseline уже зафиксировано в артефактах проекта; в этом случае обязательно заполняй `Greenfield justification`, иначе поле оставляй пустым.
+- Если выбран любой reuse-режим кроме `greenfield-approved`, `Reference baseline` не может быть пустым или декоративным.
+- Нельзя переводить ключевую preview-задачу в `done`, если результат остается scaffold-уровня или нарушает `Non-negotiables`.
+- `Studio/browser check = ok | warning` допустим только вместе с непустым `Visual check method`.
 - Для quality-checkpoint-задачи со статусом `in_progress` или `done` обязательны валидные `Reuse mode`, `Reference baseline` (если это не `greenfield-approved`), `Reuse without changes` и `Allowed adaptation`.
 - Для `hero-preview` дополнительно обязательны `Hero priority`, `Media layout policy`, `Lane collision policy`, `Protected data zone` и `Rank placement`: это отдельный policy-слой hero-модуля, а не дублирование `objectFamily`.
-- Для `environment-preview` и `integrated-preview` дополнительно обязательны `World slots covered`, `Scene coverage` и `Registry baselines used`.
-- Не сворачивай всю world-evolution в одну общую environment-задачу: разложи среду на отдельные scene-specific `environment-preview` задачи минимум для `scene-1`, `scene-2`, `scene-3` и `scene-4`.
-- Каждая scene-specific `environment-preview` задача должна иметь `Scene coverage` ровно с одним scene-id; `integrated-preview` собирает их вместе и покрывает минимум `scene-1, scene-2, scene-3, scene-4`.
-- `World slots covered` заполняй машинно читаемыми id через запятую. Обязательное ядро: `horizon, side-dressing, atmospheric-motion, directed-motion, ground, light-weather`. `payoff` добавляй только если эта задача реально покрывает поздние финальные акценты.
-- `Scene coverage` заполняй по роли: для scene-specific `environment-preview` это ровно один scene-id (`scene-1`), для `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`.
-- `Registry baselines used` заполняй списком `moduleId` через запятую. Если для world-slot в реестре нет подходящего baseline и задача опирается только на project-local baseline или новый слой, указывай literal `none`.
+- Для `environment-preview` и `integrated-preview` дополнительно обязательны `World slots covered`, `Scene coverage` и `Registry baselines used`; среду не сворачивай в одну общую environment-задачу, а раскладывай минимум на scene-specific задачи для `scene-1`, `scene-2`, `scene-3`, `scene-4`.
+- `World slots covered` заполняй машинно читаемыми id через запятую. Обязательное ядро: `horizon, side-dressing, atmospheric-motion, directed-motion, ground, light-weather`; `payoff` добавляй только если задача реально покрывает поздние финальные акценты.
+- `Scene coverage` заполняй по роли: для scene-specific `environment-preview` это ровно один scene-id, для `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`.
+- `Registry baselines used` заполняй списком `moduleId` через запятую; если задача опирается только на project-local baseline или новый слой, указывай literal `none`.
 - Для quality-checkpoint-задачи со статусом `done` обязательны непустые `Mini-review`, `Studio/browser check`, `Visual check method`, `Console/runtime check` и `Screenshot set`.
 - `Visual check method` агент выбирает сам из разрешенных вариантов `mcp-playwright | remotion-studio | built-in-browser`, но выбор должен быть явно зафиксирован до финализации задачи.
 - Для обычной проверки запускай `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`.
@@ -122,9 +117,13 @@
 
 ## Preview-build
 
-> Для ключевых preview-задач обязательно заполняй `Preview role`, `Reference baseline` (если это не `greenfield-approved`), `Reuse mode`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables`, `Studio/browser check`, `Visual check method`, `Console/runtime check`, `Screenshot set` и `Mini-review`. Для `environment-preview` и `integrated-preview` дополнительно обязательны `World slots covered`, `Scene coverage` и `Registry baselines used`. Если конкретная задача не относится к quality checkpoint, укажи `Preview role: support`. Среду не сворачивай в одну общую задачу: для minimum contract нужны отдельные scene-specific environment-задачи как минимум для `scene-1`, `scene-2`, `scene-3` и `scene-4`. Если в `launch-card.md` выбран `scenePresetPackage` с `reusePolicy: implementation-locked`, для `camera-preview` обязательны `Reuse mode: preset-reuse`, точный `Reference baseline` по `sourceOfTruthFiles` из registry и явный список зафиксированного поведения в `Reuse without changes`. Если в `launch-card.md` выбран `heroRevealPackage` с `reusePolicy: implementation-locked`, для `hero-preview` обязательны `Reuse mode: preset-reuse`, точный `Reference baseline` по `sourceOfTruthFiles` из registry и явный список зафиксированного reveal-поведения в `Reuse without changes`. Валидатор сверяет эти блоки не только локально по `build-plan.md`, но и против `launch-card.md`, registry и launch-card поля `что считается зафиксированным без пересборки`, которое должно совпадать с registry `lockedBehavior`.
-> Если выбран implementation-locked camera preset с `timingContract: adaptive`, для `camera-preview` дополнительно фиксируй `Object count`, `Target duration band`, `Timing policy` и `Finale tail policy`: это отдельный contract-level слой, чтобы count-aware retiming был явным, а не спрятанным в произвольном описании.
-> Для `hero-preview` поля `Hero priority`, `Media layout policy`, `Lane collision policy`, `Protected data zone` и `Rank placement` трактуются как cross-family media policy: валидатор сверяет их с `launch-card.md`, а не считает частью одного конкретного tower-стиля.
+> Быстрый contract reminder:
+> - для key preview task заполняй quality-поля из правил выше; если задача не относится к quality checkpoint, укажи `Preview role: support`;
+> - для `environment-preview` и `integrated-preview` обязательны `World slots covered`, `Scene coverage` и `Registry baselines used`; среду держи как минимум в отдельных scene-specific задачах для `scene-1`, `scene-2`, `scene-3`, `scene-4`;
+> - если в `launch-card.md` выбран implementation-locked `scenePresetPackage`, для `camera-preview` обязательны `Reuse mode: preset-reuse`, точный `Reference baseline` по registry `sourceOfTruthFiles` и явный список зафиксированного поведения в `Reuse without changes`;
+> - если в `launch-card.md` выбран implementation-locked `heroRevealPackage`, для `hero-preview` обязательны `Reuse mode: preset-reuse`, точный `Reference baseline` по registry `sourceOfTruthFiles` и явный список зафиксированного reveal-поведения в `Reuse without changes`;
+> - если выбран adaptive camera preset, для `camera-preview` дополнительно фиксируй `Object count`, `Target duration band`, `Timing policy` и `Finale tail policy`;
+> - для `hero-preview` поля `Hero priority`, `Media layout policy`, `Lane collision policy`, `Protected data zone` и `Rank placement` трактуются как cross-family media policy и сверяются валидатором с `launch-card.md`.
 
 ### BP-01. Data snapshot и типы
 - Статус: `todo | in_progress | blocked | done`
