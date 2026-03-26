@@ -105,6 +105,7 @@
 - выполнено: build-plan секция `working-mode` сжата до owner-level контракта, а точные field-level и finalize детали оставлены template/validator слою;
 - выполнено: секции `director pass`, `preview-gate` и preview-review в `working-mode` сжаты до owner-level контракта без изменения approve/preview guardrails.
 - выполнено: data/assets секции `working-mode` привязаны к `asset-manifest`, `launch-card` и `build-plan` как к владельцам файловой формы и field-level policy без ослабления `image-first` guardrails.
+- выполнено: нижний routing-блок `Где что должно жить` в `working-mode` сжат до owner-level карты слоев и статусных контрактов без повтора структуры контейнера и списка шаблонов.
 
 ## Что считать успехом
 

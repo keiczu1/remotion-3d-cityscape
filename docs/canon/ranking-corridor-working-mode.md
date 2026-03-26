@@ -620,44 +620,22 @@ Owner-level правила:
 
 ### Канон
 
-- `docs/canon/ranking-corridor-format.md`
-- `docs/canon/ranking-corridor-working-mode.md`
-- `docs/canon/remotion-project-rules.md`
+- `docs/canon/` — активный canon-layer формата, workflow и технических инвариантов.
 
 ### Референсы
 
-- `docs/Examples/Ranking-towers-reverse-prompt.md`
-- `docs/Examples/Military.md`
+- `docs/Examples/` — сильные референсы и примеры, но не источник правил.
 
 ### Skills
 
-- `.agents/skills/ranking-corridor-launch/SKILL.md`
-- `.agents/skills/ranking-corridor-production/SKILL.md`
+- `.agents/skills/` — execution-routing слой для launch и production, а не второй канон.
 
-### Project-артефакты
+### Project-слой
 
-- `projects/<project-slug>/launch-card.md`
-- `projects/<project-slug>/director-pass.md`
-- `projects/<project-slug>/build-plan.md`
-- `projects/<project-slug>/asset-manifest.md`
-- `projects/<project-slug>/review-notes.md`
-
-### Код конкретного ролика
-
-- `src/compositions/<project-slug>/`
-
-### Будущий переиспользуемый слой
-
-- `src/lib/ranking-corridor/`
-
-Только после реального подтверждения повторного использования.
-
-### Публичные ассеты
-
-- `public/ranking-corridor/<project-slug>/logos/`
-- `public/ranking-corridor/<project-slug>/flags/`
-- `public/ranking-corridor/<project-slug>/images/`
-- `public/ranking-corridor/<project-slug>/audio/`
+- `projects/<project-slug>/` — project-local артефакты, данные, review history и export-материалы;
+- `src/compositions/<project-slug>/` — код конкретного ролика;
+- `public/ranking-corridor/<project-slug>/` — project-local публичные ассеты;
+- `src/lib/ranking-corridor/` — только для реально подтвержденного reusable-слоя после promotion.
 
 ### Проектные артефакты
 
@@ -669,36 +647,28 @@ Owner-level правила:
 
 - `projects/README.md` владеет составом project-container;
 - этот документ владеет самим рабочим циклом, статусами и контрактами project-артефактов.
+- файловая форма каждого project-артефакта задается соответствующим шаблоном в `docs/templates/`.
 
 `review-notes.md` остается единым файлом истории проверок проекта и должен содержать:
 
+- `Режиссерский план`
 - `Предпросмотр`
 - `Финальное утверждение`
 - `Аудит библиотеки`
 
-В `v1` project-артефакты должны опираться на шаблоны:
-
-- `docs/templates/ranking-corridor-launch-card-template.md`
-- `docs/templates/ranking-corridor-director-pass-template.md`
-- `docs/templates/ranking-corridor-build-plan-template.md`
-- `docs/templates/ranking-corridor-asset-manifest-template.md`
-- `docs/templates/ranking-corridor-review-notes-template.md`
-
-Для `build-plan.md` в `v1` зафиксированы такие статусы:
+Для `build-plan.md` статусная грамматика в `v1` такая:
 
 - текущая фаза: `preview-build | post-preview-build`
-- статус плана: `draft | active | preview-complete | full-complete`
 - статус задачи: `todo | in_progress | blocked | done`
 - следующий шаг: `<task-id> | preview-gate | final-approval | library-audit | completed`
 
-Правило обновления:
+Жизненный цикл `статуса плана` задается разделом `5. Build-plan и декомпозиция реализации`.
 
-- после сборки готового к исполнению плана статус обычно становится `active`;
-- после допустимого preview-решения статус становится `preview-complete`;
-- после закрытия всех задач и verification статус становится `full-complete`.
+Критичное правило обновления:
+
 - после закрытия конкретной задачи ее статус должен быть сразу отражен в `build-plan.md`; состояние `задача сделана, но в плане еще todo` считается ошибкой исполнения, а не допустимым промежуточным состоянием.
 
-Для `asset-manifest.md` в `v1` зафиксированы такие статусы:
+Для `asset-manifest.md` статусная грамматика в `v1` такая:
 
 - статус манифеста: `draft | preview-ready | final-ready`
 - статус ассета: `selected | candidate | missing | rejected`
@@ -706,7 +676,7 @@ Owner-level правила:
 - оценка качества: `high | medium | low`
 - стадия использования: `preview | full | both`
 
-Для `review-notes.md` в `v1` зафиксированы такие статусы:
+Для `review-notes.md` статусная грамматика в `v1` такая:
 
 - решение по режиссерскому плану: `pending | approved | revise`
 - результат director-pass-проверки: `ok | warning | fail`
