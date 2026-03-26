@@ -101,6 +101,7 @@
 - выполнено: вводные workflow-пояснения в helper-шаблонах сокращены и привязаны к `working-mode` как владельцу процесса;
 - выполнено: validator-aware reminders в `launch-card` и `build-plan` template сжаты без изменения полей, enum и machine-check требований;
 - выполнено: onboarding-пересказ в `AGENTS.md` сокращен и сильнее опирается на `docs/README.md` и `working-mode` как на владельцев деталей;
+- выполнено: field-by-field пересказ `launch-card` контракта в `working-mode` сжат до уровня обязательных слоев и implementation-locked оговорок;
 - в работе: следующий pass по operational-дублям между каноном, шаблонами и validator-aware текстом.
 
 ## Что считать успехом

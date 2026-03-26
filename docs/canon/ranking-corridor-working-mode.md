@@ -233,50 +233,15 @@ Package-first режим считается нормой по умолчанию
 
 `Launch-card` фиксирует:
 
-- тему;
-- объект ранжирования;
-- метрику;
-- `dataSourceMode`;
-- `languageMode`;
-- `objectFamily`;
-- `scenePresetPackage`, если выбран registry-backed implementation-locked вариант;
-- `heroRevealPackage`, если для выбранного `objectFamily` уже есть registry-backed implementation-locked reveal baseline;
-- `objectFamily` должен иметь явный `id`: без него validator не может проверить совместимость `heroRevealPackage`;
-- `mainCameraFamily`, только если implementation-locked `scenePresetPackage` не выбран или если это read-only дубль пакета для читаемости;
-- `timingFamily`, только если не выбран implementation-locked `scenePresetPackage`;
-- источник выбора камеры: `preset | user-custom | ai-custom`; для ритма это поле нужно только если не выбран implementation-locked `scenePresetPackage`;
-- краткое воспроизводимое описание логики камеры и ритма, если выбран `user-custom` или `ai-custom`; при implementation-locked `scenePresetPackage` отдельную новую логику ритма не фиксировать;
-- краткую причину, почему каноническая база не подошла, если выбран `ai-custom`;
-- если камера или ритм взяты из реестра, использовать `userFacingName` как основное название, а `moduleId` фиксировать в `id`;
-- если выбран `scenePresetPackage` с `reusePolicy: implementation-locked`, `mainCameraFamily` не является новым выбором, а лишь дублирует пакет для читаемости, а `timingFamily` вообще не фиксируется как отдельное решение и считается унаследованным от выбранного пакета;
-- для implementation-locked `scenePresetPackage` в `launch-card.md` обязательны не только `id`, `политика reuse` и `source-of-truth files`, но и поле `что считается зафиксированным без пересборки`, которое должно дублировать registry `lockedBehavior`;
-- если для выбранного `objectFamily` в registry уже есть reveal-baseline с `reusePolicy: implementation-locked`, фиксировать его как `heroRevealPackage`, а не как расплывчатый `revealSystem`;
-- для такого `heroRevealPackage` анимация появления считается частью hero-модуля и не выносится в отдельный пользовательский выбор без особой причины;
-- для implementation-locked `heroRevealPackage` в `launch-card.md` обязательны не только `id`, `политика reuse` и `source-of-truth files`, но и поле `что считается зафиксированным без пересборки`, которое должно дублировать registry `lockedBehavior`;
-- `backgroundFamily`, но на launch-этапе обычно только как предварительный `theme-default`, а не как отдельное пользовательское решение;
-- источник выбора фона: `preset | theme-default | user-custom | ai-custom`;
-- `assetRepresentationMode`;
-- `heroPriority`: `image-first | balanced | data-first`;
-- `mediaLayoutPolicy`: `adaptive-safe | fixed | compact`;
-- `laneCollisionPolicy`: `hard-fit | soft-overlap`;
-- `protectedDataZone`;
-- `rankPlacement`;
-- эти поля описывают не стиль корпуса, а отдельный cross-family policy-слой hero-модуля: один и тот же контракт может жить поверх разных `objectFamily`
-- `durationStrategy`;
-- `showTone`;
-- `hookStyle`;
-- `chapterStrategy`;
-- `milestoneMoments`;
-- `topTierTreatment`;
-- `payoffStyle`;
-- источник утверждения core-направления: `concept-pack | verified-preset | explicit-user-text | user-approved-default`;
-- краткую фиксацию утвержденного creative-направления;
-- краткую фиксацию логики укладки данных на hero-модуле;
-- режим системы появления: `registry-first-default | approved-custom`;
-- что зафиксировано референсом;
-- что допускает адаптацию;
-- какие решения пока имеют статус `design-only`;
-- допущения и заметки по данным, если есть рискованная неоднозначность.
+- базовый контракт ролика: тема, объект ранжирования, метрика, `dataSourceMode`, `languageMode`;
+- выбор формата: `objectFamily` с обязательным `id`, а при наличии implementation-locked registry-базы — `scenePresetPackage` и `heroRevealPackage` вместо расплывчатых самостоятельных решений;
+- для implementation-locked `scenePresetPackage` и `heroRevealPackage` обязательны `id`, `политика reuse`, `source-of-truth files` и поле `что считается зафиксированным без пересборки`, которое должно совпадать с registry `lockedBehavior`;
+- `mainCameraFamily` и `timingFamily` фиксируются только если implementation-locked `scenePresetPackage` не выбран; при выбранном пакете камера может остаться только read-only дублем для читаемости, а `timingFamily` считается унаследованным;
+- для `user-custom | ai-custom` камеры и ритма нужна краткая воспроизводимая логика; для `ai-custom` дополнительно нужна короткая причина, почему каноническая база не подошла;
+- `backgroundFamily` на launch-этапе обычно остается только предварительным `theme-default`, а не отдельным режиссерским решением;
+- hero policy-слой: `assetRepresentationMode`, `heroPriority`, `mediaLayoutPolicy`, `laneCollisionPolicy`, `protectedDataZone`, `rankPlacement`; эти поля описывают cross-family policy показа героя, а не стиль конкретного корпуса;
+- show-контракт: `durationStrategy`, `showTone`, `hookStyle`, `chapterStrategy`, `milestoneMoments`, `topTierTreatment`, `payoffStyle`, режим системы появления;
+- traceability-слой: источник утверждения core-направления, краткая фиксация утвержденного creative-направления, логика укладки данных, что зафиксировано референсом, что допускает адаптацию, какие решения пока `design-only`, допущения и заметки по данным.
 
 Ограничения:
 
