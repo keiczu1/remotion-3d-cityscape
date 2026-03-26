@@ -69,10 +69,11 @@
 - Проверенные категории:
 - Категории без зрелых кандидатов:
 - Обновления реестра:
+- Допустимые `candidateType` и `proposedDecision` бери из `docs/canon/ranking-corridor-working-mode.md`.
 
 | candidateId | candidateType | currentStatus | sourceLocation | reusableWhy | proposedDecision | targetPlacement | finalEvidence | docsUpdated | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| example-module | camera preset / timing preset / reveal/effect module / hero/object family / policy layer / layout policy / background / ambient / secondary-life system / utility / helper | project-local | src/... or projects/... | why it is reusable and not theme-specific | stay-project-local / keep-design-only / promote-to-library / checkpoint-needed | src/... or docs/library/... or docs-only contract | where it proved itself in final project | docs touched | |
+| example-module | candidate-type | project-local | src/... or projects/... | why it is reusable and not theme-specific | proposed-decision | src/... or docs/library/... or docs-only contract | where it proved itself in final project | docs touched | |
 
 ## Общие заметки
 
