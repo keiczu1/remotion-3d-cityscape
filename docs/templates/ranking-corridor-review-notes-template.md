@@ -43,6 +43,7 @@
 - Visual checklist:
   - Hero / readability:
   - Image-first / media policy:
+  - Ground / podium separation:
   - Camera / pacing:
   - Environment / secondary-life:
   - Director-pass match:
