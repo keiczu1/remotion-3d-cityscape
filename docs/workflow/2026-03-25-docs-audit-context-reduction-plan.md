@@ -102,6 +102,7 @@
 - выполнено: validator-aware reminders в `launch-card` и `build-plan` template сжаты без изменения полей, enum и machine-check требований;
 - выполнено: onboarding-пересказ в `AGENTS.md` сокращен и сильнее опирается на `docs/README.md` и `working-mode` как на владельцев деталей;
 - выполнено: field-by-field пересказ `launch-card` контракта в `working-mode` сжат до уровня обязательных слоев и implementation-locked оговорок;
+- выполнено: build-plan секция `working-mode` сжата до owner-level контракта, а точные field-level и finalize детали оставлены template/validator слою;
 - в работе: следующий pass по operational-дублям между каноном, шаблонами и validator-aware текстом.
 
 ## Что считать успехом

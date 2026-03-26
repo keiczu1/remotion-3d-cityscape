@@ -384,31 +384,13 @@ Package-first режим считается нормой по умолчанию
 
 Практически это означает:
 
-- для `camera`, `hero` и `environment` по умолчанию reuse идет от конкретной verified implementation или явно названного reference baseline, а не только от словесной идеи;
-- `Reference baseline` должен указывать на точный source-of-truth: `moduleId`, preset id, repo-relative путь к файлу или иной однозначный reference, а не на расплывчатое описание;
-- `Reuse mode` для key preview task не является свободным текстом и должен быть одним из: `preset-reuse | structure-reuse | system-reuse | greenfield-approved`;
-- если в `launch-card.md` выбран `scenePresetPackage` с `reusePolicy: implementation-locked`, для `camera-preview` по умолчанию обязателен `Reuse mode: preset-reuse`, а `Reference baseline` должен ссылаться на `sourceOfTruthFiles` выбранного пакета;
-- для такого implementation-locked пакета `Reuse without changes` должен явно перечислять camera path math, базовую scene progression, intro/main handoff, VIP-orbit или tower-orbit характер и иные motion-инварианты пакета, но не выдавать count-aware timing за полностью locked часть;
-- для такого implementation-locked пакета `Allowed adaptation` ограничивается data normalization, рабочими offsets, безопасной дистанцией камеры, topic-specific framing и count-aware retiming через зафиксированный timing policy без пересборки motion-характера preset;
-- если registry camera preset помечен как `timingContract: adaptive`, `camera-preview` в `build-plan.md` обязан дополнительно фиксировать `Object count`, `Target duration band`, `Timing policy` и `Finale tail policy`, чтобы retiming не прятался в свободный текст, а validator мог сверить проект и с `supportedCountRange` выбранного preset, и с actual count из project data snapshot для snapshot-проектов;
-- текущие adaptive camera preset считаются `60fps-only`: в registry для них обязателен `supportedFps: 60`, а timing builder считает `targetDurationBandSeconds` через этот FPS-контракт;
-- adaptive camera preset должен иметь в registry явный `targetDurationBandSeconds`; timing builder использует этот budget как runtime guard, а `camera-preview` дублирует его в `Target duration band`, чтобы count-aware retiming не разъезжался по длине ролика бесконтрольно и оставался видимым в project audit trail;
-- валидатор `build-plan` сверяет этот контракт не только по полям самой camera-задачи, но и против `scenePresetPackage` из `launch-card.md`, registry `sourceOfTruthFiles` и launch-card поля `что считается зафиксированным без пересборки`, которое должно совпадать с registry `lockedBehavior`;
-- если в `launch-card.md` выбран `heroRevealPackage` с `reusePolicy: implementation-locked`, для `hero-preview` по умолчанию обязателен `Reuse mode: preset-reuse`, а `Reference baseline` должен ссылаться на `sourceOfTruthFiles` выбранного reveal-пакета;
-- для такого implementation-locked `heroRevealPackage` `Reuse without changes` должен явно перечислять activation / presentation gate, reveal staging order, shell-to-data choreography, timing метрики и effect family;
-- для такого implementation-locked `heroRevealPackage` `Allowed adaptation` ограничивается темой, материалами, layout-safe offsets, content slots и topic-specific поверхностью без пересборки reveal-характера;
-- валидатор `build-plan` сверяет этот контракт не только по полям самой hero-задачи, но и против `heroRevealPackage` из `launch-card.md`, registry `sourceOfTruthFiles`, launch-card поля `что считается зафиксированным без пересборки` и совместимости reveal-пакета с `objectFamily`;
-- `greenfield-approved` не является дефолтом: он допустим только если пользователь явно одобрил выход за пределы baseline или если в `launch-card.md` / `director-pass.md` уже зафиксировано отсутствие подходящего baseline;
-- если выбран `greenfield-approved`, ИИ обязан зафиксировать `Greenfield justification` с источником решения; без этого стартовать реализацию нельзя;
-- если выбран любой reuse-режим кроме `greenfield-approved`, ИИ не имеет права разрабатывать `hero`, `camera` или `environment` "с нуля" и должен сначала опереться на baseline-код, а уже потом адаптировать тему;
-- для key preview task со статусом `in_progress` или `done` `Reuse mode`, `Reference baseline` (если это не `greenfield-approved`), `Reuse without changes` и `Allowed adaptation` должны быть уже заполнены, а не оставлены на потом;
-- `Scene coverage` записывай в машинно читаемом виде: для scene-specific `environment-preview` это ровно один `scene-id` (`scene-1`), а для `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`; человекочитаемые `Сцена 1`, `Сцена 2` и так далее в `director-pass` должны ссылаться на те же scene-id;
-- каждая scene-specific `environment-preview` задача должна покрывать ровно один `scene-id`, а `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4` вместе;
-- `Registry baselines used` записывай либо списком `moduleId` через запятую, либо literal `none`, если подходящего registry-backed baseline для world-slot нет;
-- в `preview-build` важнее глубина ключевых слоев, чем попытка формально закрыть больше задач за один проход;
-- нельзя переводить задачу в `done`, если код компилируется, но результат все еще выглядит как бедный scaffold и нарушает `Non-negotiables`.
-- нельзя переводить key preview task в `done` без machine-check и visual evidence.
-- для `environment-preview` и `integrated-preview` нельзя переводить задачу в `done`, пока не зафиксировано, какие world-slot из `director pass` реально покрыты и какая scene-specific или integrated scene coverage реально проверена.
+- для `camera`, `hero` и `environment` по умолчанию reuse идет от verified implementation или явно названного baseline, а не от словесной идеи; `Reference baseline` должен указывать на точный source-of-truth, а `Reuse mode` оставаться одним из `preset-reuse | structure-reuse | system-reuse | greenfield-approved`;
+- если в `launch-card.md` выбран implementation-locked `scenePresetPackage`, для `camera-preview` обязателен `preset-reuse`, exact `sourceOfTruthFiles` в `Reference baseline`, явный список `Reuse without changes` и узкая зона `Allowed adaptation`; при adaptive timing дополнительно фиксируются `Object count`, `Target duration band`, `Timing policy` и `Finale tail policy`, а registry-контракт такого preset должен оставаться явным через `supportedFps`, `supportedCountRange` и `targetDurationBandSeconds`;
+- если в `launch-card.md` выбран implementation-locked `heroRevealPackage`, для `hero-preview` действует тот же baseline-first режим: `preset-reuse`, exact `sourceOfTruthFiles`, явный `Reuse without changes` и ограниченный `Allowed adaptation`;
+- `greenfield-approved` не является дефолтом: он допустим только при явном approve или уже зафиксированном отсутствии baseline и требует непустой `Greenfield justification`; иначе `hero`, `camera` и `environment` нельзя разрабатывать "с нуля";
+- для key preview task со статусом `in_progress` или `done` поля `Reuse mode`, `Reference baseline` (если это не `greenfield-approved`), `Reuse without changes` и `Allowed adaptation` должны быть заполнены заранее, а не задним числом;
+- для `environment-preview` и `integrated-preview` обязательны machine-readable `World slots covered`, `Scene coverage` и `Registry baselines used`; scene-specific environment-задача покрывает ровно один `scene-id`, а `integrated-preview` — минимум `scene-1, scene-2, scene-3, scene-4`, причем scene-id должны совпадать с `director-pass`;
+- в `preview-build` важнее глубина ключевых слоев, чем формальное закрытие большего числа задач; key preview task нельзя переводить в `done`, пока результат остается scaffold-уровня, не подтвержден machine-check и не имеет visual evidence.
 
 Правило маршрутизации:
 
@@ -440,28 +422,13 @@ Package-first режим считается нормой по умолчанию
 - `environment-preview` — среда уже дает depth, secondary-life и ощущение мира, а не пустой scaffold, и покрывает world-slot, выбранные в `director pass`;
 - `integrated-preview` — на контрольном срезе hero, camera и environment работают вместе как единая сцена и держат минимум `4` сцены world-evolution.
 
-Перед переводом ключевой preview-задачи в `done` ИИ обязан коротко зафиксировать mini-review:
+Перед переводом key preview task в `done` ИИ обязан:
 
-- что было `Reference baseline`;
-- что reuse-нуто без изменений;
-- что адаптировано под тему;
-- что еще пока слабое;
-- почему это уже не scaffold.
-
-Перед переводом key preview task в `done` ИИ также обязан:
-
-- не менять статус задачи в `build-plan.md` вручную;
-- для обычной проверки запускать `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`;
-- проверить композицию в браузере или Remotion Studio, а не только по коду;
-- явно зафиксировать способ этой проверки как `mcp-playwright | remotion-studio | built-in-browser`;
-- если у агента есть доступ к MCP Playwright или встроенному браузеру, использовать один из этих инструментов как основной способ visual-check, а не ограничиваться чтением кода;
-- проверить console/runtime без игнорирования ошибок и missing-asset warning;
-- сохранить screenshot-артефакты в `projects/<project-slug>/exports/preview-checks/`;
-- зафиксировать `Studio/browser check`, `Visual check method`, `Console/runtime check` и `Screenshot set` внутри `build-plan.md`.
-- для `environment-preview` и `integrated-preview` дополнительно зафиксировать `World slots covered`, `Scene coverage` и `Registry baselines used` внутри `build-plan.md`;
-- `Scene coverage` вести теми же machine-readable scene-id, что и в `director-pass`;
-- `Registry baselines used` заполнять либо списком registry `moduleId`, либо literal `none`.
-- после этого запускать `npm run validate:build-plan -- projects/<project-slug>/build-plan.md --finalize <task-id>`: этот же скрипт сам переводит task в `done`, обновляет `Следующий шаг` и отказывается писать файл, если evidence еще неполный.
+- коротко зафиксировать mini-review: baseline, что reuse-нуто без изменений, что адаптировано, что еще слабо и почему это уже не scaffold;
+- не менять статус в `build-plan.md` вручную, а сначала пройти техническую проверку `npm run validate:build-plan -- projects/<project-slug>/build-plan.md`;
+- проверить композицию в браузере или Remotion Studio, явно зафиксировать `Visual check method`, проверить console/runtime и сохранить screenshot-артефакты в `projects/<project-slug>/exports/preview-checks/`;
+- для `environment-preview` и `integrated-preview` дополнительно зафиксировать `World slots covered`, `Scene coverage` и `Registry baselines used` в тех же machine-readable значениях, что и в `director-pass` / registry;
+- только после этого запускать `npm run validate:build-plan -- projects/<project-slug>/build-plan.md --finalize <task-id>`: именно этот gate переводит task в `done`, обновляет `Следующий шаг` и отказывается писать файл, если evidence еще неполный.
 
 Жизненный цикл `Статуса плана`:
 
