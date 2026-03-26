@@ -4,7 +4,11 @@
 
 ## Назначение
 
-Этот шаблон нужен как исполнительный мост между `director-pass.md` и реальной сборкой проекта.
+Этот шаблон задает файловую форму `build-plan.md`.
+
+Жизненный цикл статусов, routing между фазами и machine-check правила задаются в `docs/canon/ranking-corridor-working-mode.md` и `scripts/validate-ranking-build-plan.ts`.
+
+Здесь остается практический исполнительный мост между `director-pass.md` и реальной сборкой проекта.
 
 Он не заменяет:
 
