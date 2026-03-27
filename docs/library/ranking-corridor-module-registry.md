@@ -1,6 +1,6 @@
 # Ranking Corridor: Реестр Библиотечных Модулей
 
-**Дата:** 2026-03-17
+**Дата:** 2026-03-26
 
 ## Назначение
 
@@ -556,3 +556,80 @@
 - `docsUpdated`:
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: это implementation-locked reveal-baseline для tower/monolith hero-family; для новых башенных проектов он должен считаться default reveal-пакетом, а не только красивым референсом.
+
+### 15. `stone-altar-pedestal-v1`
+
+- `moduleId`: `stone-altar-pedestal-v1`
+- `userFacingName`: `Каменный алтарь-пьедестал`
+- `status`: `library-module`
+- `moduleType`: `hero/object family`
+- `sourceProjects`:
+  - `2026-03-25-strongest-pokemon`
+- `promotionReason`: rough-stone pedestal пережил полный final-approved проект, доказал, что может быть самостоятельным reusable shell-объектом для ranking corridor и не зависит от Pokémon-данных.
+- `contract`: модуль рендерит двухъярусный stone pedestal с rough low-poly noise по геометрии, управляемый через `width`, `height`, `depth`, `seed` и базовые цвета материалов, не включая dashboard-данные внутрь shell.
+- `placement`:
+  - `src/lib/ranking-corridor/art/objects/stone-altar-pedestal.tsx`
+  - `src/lib/ranking-corridor/art/objects/index.ts`
+  - `src/lib/ranking-corridor/art/index.ts`
+- `docsUpdated`:
+  - `projects/2026-03-25-strongest-pokemon/review-notes.md`
+  - `docs/library/ranking-corridor-module-registry.md`
+- `notes`: image-first dashboard, layout policy и конкретная hero-подача остаются project-local или policy-layer решением; в библиотеку поднят только shell-art object.
+
+### 16. `steam-train-line-v1`
+
+- `moduleId`: `steam-train-line-v1`
+- `userFacingName`: `Паровозная линия`
+- `status`: `library-module`
+- `moduleType`: `background / ambient / secondary-life system`
+- `worldSlot`: `directed-motion`
+- `environmentFamily`: `nature | industrial | fantasy`
+- `role`: `support`
+- `combineWith`:
+  - `horizon-mountain-ridge-v1`
+  - `forest-backdrop-v1`
+  - `storm-effects-v1`
+  - `corridor-relief-ground-v1`
+- `stageFit`: `scene-1 | scene-2 | scene-3 | scene-4`
+- `costTier`: `medium`
+- `sourceProjects`:
+  - `2026-03-25-strongest-pokemon`
+- `promotionReason`: паровоз с рельсовой линией пережил финальный ролик как читаемый directed-motion слой и не оказался Pokémon-специфичным декором; он закрывает reusable задачу живого дальнего движения в corridor-world.
+- `contract`: модуль рендерит extruded rail line и moving steam-train shell вдоль переданного `curve`, принимая `frame`, `seed`, `speed`, `direction` и базовые visual-color параметры, чтобы проект сам управлял маршрутом, актовой драматургией и world-placement.
+- `placement`:
+  - `src/lib/ranking-corridor/art/world/steam-train-line.tsx`
+  - `src/lib/ranking-corridor/art/world/index.ts`
+  - `src/lib/ranking-corridor/art/index.ts`
+- `docsUpdated`:
+  - `projects/2026-03-25-strongest-pokemon/review-notes.md`
+  - `docs/library/ranking-corridor-module-registry.md`
+- `notes`: конкретные кривые маршрута, количество линий, актовая скорость и visibility-tuning остаются project-local world direction, а не частью library contract.
+
+### 17. `corridor-relief-ground-v1`
+
+- `moduleId`: `corridor-relief-ground-v1`
+- `userFacingName`: `Рельефный corridor-ground`
+- `status`: `library-module`
+- `moduleType`: `background / ambient / secondary-life system`
+- `worldSlot`: `ground`
+- `environmentFamily`: `nature | fantasy | neutral`
+- `role`: `core`
+- `combineWith`:
+  - `forest-backdrop-v1`
+  - `horizon-mountain-ridge-v1`
+  - `storm-effects-v1`
+  - `steam-train-line-v1`
+- `stageFit`: `scene-1 | scene-2 | scene-3 | scene-4`
+- `costTier`: `medium`
+- `sourceProjects`:
+  - `2026-03-25-strongest-pokemon`
+- `promotionReason`: deterministic relief-ground с lane-safe clearing, seeded rocks и optional puddles пережил полный проект и решил общую задачу живого evolving ground без жесткой привязки к одной теме.
+- `contract`: модуль экспортирует `CorridorReliefGround` и `getCorridorReliefHeight`, собирая seeded corridor terrain вокруг активной lane через `maxX`, `groundY`, `laneCenterZ` и palette-параметры; проект может отдельно управлять act-level tone, puddle policy и world composition, не меняя base relief grammar.
+- `placement`:
+  - `src/lib/ranking-corridor/art/world/corridor-relief-ground.tsx`
+  - `src/lib/ranking-corridor/art/world/index.ts`
+  - `src/lib/ranking-corridor/art/index.ts`
+- `docsUpdated`:
+  - `projects/2026-03-25-strongest-pokemon/review-notes.md`
+  - `docs/library/ranking-corridor-module-registry.md`
+- `notes`: project-local остаются theme palette, актовая драматургия, lane-specific exclusions и сочетание с другими world layers; библиотечным стал базовый deterministic ground module.

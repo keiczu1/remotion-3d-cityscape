@@ -34,7 +34,8 @@
     "test": "tsx --test",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
-    "validate:build-plan": "tsx scripts/validate-ranking-build-plan.ts"
+    "validate:build-plan": "tsx scripts/validate-ranking-build-plan.ts",
+    "validate:data": "tsx scripts/validate-ranking-data.ts"
   },
   "sideEffects": [
     "*.css"

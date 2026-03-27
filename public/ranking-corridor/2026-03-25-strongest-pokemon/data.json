@@ -1,0 +1,1300 @@
+{
+  "generated_at": "2026-03-25T08:02:38+03:00",
+  "project_slug": "2026-03-25-strongest-pokemon",
+  "display_metric": "Power",
+  "language": "en",
+  "methodology": {
+    "mode": "creative-ranking",
+    "fact_check_status": "creative",
+    "scope": "Curated ranking of powerful Pokemon forms and variants; not limited to canon-official forms only.",
+    "ranking_basis": "Sum of six base stats (BST), displayed as Power.",
+    "sort_direction": "Strongest to weaker (ranks 1-100).",
+    "special_forms_included": true,
+    "tie_breaker": "National/form order from the current PokeAPI dataset.",
+    "scope_note": "This project uses a curated fantasy-friendly dataset and may include imaginative or expanded-form variants.",
+    "local_image_scope": "Local PNG files for ranks 1-100.",
+    "image_base_path": "/ranking-corridor/2026-03-25-strongest-pokemon/images/"
+  },
+  "total_entries": 100,
+  "entries": [
+    {
+      "rank": 1,
+      "pokemon_name": "Eternamax Eternatus",
+      "display_name": "Eternamax Eternatus",
+      "base_stat_total": 5670,
+      "types": [
+        "Poison",
+        "Dragon"
+      ],
+      "image_file": "01_eternatus-eternamax.png",
+      "video_label": "#1 Eternamax Eternatus",
+      "video_subtitle": "Power 5670 | Poison / Dragon"
+    },
+    {
+      "rank": 2,
+      "pokemon_name": "Mega Mewtwo X",
+      "display_name": "Mega Mewtwo X",
+      "base_stat_total": 5525,
+      "types": [
+        "Psychic",
+        "Fighting"
+      ],
+      "image_file": "02_mewtwo-mega-x.png",
+      "video_label": "#2 Mega Mewtwo X",
+      "video_subtitle": "Power 5525 | Psychic / Fighting"
+    },
+    {
+      "rank": 3,
+      "pokemon_name": "Mega Rayquaza",
+      "display_name": "Mega Rayquaza",
+      "base_stat_total": 5420,
+      "types": [
+        "Dragon",
+        "Flying"
+      ],
+      "image_file": "03_rayquaza-mega.png",
+      "video_label": "#3 Mega Rayquaza",
+      "video_subtitle": "Power 5420 | Dragon / Flying"
+    },
+    {
+      "rank": 4,
+      "pokemon_name": "Mega Zygarde",
+      "display_name": "Mega Zygarde",
+      "base_stat_total": 5271,
+      "types": [
+        "Dragon",
+        "Ground"
+      ],
+      "image_file": "04_zygarde-mega.png",
+      "video_label": "#4 Mega Zygarde",
+      "video_subtitle": "Power 5271 | Dragon / Ground"
+    },
+    {
+      "rank": 5,
+      "pokemon_name": "Primal Kyogre",
+      "display_name": "Primal Kyogre",
+      "base_stat_total": 5140,
+      "types": [
+        "Water"
+      ],
+      "image_file": "05_kyogre-primal.png",
+      "video_label": "#5 Primal Kyogre",
+      "video_subtitle": "Power 5140 | Water"
+    },
+    {
+      "rank": 6,
+      "pokemon_name": "Primal Groudon",
+      "display_name": "Primal Groudon",
+      "base_stat_total": 5038,
+      "types": [
+        "Ground",
+        "Fire"
+      ],
+      "image_file": "06_groudon-primal.png",
+      "video_label": "#6 Primal Groudon",
+      "video_subtitle": "Power 5038 | Ground / Fire"
+    },
+    {
+      "rank": 7,
+      "pokemon_name": "Ultra Necrozma",
+      "display_name": "Ultra Necrozma",
+      "base_stat_total": 4891,
+      "types": [
+        "Psychic",
+        "Dragon"
+      ],
+      "image_file": "07_necrozma-ultra.png",
+      "video_label": "#7 Ultra Necrozma",
+      "video_subtitle": "Power 4891 | Psychic / Dragon"
+    },
+    {
+      "rank": 8,
+      "pokemon_name": "Normal Arceus",
+      "display_name": "Arceus",
+      "base_stat_total": 4775,
+      "types": [
+        "Normal"
+      ],
+      "image_file": "08_arceus-normal.png",
+      "video_label": "#8 Arceus",
+      "video_subtitle": "Power 4775 | Normal"
+    },
+    {
+      "rank": 9,
+      "pokemon_name": "Mega Dragonite",
+      "display_name": "Mega Dragonite",
+      "base_stat_total": 4673,
+      "types": [
+        "Dragon",
+        "Flying"
+      ],
+      "image_file": "09_dragonite-mega.png",
+      "video_label": "#9 Mega Dragonite",
+      "video_subtitle": "Power 4673 | Dragon / Flying"
+    },
+    {
+      "rank": 10,
+      "pokemon_name": "Mega Tyranitar",
+      "display_name": "Mega Tyranitar",
+      "base_stat_total": 4529,
+      "types": [
+        "Rock",
+        "Dark"
+      ],
+      "image_file": "10_tyranitar-mega.png",
+      "video_label": "#10 Mega Tyranitar",
+      "video_subtitle": "Power 4529 | Rock / Dark"
+    },
+    {
+      "rank": 11,
+      "pokemon_name": "Mega Salamence",
+      "display_name": "Mega Salamence",
+      "base_stat_total": 4428,
+      "types": [
+        "Dragon",
+        "Flying"
+      ],
+      "image_file": "11_salamence-mega.png",
+      "video_label": "#11 Mega Salamence",
+      "video_subtitle": "Power 4428 | Dragon / Flying"
+    },
+    {
+      "rank": 12,
+      "pokemon_name": "Mega Metagross",
+      "display_name": "Mega Metagross",
+      "base_stat_total": 4324,
+      "types": [
+        "Steel",
+        "Psychic"
+      ],
+      "image_file": "12_metagross-mega.png",
+      "video_label": "#12 Mega Metagross",
+      "video_subtitle": "Power 4324 | Steel / Psychic"
+    },
+    {
+      "rank": 13,
+      "pokemon_name": "Mega Latias",
+      "display_name": "Mega Latias",
+      "base_stat_total": 4187,
+      "types": [
+        "Dragon",
+        "Psychic"
+      ],
+      "image_file": "13_latias-mega.png",
+      "video_label": "#13 Mega Latias",
+      "video_subtitle": "Power 4187 | Dragon / Psychic"
+    },
+    {
+      "rank": 14,
+      "pokemon_name": "Mega Latios",
+      "display_name": "Mega Latios",
+      "base_stat_total": 4098,
+      "types": [
+        "Dragon",
+        "Psychic"
+      ],
+      "image_file": "14_latios-mega.png",
+      "video_label": "#14 Mega Latios",
+      "video_subtitle": "Power 4098 | Dragon / Psychic"
+    },
+    {
+      "rank": 15,
+      "pokemon_name": "Mega Garchomp",
+      "display_name": "Mega Garchomp",
+      "base_stat_total": 3991,
+      "types": [
+        "Dragon",
+        "Ground"
+      ],
+      "image_file": "15_garchomp-mega.png",
+      "video_label": "#15 Mega Garchomp",
+      "video_subtitle": "Power 3991 | Dragon / Ground"
+    },
+    {
+      "rank": 16,
+      "pokemon_name": "Mega Heatran",
+      "display_name": "Mega Heatran",
+      "base_stat_total": 3863,
+      "types": [
+        "Fire",
+        "Steel"
+      ],
+      "image_file": "16_heatran-mega.png",
+      "video_label": "#16 Mega Heatran",
+      "video_subtitle": "Power 3863 | Fire / Steel"
+    },
+    {
+      "rank": 17,
+      "pokemon_name": "Mega Darkrai",
+      "display_name": "Mega Darkrai",
+      "base_stat_total": 3784,
+      "types": [
+        "Dark"
+      ],
+      "image_file": "17_darkrai-mega.png",
+      "video_label": "#17 Mega Darkrai",
+      "video_subtitle": "Power 3784 | Dark"
+    },
+    {
+      "rank": 18,
+      "pokemon_name": "White Kyurem",
+      "display_name": "White Kyurem",
+      "base_stat_total": 3674,
+      "types": [
+        "Dragon",
+        "Ice"
+      ],
+      "image_file": "18_kyurem-white.png",
+      "video_label": "#18 White Kyurem",
+      "video_subtitle": "Power 3674 | Dragon / Ice"
+    },
+    {
+      "rank": 19,
+      "pokemon_name": "Mega Diancie",
+      "display_name": "Mega Diancie",
+      "base_stat_total": 3558,
+      "types": [
+        "Rock",
+        "Fairy"
+      ],
+      "image_file": "19_diancie-mega.png",
+      "video_label": "#19 Mega Diancie",
+      "video_subtitle": "Power 3558 | Rock / Fairy"
+    },
+    {
+      "rank": 20,
+      "pokemon_name": "Mega Magearna",
+      "display_name": "Mega Magearna",
+      "base_stat_total": 3486,
+      "types": [
+        "Steel",
+        "Fairy"
+      ],
+      "image_file": "20_magearna-mega.png",
+      "video_label": "#20 Mega Magearna",
+      "video_subtitle": "Power 3486 | Steel / Fairy"
+    },
+    {
+      "rank": 21,
+      "pokemon_name": "Mega Zeraora",
+      "display_name": "Mega Zeraora",
+      "base_stat_total": 3374,
+      "types": [
+        "Electric"
+      ],
+      "image_file": "21_zeraora-mega.png",
+      "video_label": "#21 Mega Zeraora",
+      "video_subtitle": "Power 3374 | Electric"
+    },
+    {
+      "rank": 22,
+      "pokemon_name": "Crowned Zacian",
+      "display_name": "Crowned Zacian",
+      "base_stat_total": 3271,
+      "types": [
+        "Fairy",
+        "Steel"
+      ],
+      "image_file": "22_zacian-crowned.png",
+      "video_label": "#22 Crowned Zacian",
+      "video_subtitle": "Power 3271 | Fairy / Steel"
+    },
+    {
+      "rank": 23,
+      "pokemon_name": "Crowned Zamazenta",
+      "display_name": "Crowned Zamazenta",
+      "base_stat_total": 3203,
+      "types": [
+        "Fighting",
+        "Steel"
+      ],
+      "image_file": "23_zamazenta-crowned.png",
+      "video_label": "#23 Crowned Zamazenta",
+      "video_subtitle": "Power 3203 | Fighting / Steel"
+    },
+    {
+      "rank": 24,
+      "pokemon_name": "Mega Baxcalibur",
+      "display_name": "Mega Baxcalibur",
+      "base_stat_total": 3090,
+      "types": [
+        "Dragon",
+        "Ice"
+      ],
+      "image_file": "24_baxcalibur-mega.png",
+      "video_label": "#24 Mega Baxcalibur",
+      "video_subtitle": "Power 3090 | Dragon / Ice"
+    },
+    {
+      "rank": 25,
+      "pokemon_name": "Stellar Form Terapagos",
+      "display_name": "Stellar Form Terapagos",
+      "base_stat_total": 3001,
+      "types": [
+        "Normal"
+      ],
+      "image_file": "25_terapagos-stellar.png",
+      "video_label": "#25 Stellar Form Terapagos",
+      "video_subtitle": "Power 3001 | Normal"
+    },
+    {
+      "rank": 26,
+      "pokemon_name": "Lugia",
+      "display_name": "Lugia",
+      "base_stat_total": 2934,
+      "types": [
+        "Psychic",
+        "Flying"
+      ],
+      "image_file": "26_lugia.png",
+      "video_label": "#26 Lugia",
+      "video_subtitle": "Power 2934 | Psychic / Flying"
+    },
+    {
+      "rank": 27,
+      "pokemon_name": "Ho-Oh",
+      "display_name": "Ho-Oh",
+      "base_stat_total": 2823,
+      "types": [
+        "Fire",
+        "Flying"
+      ],
+      "image_file": "27_ho-oh.png",
+      "video_label": "#27 Ho-Oh",
+      "video_subtitle": "Power 2823 | Fire / Flying"
+    },
+    {
+      "rank": 28,
+      "pokemon_name": "Dialga",
+      "display_name": "Dialga",
+      "base_stat_total": 2748,
+      "types": [
+        "Steel",
+        "Dragon"
+      ],
+      "image_file": "28_dialga.png",
+      "video_label": "#28 Dialga",
+      "video_subtitle": "Power 2748 | Steel / Dragon"
+    },
+    {
+      "rank": 29,
+      "pokemon_name": "Palkia",
+      "display_name": "Palkia",
+      "base_stat_total": 2680,
+      "types": [
+        "Water",
+        "Dragon"
+      ],
+      "image_file": "29_palkia.png",
+      "video_label": "#29 Palkia",
+      "video_subtitle": "Power 2680 | Water / Dragon"
+    },
+    {
+      "rank": 30,
+      "pokemon_name": "Altered Giratina",
+      "display_name": "Altered Giratina",
+      "base_stat_total": 2573,
+      "types": [
+        "Ghost",
+        "Dragon"
+      ],
+      "image_file": "30_giratina-altered.png",
+      "video_label": "#30 Altered Giratina",
+      "video_subtitle": "Power 2573 | Ghost / Dragon"
+    },
+    {
+      "rank": 31,
+      "pokemon_name": "Reshiram",
+      "display_name": "Reshiram",
+      "base_stat_total": 2511,
+      "types": [
+        "Dragon",
+        "Fire"
+      ],
+      "image_file": "31_reshiram.png",
+      "video_label": "#31 Reshiram",
+      "video_subtitle": "Power 2511 | Dragon / Fire"
+    },
+    {
+      "rank": 32,
+      "pokemon_name": "Zekrom",
+      "display_name": "Zekrom",
+      "base_stat_total": 2440,
+      "types": [
+        "Dragon",
+        "Electric"
+      ],
+      "image_file": "32_zekrom.png",
+      "video_label": "#32 Zekrom",
+      "video_subtitle": "Power 2440 | Dragon / Electric"
+    },
+    {
+      "rank": 33,
+      "pokemon_name": "Neutral Xerneas",
+      "display_name": "Xerneas",
+      "base_stat_total": 2340,
+      "types": [
+        "Fairy"
+      ],
+      "image_file": "33_xerneas-neutral.png",
+      "video_label": "#33 Xerneas",
+      "video_subtitle": "Power 2340 | Fairy"
+    },
+    {
+      "rank": 34,
+      "pokemon_name": "Yveltal",
+      "display_name": "Yveltal",
+      "base_stat_total": 2289,
+      "types": [
+        "Dark",
+        "Flying"
+      ],
+      "image_file": "34_yveltal.png",
+      "video_label": "#34 Yveltal",
+      "video_subtitle": "Power 2289 | Dark / Flying"
+    },
+    {
+      "rank": 35,
+      "pokemon_name": "Hoopa Unbound",
+      "display_name": "Hoopa Unbound",
+      "base_stat_total": 2213,
+      "types": [
+        "Psychic",
+        "Dark"
+      ],
+      "image_file": "35_hoopa-unbound.png",
+      "video_label": "#35 Hoopa Unbound",
+      "video_subtitle": "Power 2213 | Psychic / Dark"
+    },
+    {
+      "rank": 36,
+      "pokemon_name": "Solgaleo",
+      "display_name": "Solgaleo",
+      "base_stat_total": 2123,
+      "types": [
+        "Psychic",
+        "Steel"
+      ],
+      "image_file": "36_solgaleo.png",
+      "video_label": "#36 Solgaleo",
+      "video_subtitle": "Power 2123 | Psychic / Steel"
+    },
+    {
+      "rank": 37,
+      "pokemon_name": "Lunala",
+      "display_name": "Lunala",
+      "base_stat_total": 2081,
+      "types": [
+        "Psychic",
+        "Ghost"
+      ],
+      "image_file": "37_lunala.png",
+      "video_label": "#37 Lunala",
+      "video_subtitle": "Power 2081 | Psychic / Ghost"
+    },
+    {
+      "rank": 38,
+      "pokemon_name": "Ice Calyrex",
+      "display_name": "Ice Calyrex",
+      "base_stat_total": 2001,
+      "types": [
+        "Psychic",
+        "Ice"
+      ],
+      "image_file": "38_calyrex-ice.png",
+      "video_label": "#38 Ice Calyrex",
+      "video_subtitle": "Power 2001 | Psychic / Ice"
+    },
+    {
+      "rank": 39,
+      "pokemon_name": "Slaking",
+      "display_name": "Slaking",
+      "base_stat_total": 1923,
+      "types": [
+        "Normal"
+      ],
+      "image_file": "39_slaking.png",
+      "video_label": "#39 Slaking",
+      "video_subtitle": "Power 1923 | Normal"
+    },
+    {
+      "rank": 40,
+      "pokemon_name": "Regigigas",
+      "display_name": "Regigigas",
+      "base_stat_total": 1886,
+      "types": [
+        "Normal"
+      ],
+      "image_file": "40_regigigas.png",
+      "video_label": "#40 Regigigas",
+      "video_subtitle": "Power 1886 | Normal"
+    },
+    {
+      "rank": 41,
+      "pokemon_name": "Koraidon",
+      "display_name": "Koraidon",
+      "base_stat_total": 1804,
+      "types": [
+        "Fighting",
+        "Dragon"
+      ],
+      "image_file": "41_koraidon-apex-build.png",
+      "video_label": "#41 Koraidon",
+      "video_subtitle": "Power 1804 | Fighting / Dragon"
+    },
+    {
+      "rank": 42,
+      "pokemon_name": "Miraidon",
+      "display_name": "Miraidon",
+      "base_stat_total": 1739,
+      "types": [
+        "Electric",
+        "Dragon"
+      ],
+      "image_file": "42_miraidon-ultimate-mode.png",
+      "video_label": "#42 Miraidon",
+      "video_subtitle": "Power 1739 | Electric / Dragon"
+    },
+    {
+      "rank": 43,
+      "pokemon_name": "Mega Starmie",
+      "display_name": "Mega Starmie",
+      "base_stat_total": 1703,
+      "types": [
+        "Water",
+        "Psychic"
+      ],
+      "image_file": "43_starmie-mega.png",
+      "video_label": "#43 Mega Starmie",
+      "video_subtitle": "Power 1703 | Water / Psychic"
+    },
+    {
+      "rank": 44,
+      "pokemon_name": "Mega Floette",
+      "display_name": "Mega Floette",
+      "base_stat_total": 1621,
+      "types": [
+        "Fairy"
+      ],
+      "image_file": "44_floette-mega.png",
+      "video_label": "#44 Mega Floette",
+      "video_subtitle": "Power 1621 | Fairy"
+    },
+    {
+      "rank": 45,
+      "pokemon_name": "Hero Form Palafin",
+      "display_name": "Hero Form Palafin",
+      "base_stat_total": 1570,
+      "types": [
+        "Water"
+      ],
+      "image_file": "45_palafin-hero.png",
+      "video_label": "#45 Hero Form Palafin",
+      "video_subtitle": "Power 1570 | Water"
+    },
+    {
+      "rank": 46,
+      "pokemon_name": "Mega Gyarados",
+      "display_name": "Mega Gyarados",
+      "base_stat_total": 1533,
+      "types": [
+        "Water",
+        "Dark"
+      ],
+      "image_file": "46_gyarados-mega.png",
+      "video_label": "#46 Mega Gyarados",
+      "video_subtitle": "Power 1533 | Water / Dark"
+    },
+    {
+      "rank": 47,
+      "pokemon_name": "Ash's Greninja",
+      "display_name": "Ash's Greninja",
+      "base_stat_total": 1453,
+      "types": [
+        "Water",
+        "Dark"
+      ],
+      "image_file": "47_greninja-ash.png",
+      "video_label": "#47 Ash's Greninja",
+      "video_subtitle": "Power 1453 | Water / Dark"
+    },
+    {
+      "rank": 48,
+      "pokemon_name": "Mega Swampert",
+      "display_name": "Mega Swampert",
+      "base_stat_total": 1415,
+      "types": [
+        "Water",
+        "Ground"
+      ],
+      "image_file": "48_swampert-mega.png",
+      "video_label": "#48 Mega Swampert",
+      "video_subtitle": "Power 1415 | Water / Ground"
+    },
+    {
+      "rank": 49,
+      "pokemon_name": "Mega Charizard X",
+      "display_name": "Mega Charizard X",
+      "base_stat_total": 1375,
+      "types": [
+        "Fire",
+        "Dragon"
+      ],
+      "image_file": "49_charizard-mega-x.png",
+      "video_label": "#49 Mega Charizard X",
+      "video_subtitle": "Power 1375 | Fire / Dragon"
+    },
+    {
+      "rank": 50,
+      "pokemon_name": "Mega Delphox",
+      "display_name": "Mega Delphox",
+      "base_stat_total": 1300,
+      "types": [
+        "Fire",
+        "Psychic"
+      ],
+      "image_file": "50_delphox-mega.png",
+      "video_label": "#50 Mega Delphox",
+      "video_subtitle": "Power 1300 | Fire / Psychic"
+    },
+    {
+      "rank": 51,
+      "pokemon_name": "Mega Blastoise",
+      "display_name": "Mega Blastoise",
+      "base_stat_total": 1273,
+      "types": [
+        "Water"
+      ],
+      "image_file": "51_blastoise-mega.png",
+      "video_label": "#51 Mega Blastoise",
+      "video_subtitle": "Power 1273 | Water"
+    },
+    {
+      "rank": 52,
+      "pokemon_name": "Mega Feraligatr",
+      "display_name": "Mega Feraligatr",
+      "base_stat_total": 1228,
+      "types": [
+        "Water",
+        "Dragon"
+      ],
+      "image_file": "52_feraligatr-mega.png",
+      "video_label": "#52 Mega Feraligatr",
+      "video_subtitle": "Power 1228 | Water / Dragon"
+    },
+    {
+      "rank": 53,
+      "pokemon_name": "Mega Sceptile",
+      "display_name": "Mega Sceptile",
+      "base_stat_total": 1161,
+      "types": [
+        "Grass",
+        "Dragon"
+      ],
+      "image_file": "53_sceptile-mega.png",
+      "video_label": "#53 Mega Sceptile",
+      "video_subtitle": "Power 1161 | Grass / Dragon"
+    },
+    {
+      "rank": 54,
+      "pokemon_name": "Mega Blaziken",
+      "display_name": "Mega Blaziken",
+      "base_stat_total": 1143,
+      "types": [
+        "Fire",
+        "Fighting"
+      ],
+      "image_file": "54_blaziken-mega.png",
+      "video_label": "#54 Mega Blaziken",
+      "video_subtitle": "Power 1143 | Fire / Fighting"
+    },
+    {
+      "rank": 55,
+      "pokemon_name": "Mega Aggron",
+      "display_name": "Mega Aggron",
+      "base_stat_total": 1094,
+      "types": [
+        "Steel"
+      ],
+      "image_file": "55_aggron-mega.png",
+      "video_label": "#55 Mega Aggron",
+      "video_subtitle": "Power 1094 | Steel"
+    },
+    {
+      "rank": 56,
+      "pokemon_name": "Mega Chesnaught",
+      "display_name": "Mega Chesnaught",
+      "base_stat_total": 1037,
+      "types": [
+        "Grass",
+        "Fighting"
+      ],
+      "image_file": "56_chesnaught-mega.png",
+      "video_label": "#56 Mega Chesnaught",
+      "video_subtitle": "Power 1037 | Grass / Fighting"
+    },
+    {
+      "rank": 57,
+      "pokemon_name": "Mega Golisopod",
+      "display_name": "Mega Golisopod",
+      "base_stat_total": 1025,
+      "types": [
+        "Bug",
+        "Steel"
+      ],
+      "image_file": "57_golisopod-mega.png",
+      "video_label": "#57 Mega Golisopod",
+      "video_subtitle": "Power 1025 | Bug / Steel"
+    },
+    {
+      "rank": 58,
+      "pokemon_name": "Mega Emboar",
+      "display_name": "Mega Emboar",
+      "base_stat_total": 971,
+      "types": [
+        "Fire",
+        "Fighting"
+      ],
+      "image_file": "58_emboar-mega.png",
+      "video_label": "#58 Mega Emboar",
+      "video_subtitle": "Power 971 | Fire / Fighting"
+    },
+    {
+      "rank": 59,
+      "pokemon_name": "Mega Venusaur",
+      "display_name": "Mega Venusaur",
+      "base_stat_total": 927,
+      "types": [
+        "Grass",
+        "Poison"
+      ],
+      "image_file": "59_venusaur-mega.png",
+      "video_label": "#59 Mega Venusaur",
+      "video_subtitle": "Power 927 | Grass / Poison"
+    },
+    {
+      "rank": 60,
+      "pokemon_name": "Mega Meganium",
+      "display_name": "Mega Meganium",
+      "base_stat_total": 917,
+      "types": [
+        "Grass",
+        "Fairy"
+      ],
+      "image_file": "60_meganium-mega.png",
+      "video_label": "#60 Mega Meganium",
+      "video_subtitle": "Power 917 | Grass / Fairy"
+    },
+    {
+      "rank": 61,
+      "pokemon_name": "Mega Lucario",
+      "display_name": "Mega Lucario",
+      "base_stat_total": 861,
+      "types": [
+        "Fighting",
+        "Steel"
+      ],
+      "image_file": "61_lucario-mega.png",
+      "video_label": "#61 Mega Lucario",
+      "video_subtitle": "Power 861 | Fighting / Steel"
+    },
+    {
+      "rank": 62,
+      "pokemon_name": "Mega Glimmora",
+      "display_name": "Mega Glimmora",
+      "base_stat_total": 830,
+      "types": [
+        "Rock",
+        "Poison"
+      ],
+      "image_file": "62_glimmora-mega.png",
+      "video_label": "#62 Mega Glimmora",
+      "video_subtitle": "Power 830 | Rock / Poison"
+    },
+    {
+      "rank": 63,
+      "pokemon_name": "Mega Chandelure",
+      "display_name": "Mega Chandelure",
+      "base_stat_total": 819,
+      "types": [
+        "Ghost",
+        "Fire"
+      ],
+      "image_file": "63_chandelure-mega.png",
+      "video_label": "#63 Mega Chandelure",
+      "video_subtitle": "Power 819 | Ghost / Fire"
+    },
+    {
+      "rank": 64,
+      "pokemon_name": "School Wishiwashi",
+      "display_name": "School Wishiwashi",
+      "base_stat_total": 763,
+      "types": [
+        "Water"
+      ],
+      "image_file": "64_wishiwashi-school.png",
+      "video_label": "#64 School Wishiwashi",
+      "video_subtitle": "Power 763 | Water"
+    },
+    {
+      "rank": 65,
+      "pokemon_name": "Mega Gardevoir",
+      "display_name": "Mega Gardevoir",
+      "base_stat_total": 744,
+      "types": [
+        "Psychic",
+        "Fairy"
+      ],
+      "image_file": "65_gardevoir-mega.png",
+      "video_label": "#65 Mega Gardevoir",
+      "video_subtitle": "Power 744 | Psychic / Fairy"
+    },
+    {
+      "rank": 66,
+      "pokemon_name": "Mega Gallade",
+      "display_name": "Mega Gallade",
+      "base_stat_total": 730,
+      "types": [
+        "Psychic",
+        "Fighting"
+      ],
+      "image_file": "66_gallade-mega.png",
+      "video_label": "#66 Mega Gallade",
+      "video_subtitle": "Power 730 | Psychic / Fighting"
+    },
+    {
+      "rank": 67,
+      "pokemon_name": "Mega Aerodactyl",
+      "display_name": "Mega Aerodactyl",
+      "base_stat_total": 677,
+      "types": [
+        "Rock",
+        "Flying"
+      ],
+      "image_file": "67_aerodactyl-mega.png",
+      "video_label": "#67 Mega Aerodactyl",
+      "video_subtitle": "Power 677 | Rock / Flying"
+    },
+    {
+      "rank": 68,
+      "pokemon_name": "Mega Eelektross",
+      "display_name": "Mega Eelektross",
+      "base_stat_total": 670,
+      "types": [
+        "Electric"
+      ],
+      "image_file": "68_eelektross-mega.png",
+      "video_label": "#68 Mega Eelektross",
+      "video_subtitle": "Power 670 | Electric"
+    },
+    {
+      "rank": 69,
+      "pokemon_name": "Mega Steelix",
+      "display_name": "Mega Steelix",
+      "base_stat_total": 651,
+      "types": [
+        "Steel",
+        "Ground"
+      ],
+      "image_file": "69_steelix-mega.png",
+      "video_label": "#69 Mega Steelix",
+      "video_subtitle": "Power 651 | Steel / Ground"
+    },
+    {
+      "rank": 70,
+      "pokemon_name": "Mega Ampharos",
+      "display_name": "Mega Ampharos",
+      "base_stat_total": 604,
+      "types": [
+        "Electric",
+        "Dragon"
+      ],
+      "image_file": "70_ampharos-mega.png",
+      "video_label": "#70 Mega Ampharos",
+      "video_subtitle": "Power 604 | Electric / Dragon"
+    },
+    {
+      "rank": 71,
+      "pokemon_name": "Mega Excadrill",
+      "display_name": "Mega Excadrill",
+      "base_stat_total": 600,
+      "types": [
+        "Ground",
+        "Steel"
+      ],
+      "image_file": "71_excadrill-mega.png",
+      "video_label": "#71 Mega Excadrill",
+      "video_subtitle": "Power 600 | Ground / Steel"
+    },
+    {
+      "rank": 72,
+      "pokemon_name": "Mega Pyroar",
+      "display_name": "Mega Pyroar",
+      "base_stat_total": 581,
+      "types": [
+        "Fire",
+        "Normal"
+      ],
+      "image_file": "72_pyroar-mega.png",
+      "video_label": "#72 Mega Pyroar",
+      "video_subtitle": "Power 581 | Fire / Normal"
+    },
+    {
+      "rank": 73,
+      "pokemon_name": "Mega Alakazam",
+      "display_name": "Mega Alakazam",
+      "base_stat_total": 542,
+      "types": [
+        "Psychic"
+      ],
+      "image_file": "73_alakazam-mega.png",
+      "video_label": "#73 Mega Alakazam",
+      "video_subtitle": "Power 542 | Psychic"
+    },
+    {
+      "rank": 74,
+      "pokemon_name": "Mega Gengar",
+      "display_name": "Mega Gengar",
+      "base_stat_total": 539,
+      "types": [
+        "Ghost",
+        "Poison"
+      ],
+      "image_file": "74_gengar-mega.png",
+      "video_label": "#74 Mega Gengar",
+      "video_subtitle": "Power 539 | Ghost / Poison"
+    },
+    {
+      "rank": 75,
+      "pokemon_name": "Mega Scizor",
+      "display_name": "Mega Scizor",
+      "base_stat_total": 520,
+      "types": [
+        "Bug",
+        "Steel"
+      ],
+      "image_file": "75_scizor-mega.png",
+      "video_label": "#75 Mega Scizor",
+      "video_subtitle": "Power 520 | Bug / Steel"
+    },
+    {
+      "rank": 76,
+      "pokemon_name": "Mega Pinsir",
+      "display_name": "Mega Pinsir",
+      "base_stat_total": 492,
+      "types": [
+        "Bug",
+        "Flying"
+      ],
+      "image_file": "76_pinsir-mega.png",
+      "video_label": "#76 Mega Pinsir",
+      "video_subtitle": "Power 492 | Bug / Flying"
+    },
+    {
+      "rank": 77,
+      "pokemon_name": "Mew",
+      "display_name": "Mew",
+      "base_stat_total": 490,
+      "types": [
+        "Psychic"
+      ],
+      "image_file": "77_mew.png",
+      "video_label": "#77 Mew",
+      "video_subtitle": "Power 490 | Psychic"
+    },
+    {
+      "rank": 78,
+      "pokemon_name": "Mega Heracross",
+      "display_name": "Mega Heracross",
+      "base_stat_total": 469,
+      "types": [
+        "Bug",
+        "Fighting"
+      ],
+      "image_file": "78_heracross-mega.png",
+      "video_label": "#78 Mega Heracross",
+      "video_subtitle": "Power 469 | Bug / Fighting"
+    },
+    {
+      "rank": 79,
+      "pokemon_name": "Mega Houndoom",
+      "display_name": "Mega Houndoom",
+      "base_stat_total": 452,
+      "types": [
+        "Dark",
+        "Fire"
+      ],
+      "image_file": "79_houndoom-mega.png",
+      "video_label": "#79 Mega Houndoom",
+      "video_subtitle": "Power 452 | Dark / Fire"
+    },
+    {
+      "rank": 80,
+      "pokemon_name": "Celebi",
+      "display_name": "Celebi",
+      "base_stat_total": 451,
+      "types": [
+        "Psychic",
+        "Grass"
+      ],
+      "image_file": "80_celebi.png",
+      "video_label": "#80 Celebi",
+      "video_subtitle": "Power 451 | Psychic / Grass"
+    },
+    {
+      "rank": 81,
+      "pokemon_name": "Jirachi",
+      "display_name": "Jirachi",
+      "base_stat_total": 426,
+      "types": [
+        "Steel",
+        "Psychic"
+      ],
+      "image_file": "81_jirachi.png",
+      "video_label": "#81 Jirachi",
+      "video_subtitle": "Power 426 | Steel / Psychic"
+    },
+    {
+      "rank": 82,
+      "pokemon_name": "Normal Deoxys",
+      "display_name": "Deoxys",
+      "base_stat_total": 421,
+      "types": [
+        "Psychic"
+      ],
+      "image_file": "82_deoxys-normal.png",
+      "video_label": "#82 Deoxys",
+      "video_subtitle": "Power 421 | Psychic"
+    },
+    {
+      "rank": 83,
+      "pokemon_name": "Manaphy",
+      "display_name": "Manaphy",
+      "base_stat_total": 420,
+      "types": [
+        "Water"
+      ],
+      "image_file": "83_manaphy.png",
+      "video_label": "#83 Manaphy",
+      "video_subtitle": "Power 420 | Water"
+    },
+    {
+      "rank": 84,
+      "pokemon_name": "Land Shaymin",
+      "display_name": "Shaymin",
+      "base_stat_total": 393,
+      "types": [
+        "Grass"
+      ],
+      "image_file": "84_shaymin-land.png",
+      "video_label": "#84 Shaymin",
+      "video_subtitle": "Power 393 | Grass"
+    },
+    {
+      "rank": 85,
+      "pokemon_name": "Victini",
+      "display_name": "Victini",
+      "base_stat_total": 392,
+      "types": [
+        "Psychic",
+        "Fire"
+      ],
+      "image_file": "85_victini.png",
+      "video_label": "#85 Victini",
+      "video_subtitle": "Power 392 | Psychic / Fire"
+    },
+    {
+      "rank": 86,
+      "pokemon_name": "Hydreigon",
+      "display_name": "Hydreigon",
+      "base_stat_total": 388,
+      "types": [
+        "Dark",
+        "Dragon"
+      ],
+      "image_file": "86_hydreigon.png",
+      "video_label": "#86 Hydreigon",
+      "video_subtitle": "Power 388 | Dark / Dragon"
+    },
+    {
+      "rank": 87,
+      "pokemon_name": "Incarnate Landorus",
+      "display_name": "Landorus",
+      "base_stat_total": 369,
+      "types": [
+        "Ground",
+        "Flying"
+      ],
+      "image_file": "87_landorus-incarnate.png",
+      "video_label": "#87 Landorus",
+      "video_subtitle": "Power 369 | Ground / Flying"
+    },
+    {
+      "rank": 88,
+      "pokemon_name": "Aria Meloetta",
+      "display_name": "Meloetta",
+      "base_stat_total": 365,
+      "types": [
+        "Normal",
+        "Psychic"
+      ],
+      "image_file": "88_meloetta-aria.png",
+      "video_label": "#88 Meloetta",
+      "video_subtitle": "Power 365 | Normal / Psychic"
+    },
+    {
+      "rank": 89,
+      "pokemon_name": "Genesect",
+      "display_name": "Genesect",
+      "base_stat_total": 361,
+      "types": [
+        "Bug",
+        "Steel"
+      ],
+      "image_file": "89_genesect.png",
+      "video_label": "#89 Genesect",
+      "video_subtitle": "Power 361 | Bug / Steel"
+    },
+    {
+      "rank": 90,
+      "pokemon_name": "Mega Barbaracle",
+      "display_name": "Mega Barbaracle",
+      "base_stat_total": 352,
+      "types": [
+        "Rock",
+        "Fighting"
+      ],
+      "image_file": "90_barbaracle-mega.png",
+      "video_label": "#90 Mega Barbaracle",
+      "video_subtitle": "Power 352 | Rock / Fighting"
+    },
+    {
+      "rank": 91,
+      "pokemon_name": "Mega Hawlucha",
+      "display_name": "Mega Hawlucha",
+      "base_stat_total": 347,
+      "types": [
+        "Fighting",
+        "Flying"
+      ],
+      "image_file": "91_hawlucha-mega.png",
+      "video_label": "#91 Mega Hawlucha",
+      "video_subtitle": "Power 347 | Fighting / Flying"
+    },
+    {
+      "rank": 92,
+      "pokemon_name": "Goodra",
+      "display_name": "Goodra",
+      "base_stat_total": 345,
+      "types": [
+        "Dragon"
+      ],
+      "image_file": "92_goodra.png",
+      "video_label": "#92 Goodra",
+      "video_subtitle": "Power 345 | Dragon"
+    },
+    {
+      "rank": 93,
+      "pokemon_name": "Volcanion",
+      "display_name": "Volcanion",
+      "base_stat_total": 344,
+      "types": [
+        "Fire",
+        "Water"
+      ],
+      "image_file": "93_volcanion.png",
+      "video_label": "#93 Volcanion",
+      "video_subtitle": "Power 344 | Fire / Water"
+    },
+    {
+      "rank": 94,
+      "pokemon_name": "Kommo-o",
+      "display_name": "Kommo-o",
+      "base_stat_total": 341,
+      "types": [
+        "Dragon",
+        "Fighting"
+      ],
+      "image_file": "94_kommo-o.png",
+      "video_label": "#94 Kommo-o",
+      "video_subtitle": "Power 341 | Dragon / Fighting"
+    },
+    {
+      "rank": 95,
+      "pokemon_name": "Marshadow",
+      "display_name": "Marshadow",
+      "base_stat_total": 338,
+      "types": [
+        "Fighting",
+        "Ghost"
+      ],
+      "image_file": "95_marshadow.png",
+      "video_label": "#95 Marshadow",
+      "video_subtitle": "Power 338 | Fighting / Ghost"
+    },
+    {
+      "rank": 96,
+      "pokemon_name": "Melmetal",
+      "display_name": "Melmetal",
+      "base_stat_total": 335,
+      "types": [
+        "Steel"
+      ],
+      "image_file": "96_melmetal.png",
+      "video_label": "#96 Melmetal",
+      "video_subtitle": "Power 335 | Steel"
+    },
+    {
+      "rank": 97,
+      "pokemon_name": "Dragapult",
+      "display_name": "Dragapult",
+      "base_stat_total": 333,
+      "types": [
+        "Dragon",
+        "Ghost"
+      ],
+      "image_file": "97_dragapult.png",
+      "video_label": "#97 Dragapult",
+      "video_subtitle": "Power 333 | Dragon / Ghost"
+    },
+    {
+      "rank": 98,
+      "pokemon_name": "Zarude",
+      "display_name": "Zarude",
+      "base_stat_total": 331,
+      "types": [
+        "Dark",
+        "Grass"
+      ],
+      "image_file": "98_zarude.png",
+      "video_label": "#98 Zarude",
+      "video_subtitle": "Power 331 | Dark / Grass"
+    },
+    {
+      "rank": 99,
+      "pokemon_name": "Archaludon",
+      "display_name": "Archaludon",
+      "base_stat_total": 326,
+      "types": [
+        "Steel",
+        "Dragon"
+      ],
+      "image_file": "99_archaludon.png",
+      "video_label": "#99 Archaludon",
+      "video_subtitle": "Power 326 | Steel / Dragon"
+    },
+    {
+      "rank": 100,
+      "pokemon_name": "Pecharunt",
+      "display_name": "Pecharunt",
+      "base_stat_total": 324,
+      "types": [
+        "Poison",
+        "Ghost"
+      ],
+      "image_file": "100_pecharunt.png",
+      "video_label": "#100 Pecharunt",
+      "video_subtitle": "Power 324 | Poison / Ghost"
+    }
+  ]
+}
