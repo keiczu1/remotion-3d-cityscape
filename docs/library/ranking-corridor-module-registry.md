@@ -633,3 +633,23 @@
   - `projects/2026-03-25-strongest-pokemon/review-notes.md`
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: project-local остаются theme palette, актовая драматургия, lane-specific exclusions и сочетание с другими world layers; библиотечным стал базовый deterministic ground module.
+
+### 18. `portrait-biography-stele-v1`
+
+- `moduleId`: `portrait-biography-stele-v1`
+- `userFacingName`: `Портретная биографическая стела`
+- `status`: `library-module`
+- `moduleType`: `hero/object family`
+- `sourceProjects`:
+  - `2026-03-30-richest-women`
+- `promotionReason`: модуль пережил полный пользовательский review как production-baseline для длинных biography-описаний: крупный portrait-slot, value-driven pedestal, флаг на мачте и отдельная fixed-size biography-card справа уже доказали ценность как reusable hero-family, а не как one-off layout под одну тему.
+- `contract`: модуль рендерит image-first portrait stele с адаптивным portrait-slot, rank badge на media, укрупненной типографикой имени/лет/wealth, правой biography-card для `moneyFrom` и `fact`, value-driven pedestal target height, flag-pole assembly и staged shell/media/copy reveal; проект сам поставляет photo src, flag code, тексты и metric-driven pedestal height.
+- `placement`:
+  - `src/lib/ranking-corridor/hero/portrait-biography-stele.tsx`
+  - `src/lib/ranking-corridor/hero/index.ts`
+- `docsUpdated`:
+  - `projects/2026-03-30-richest-women/launch-card.md`
+  - `projects/2026-03-30-richest-women/asset-manifest.md`
+  - `projects/2026-03-30-richest-women/review-notes.md`
+  - `docs/library/ranking-corridor-module-registry.md`
+- `notes`: в библиотеку поднят именно hero/object family с его reveal и layout grammar; project-local остаются dataset binding, country-to-flag normalization, wealth-range normalization и composition-level background/camera preview stage.
