@@ -24,7 +24,7 @@
 | assetId | rankingItem | assetKind | localPath | sourceUrl | sourceLabel | discoveredBy | assetStatus | quality | usageStage | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | favicons-all | all 40 sites | favicon | public/favicons/*.png | — | reference project | ai | selected | high | both | Переиспользуются из ranking-towers |
-| flags-all | all countries | flag | public/flags/*.png | — | reference project | ai | selected | high | both | Переиспользуются из ranking-towers |
+| flags-all | all countries | flag | public/flags/*.{png,svg} | — | shared repo asset base | ai | selected | high | both | Переиспользуются из shared `public/flags/`; единый shared baseline теперь идет через world `svg` pack, legacy png оставлены только как исторические ассеты |
 
 ## Очередь недостающих или заменяемых ассетов
 

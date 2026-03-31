@@ -1,6 +1,6 @@
 import {staticFile} from "remotion";
-
 import rawRankingFile from "../../../public/final_ranking.json";
+import {getFlagAssetUrl} from "../../assets/flag-asset-url";
 
 type RawRichestWomenEntry = {
 	order: number;
@@ -62,17 +62,6 @@ const countryToFlagCode: Record<string, string> = {
 	"United States": "us",
 };
 
-const locallyAvailableFlags = new Set([
-	"ae",
-	"au",
-	"br",
-	"cn",
-	"jp",
-	"kr",
-	"ru",
-	"us",
-]);
-
 export const getPreviewEntry = (order = defaultPreviewOrder): RichestWomenEntry => {
 	return richestWomenEntries.find((entry) => entry.order === order)
 		?? richestWomenEntries.find((entry) => entry.order === fallbackPreviewOrder)
@@ -85,7 +74,7 @@ export const getPhotoSrc = (entry: RichestWomenEntry) => {
 
 export const getFlagCode = (entry: RichestWomenEntry) => {
 	const code = countryToFlagCode[entry.country];
-	if (!code || !locallyAvailableFlags.has(code)) {
+	if (!code) {
 		return null;
 	}
 
@@ -98,5 +87,5 @@ export const getFlagSrc = (entry: RichestWomenEntry) => {
 		return null;
 	}
 
-	return staticFile(`flags/${code}.png`);
+	return getFlagAssetUrl(code);
 };

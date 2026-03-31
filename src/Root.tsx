@@ -6,6 +6,7 @@ import { Scene as PokemonScene, durationInFrames as pokemonDuration } from "./co
 import {
   Scene as RichestWomenVariantsScene,
   durationInFrames as richestWomenVariantsDuration,
+  type RichestWomenVariantsProps,
 } from "./compositions/2026-03-30-richest-women-variants";
 
 export const RemotionRoot: React.FC = () => {
@@ -42,6 +43,9 @@ export const RemotionRoot: React.FC = () => {
         fps={60}
         width={1920}
         height={1080}
+        defaultProps={{
+          previewOrder: 16,
+        } satisfies RichestWomenVariantsProps}
       />
     </>
   );

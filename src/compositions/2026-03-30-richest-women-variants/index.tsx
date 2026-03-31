@@ -1,1 +1,1 @@
-export {Scene, durationInFrames} from "./RichestWomenVariantsComposition";
+export {Scene, durationInFrames, type RichestWomenVariantsProps} from "./RichestWomenVariantsComposition";

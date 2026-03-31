@@ -8,11 +8,12 @@ import {
 	delayRender,
 	interpolate,
 	spring,
-	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
 } from "remotion";
 import * as THREE from "three";
+
+import {getFlagAssetUrl} from "../../../assets/flag-asset-url";
 
 export type PortraitBiographySteleTheme = {
 	shell: string;
@@ -627,12 +628,23 @@ const AnimatedFlagCloth = ({
 
 	useEffect(() => {
 		let cancelled = false;
+		let settled = false;
 		const textureLoader = new THREE.TextureLoader();
+		const releaseRenderHandle = () => {
+			if (settled) {
+				return;
+			}
+
+			settled = true;
+			continueRender(renderHandle);
+		};
 
 		textureLoader.load(
-			staticFile(`flags/${countryCode.toLowerCase()}.png`),
+			getFlagAssetUrl(countryCode),
 			(loadedTexture) => {
 				if (cancelled) {
+					loadedTexture.dispose();
+					releaseRenderHandle();
 					return;
 				}
 
@@ -643,20 +655,23 @@ const AnimatedFlagCloth = ({
 				loadedTexture.needsUpdate = true;
 
 				setTexture(loadedTexture);
-				continueRender(renderHandle);
+				releaseRenderHandle();
 			},
 			undefined,
 			(error) => {
 				if (cancelled) {
+					releaseRenderHandle();
 					return;
 				}
 
+				settled = true;
 				cancelRender(error instanceof Error ? error : new Error(String(error)));
 			},
 		);
 
 		return () => {
 			cancelled = true;
+			releaseRenderHandle();
 		};
 	}, [countryCode, renderHandle]);
 

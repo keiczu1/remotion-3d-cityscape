@@ -15,7 +15,7 @@
 - Основные источники: `public/final_ranking.json`, `public/final_images/`
 - Заметки по иерархии источников: composition читает данные напрямую из пользовательского JSON, а фотографии - из `public/final_images/`
 - Заметки по конфликтам: flag-layer использует project-local mapping `country -> flagCode`, потому что dataset хранит полные названия стран
-- Какие точки данных еще отсутствуют: часть флагов отсутствует в `public/flags/`, поэтому для library promotion зафиксирован только сам hero/object family, а не dataset-wide flag coverage
+- Какие точки данных еще отсутствуют: отсутствующих country-flag assets для текущего dataset нет; shared `public/flags/` теперь содержит полный world flag pack и единый `svg` baseline
 
 ## Инвентарь ассетов
 
@@ -23,12 +23,12 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | richest-women-dataset | all 93 entries | dataset | `public/final_ranking.json` | - | user-provided | user | selected | high | final | основной JSON для preview и будущего corridor-pass |
 | richest-women-portraits | all 93 entries | image-set | `public/final_images/*.jpg` | - | user-provided | user | selected | high | final | портреты используются как image-first media-slot |
-| shared-flags | countries with local flag assets | image-set | `public/flags/*.png` | - | existing repo assets | ai | selected | medium | final | flag shader опирается на уже существующие flag PNG из репозитория |
+| shared-flags | countries with local flag assets | image-set | `public/flags/*.{png,svg}` | - | existing repo assets + imported world svg pack | ai | selected | high | final | shared flag base покрывает текущий dataset и общий мировой набор country flags; единый runtime baseline идет через `svg`, legacy png сохранены только как исторические assets |
 | review-still-final | entry #16 | review-artifact | `projects/2026-03-30-richest-women/review-artifacts/richest-women-variant-comparison-website-flag-baseline.png` | - | local render | ai | selected | high | final | контрольный still финализированного hero-модуля |
 
 ## Очередь недостающих или заменяемых ассетов
 
-- Для полного corridor-pass стоит добрать недостающие флаги в `public/flags/`, если в production timeline будут показаны страны без локального flag asset
+- Для новых datasets с дополнительными странами нужно только добрасывать новые assets и code mapping, но текущий richest-women snapshot покрыт полностью
 
 ## Заметки
 

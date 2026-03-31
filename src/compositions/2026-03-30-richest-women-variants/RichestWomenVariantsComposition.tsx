@@ -15,7 +15,9 @@ import {
 
 export const durationInFrames = 480;
 
-const sampleEntry = getPreviewEntry(defaultPreviewOrder);
+export type RichestWomenVariantsProps = {
+	previewOrder?: number;
+};
 
 const parseWealthBillions = (wealth: string) => {
 	const matches = Array.from(wealth.matchAll(/(\d+(?:\.\d+)?)/g))
@@ -46,9 +48,10 @@ const getMoneyFromCopy = (entry: RichestWomenEntry) => {
 	return entry.source_detail ?? entry.money_from ?? entry.wealth_source ?? "Not specified";
 };
 
-export const Scene = () => {
+export const Scene = ({previewOrder = defaultPreviewOrder}: RichestWomenVariantsProps) => {
 	const frame = useCurrentFrame();
 	const frameGlow = 0.24 + Math.sin(frame * 0.028) * 0.04;
+	const sampleEntry = getPreviewEntry(previewOrder);
 
 	return (
 		<AbsoluteFill
