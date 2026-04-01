@@ -50,13 +50,13 @@ export const PORTRAIT_BIOGRAPHY_STELE_BASE_WIDTH = 1220;
 export const PORTRAIT_BIOGRAPHY_STELE_BASE_HEIGHT = 1040;
 
 export const portraitBiographySteleDefaultTheme: PortraitBiographySteleTheme = {
-	shell: "linear-gradient(180deg, rgba(12,18,33,0.98) 0%, rgba(22,29,45,0.98) 100%)",
-	secondaryShell: "rgba(96, 165, 250, 0.18)",
-	wealth: "#0EA5E9",
-	text: "#F8FCFF",
-	muted: "#B2C7D9",
-	originBg: "rgba(14, 165, 233, 0.16)",
-	originText: "#7DD3FC",
+	shell: "linear-gradient(180deg, rgba(18, 11, 14, 0.98) 0%, rgba(28, 17, 22, 0.98) 100%)",
+	secondaryShell: "rgba(235, 170, 150, 0.25)",
+	wealth: "#FACC15",
+	text: "#FFF3F3",
+	muted: "#E8C8CD",
+	originBg: "rgba(235, 170, 150, 0.16)",
+	originText: "#FFD4B8",
 	tilt: "perspective(1600px) rotateY(-5deg)",
 };
 
@@ -235,90 +235,113 @@ const ProductionPedestal = ({
 	bodyHeightTarget: number;
 	motion: ReturnType<typeof usePortraitBiographySteleMotion>;
 }) => {
-	const bodyHeight = Math.max(24, Math.round(interpolate(motion.enter, [0, 1], [24, bodyHeightTarget])));
-	const capHeight = 16;
-	const capBottom = bodyHeight - 4;
+	const bodyHeightTargetNum = bodyHeightTarget; // Just to make sure we don't break logic by removing too much
+	const bodyHeight = Math.max(24, Math.round(interpolate(motion.enter, [0, 1], [24, bodyHeightTargetNum])));
+
+	const stoneNoise = (
+		<div
+			style={{
+				position: "absolute",
+				inset: 0,
+				opacity: 0.55,
+				background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='1.5'/%3E%3CfeFuncG type='linear' slope='1.5'/%3E%3CfeFuncB type='linear' slope='1.5'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+				mixBlendMode: "multiply",
+				pointerEvents: "none",
+			}}
+		/>
+	);
 
 	return (
 		<>
+			{/* Ambient ground shadow */}
 			<div
 				style={{
 					position: "absolute",
-					left: 144,
-					bottom: -8,
-					width: 280,
-					height: 38,
-					borderRadius: 999,
-					background: "radial-gradient(circle at 50% 50%, rgba(6,12,24,0.72) 0%, rgba(6,12,24,0.38) 55%, transparent 100%)",
-					filter: "blur(10px)",
-					opacity: 0.9 * motion.opacity,
-					transform: `scale(${0.9 + motion.enter * 0.1})`,
+					left: 130,
+					bottom: -15,
+					width: 300,
+					height: 44,
+					borderRadius: "50%",
+					background: "radial-gradient(ellipse at 50% 50%, rgba(6,10,18,0.88) 0%, rgba(6,10,18,0.4) 40%, transparent 100%)",
+					filter: "blur(6px)",
+					opacity: motion.opacity,
+					transform: `scale(${0.8 + motion.enter * 0.2})`,
 				}}
 			/>
+
 			<div
 				style={{
 					position: "absolute",
-					left: 164,
+					left: 160, // 240 width, centered at 280 -> left: 160
 					bottom: 0,
-					width: 200,
-					height: bodyHeight,
-					background: "linear-gradient(180deg, #05070D 0%, #0A0F18 34%, #060A12 100%)",
-					boxShadow: "0 22px 48px rgba(0,0,0,0.52), 0 0 0 1px rgba(30,41,59,0.78) inset",
+					width: 240, 
+					height: bodyHeight + 15,
 					transform: `translateY(${Math.round((1 - motion.enter) * 90)}px)`,
 					opacity: motion.opacity,
+					filter: "drop-shadow(0px 15px 30px rgba(0,0,0,0.65))",
 				}}
-			/>
-			<div
-				style={{
-					position: "absolute",
-					left: 159,
-					bottom: capBottom,
-					width: 210,
-					height: capHeight,
-					borderRadius: 2,
-					background: "linear-gradient(180deg, rgba(199,245,255,0.94) 0%, rgba(129,225,255,0.86) 48%, rgba(94,193,239,0.72) 100%)",
-					boxShadow: "0 0 22px rgba(88,225,255,0.32), 0 2px 0 rgba(255,255,255,0.32) inset",
-					transform: `translateY(${Math.round((1 - motion.enter) * 80)}px)`,
-					opacity: motion.opacity,
-				}}
-			/>
-			<div
-				style={{
-					position: "absolute",
-					left: 159,
-					bottom: capBottom - 7,
-					width: 210,
-					height: 8,
-					background: "linear-gradient(180deg, rgba(122,214,250,0.92) 0%, rgba(66,136,175,0.66) 100%)",
-					clipPath: "polygon(0 0, 100% 0, 96% 100%, 4% 100%)",
-					opacity: motion.opacity,
-					transform: `translateY(${Math.round((1 - motion.enter) * 80)}px)`,
-				}}
-			/>
-			<div
-				style={{
-					position: "absolute",
-					left: 160,
-					bottom: 0,
-					width: 4,
-					height: bodyHeight,
-					background: "linear-gradient(180deg, rgba(0,229,255,0.78) 0%, rgba(0,229,255,0.18) 100%)",
-					boxShadow: "0 0 12px rgba(0,229,255,0.22)",
-					opacity: 0.75 * motion.opacity,
-				}}
-			/>
-			<div
-				style={{
-					position: "absolute",
-					left: 364,
-					bottom: 0,
-					width: 4,
-					height: bodyHeight,
-					background: "linear-gradient(180deg, rgba(0,229,255,0.78) 0%, rgba(0,229,255,0.18) 100%)",
-					boxShadow: "0 0 12px rgba(0,229,255,0.22)",
-					opacity: 0.75 * motion.opacity,
-				}}
-			/>
+			>
+				{/* FACET 1: Darkest Back/Right jagged slab */}
+				<div
+					style={{
+						position: "absolute",
+						inset: 0,
+						background: "linear-gradient(135deg, #4A4D58 0%, #292B32 100%)",
+						clipPath: "polygon(5% 10%, 82% 0%, 98% 18%, 100% 45%, 94% 80%, 98% 100%, 85% 98%, 15% 100%, 5% 85%, 0% 50%, 5% 20%)",
+					}}
+				>
+					{stoneNoise}
+				</div>
+
+				{/* FACET 2: Mid-Front face (adds thickness) */}
+				<div
+					style={{
+						position: "absolute",
+						inset: 0,
+						background: "linear-gradient(190deg, #6C6E7A 0%, #4D4E56 100%)",
+						clipPath: "polygon(10% 12%, 78% 6%, 88% 22%, 90% 48%, 82% 82%, 88% 97%, 75% 96%, 22% 98%, 12% 82%, 8% 48%, 12% 24%)",
+					}}
+				>
+					{stoneNoise}
+				</div>
+
+				{/* FACET 3: Bright Left-lit face (creates 3D corner) */}
+				<div
+					style={{
+						position: "absolute",
+						inset: 0,
+						background: "linear-gradient(160deg, #9699A6 0%, #686A75 100%)",
+						clipPath: "polygon(10% 12%, 48% 18%, 52% 48%, 45% 78%, 52% 97%, 22% 98%, 12% 82%, 8% 48%, 12% 24%)",
+					}}
+				>
+					{stoneNoise}
+				</div>
+
+				{/* FACET 4: Jagged Top Cap Surface (The flat top of the stone) */}
+				<div
+					style={{
+						position: "absolute",
+						inset: 0,
+						height: 50,
+						background: "linear-gradient(110deg, #AFB1C0 0%, #898A94 100%)",
+						clipPath: "polygon(5% 10%, 82% 0%, 98% 18%, 88% 22%, 48% 18%, 10% 12%)",
+					}}
+				>
+					{stoneNoise}
+				</div>
+
+				{/* Crack details / structural lines in the stone */}
+				<div style={{
+					position: "absolute", left: "62%", top: "30%", width: "3%", height: "45%",
+					background: "linear-gradient(90deg, rgba(0,0,0,0.4), rgba(0,0,0,0))", 
+					transform: "rotate(12deg)", filter: "blur(1px)", clipPath: "polygon(0 0, 100% 15%, 80% 100%, 10% 85%)"
+				}} />
+				<div style={{
+					position: "absolute", left: "45%", top: "65%", width: "2%", height: "35%",
+					background: "linear-gradient(90deg, rgba(0,0,0,0.5), rgba(0,0,0,0))", 
+					transform: "rotate(-18deg)", filter: "blur(1.5px)",
+				}} />
+			</div>
 		</>
 	);
 };
@@ -355,7 +378,7 @@ const InfoSideCard = ({
 				top: 160,
 				width: fixedInfoCardWidth,
 				borderRadius: 26,
-				background: "linear-gradient(180deg, rgba(11,18,34,0.98) 0%, rgba(16,24,41,0.98) 100%)",
+				background: "linear-gradient(180deg, rgba(18,11,14,0.98) 0%, rgba(24,14,18,0.98) 100%)",
 				boxShadow: `0 24px 70px rgba(0,0,0,0.42), 0 0 0 1px ${theme.secondaryShell} inset`,
 				transform: `translateX(${Math.round((1 - motion.copy) * 56)}px) translateY(${Math.round((1 - motion.copy) * 12)}px)`,
 				opacity: motion.copyOpacity,
@@ -369,7 +392,7 @@ const InfoSideCard = ({
 					right: 0,
 					top: 0,
 					height: 4,
-					background: "linear-gradient(90deg, rgba(88,225,255,0.1) 0%, rgba(88,225,255,0.82) 26%, rgba(88,225,255,0.1) 100%)",
+					background: "linear-gradient(90deg, rgba(255,180,120,0.1) 0%, rgba(255,180,120,0.82) 26%, rgba(255,180,120,0.1) 100%)",
 				}}
 			/>
 			<div
@@ -386,7 +409,7 @@ const InfoSideCard = ({
 						textTransform: "uppercase",
 						letterSpacing: "0.12em",
 						fontWeight: 800,
-						color: "rgba(165, 205, 230, 0.74)",
+						color: "rgba(225, 175, 160, 0.74)",
 						marginBottom: 8,
 					}}
 				>
@@ -397,7 +420,7 @@ const InfoSideCard = ({
 						fontSize: contentFontSize,
 						lineHeight: contentLineHeight,
 						fontWeight: 700,
-						color: "#F8FCFF",
+						color: "#FFF5F0",
 						whiteSpace: "pre-line",
 						marginBottom: 18,
 					}}
@@ -417,7 +440,7 @@ const InfoSideCard = ({
 						textTransform: "uppercase",
 						letterSpacing: "0.12em",
 						fontWeight: 800,
-						color: "rgba(165, 205, 230, 0.74)",
+						color: "rgba(225, 175, 160, 0.74)",
 						marginBottom: 12,
 					}}
 				>
@@ -428,7 +451,7 @@ const InfoSideCard = ({
 						fontSize: contentFontSize,
 						lineHeight: contentLineHeight,
 						fontWeight: 600,
-						color: "#EFF6FF",
+						color: "#FFECD9",
 						whiteSpace: "pre-line",
 					}}
 				>
@@ -553,7 +576,7 @@ const PortraitImage = ({
 			borderRadius: radius,
 			opacity,
 			transform: `scale(${scale})`,
-			background: "linear-gradient(180deg, rgba(9,14,24,0.96) 0%, rgba(14,20,34,0.96) 100%)",
+			background: "linear-gradient(180deg, rgba(14,9,11,0.96) 0%, rgba(20,11,14,0.96) 100%)",
 		}}
 	>
 		<Img
@@ -766,7 +789,7 @@ export const PortraitBiographySteleHero = ({
 					height: 790,
 					borderRadius: 36,
 					background: theme.shell,
-					boxShadow: `0 28px 80px rgba(0,0,0,0.55), 0 0 0 1px ${theme.secondaryShell} inset, 0 0 44px rgba(88,225,255,${0.12 + motion.glow * 0.08})`,
+					boxShadow: `0 28px 80px rgba(0,0,0,0.55), 0 0 0 1px ${theme.secondaryShell} inset, 0 0 44px rgba(255,180,120,${0.12 + motion.glow * 0.08})`,
 					transform: `${theme.tilt} translateY(${Math.round(motion.y)}px) scale(${motion.scale})`,
 					opacity: motion.opacity,
 					overflow: "hidden",
@@ -815,7 +838,7 @@ export const PortraitBiographySteleHero = ({
 							left: 16,
 							padding: "8px 14px",
 							borderRadius: 999,
-							background: "rgba(7, 11, 20, 0.72)",
+							background: "rgba(20, 10, 12, 0.72)",
 							color: theme.text,
 							fontSize: 22,
 							fontWeight: 800,

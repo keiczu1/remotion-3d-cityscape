@@ -56,7 +56,7 @@ export const Scene = ({previewOrder = defaultPreviewOrder}: RichestWomenVariants
 	return (
 		<AbsoluteFill
 			style={{
-				background: "linear-gradient(180deg, #08111d 0%, #101b2d 42%, #0a1220 100%)",
+				background: "linear-gradient(180deg, #120A0E 0%, #1C0F15 42%, #140A0F 100%)",
 				overflow: "hidden",
 				fontFamily: "\"Trebuchet MS\", \"Segoe UI\", sans-serif",
 			}}
@@ -65,7 +65,7 @@ export const Scene = ({previewOrder = defaultPreviewOrder}: RichestWomenVariants
 				style={{
 					position: "absolute",
 					inset: -240,
-					background: "radial-gradient(circle at 18% 22%, rgba(95, 214, 255, 0.18) 0%, transparent 28%), radial-gradient(circle at 82% 14%, rgba(255, 214, 138, 0.13) 0%, transparent 24%), radial-gradient(circle at 52% 88%, rgba(56, 189, 248, 0.1) 0%, transparent 30%)",
+					background: "radial-gradient(circle at 18% 22%, rgba(255, 180, 140, 0.15) 0%, transparent 28%), radial-gradient(circle at 82% 14%, rgba(255, 214, 138, 0.13) 0%, transparent 24%), radial-gradient(circle at 52% 88%, rgba(240, 140, 140, 0.1) 0%, transparent 30%)",
 					filter: "blur(20px)",
 					opacity: 0.92,
 				}}
@@ -74,7 +74,7 @@ export const Scene = ({previewOrder = defaultPreviewOrder}: RichestWomenVariants
 				style={{
 					position: "absolute",
 					inset: 0,
-					background: `radial-gradient(circle at 50% 78%, rgba(40, 120, 170, ${0.07 + frameGlow * 0.12}) 0%, transparent 34%)`,
+					background: `radial-gradient(circle at 50% 78%, rgba(180, 100, 70, ${0.07 + frameGlow * 0.12}) 0%, transparent 34%)`,
 				}}
 			/>
 			<div
