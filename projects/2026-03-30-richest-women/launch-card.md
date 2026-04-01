@@ -41,6 +41,7 @@
   - id: `portrait-biography-stele-v1`
   - политика reuse: `implementation-locked`
   - source-of-truth files: `src/lib/ranking-corridor/hero/portrait-biography-stele.tsx`
+  - `2026-04-01 refresh`: library baseline widened the fixed-size right biography-card, increased content typography, removed shell tilt and replaced the flat pedestal treatment with a sculpted stone pedestal rendered through embedded `ThreeCanvas`
   - что считается зафиксированным без пересборки: image-first portrait stele shell, правая biography-card, pedestal + flag assembly и staged shell/media/copy reveal
 - Тип фона:
   - название: Dark premium preview field

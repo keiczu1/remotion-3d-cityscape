@@ -46,7 +46,7 @@ export type PortraitBiographySteleHeroProps = {
 	contentLineHeight?: number;
 };
 
-export const PORTRAIT_BIOGRAPHY_STELE_BASE_WIDTH = 1220;
+export const PORTRAIT_BIOGRAPHY_STELE_BASE_WIDTH = 1380;
 export const PORTRAIT_BIOGRAPHY_STELE_BASE_HEIGHT = 1040;
 
 export const portraitBiographySteleDefaultTheme: PortraitBiographySteleTheme = {
@@ -57,7 +57,7 @@ export const portraitBiographySteleDefaultTheme: PortraitBiographySteleTheme = {
 	muted: "#E8C8CD",
 	originBg: "rgba(235, 170, 150, 0.16)",
 	originText: "#FFD4B8",
-	tilt: "perspective(1600px) rotateY(-5deg)",
+	tilt: "",
 };
 
 const baseCardStyle: CSSProperties = {
@@ -69,7 +69,7 @@ const baseCardStyle: CSSProperties = {
 	alignItems: "center",
 };
 
-const fixedInfoCardWidth = 470;
+const fixedInfoCardWidth = 580;
 
 const titleCase = (value: string) => value
 	.split(" ")
@@ -228,6 +228,150 @@ const usePortraitBiographySteleMotion = (delay: number) => {
 	};
 };
 
+/** Seeded pseudo-random */
+const srand = (s: number) => {
+	const v = Math.sin(s * 127.1 + 311.7) * 43758.5453;
+	return v - Math.floor(v);
+};
+
+/** Creates a tapered stone pillar with natural erosion texture.
+ *  The geometry is based on a high-segment cylinder so it has:
+ *  - No inherent straight vertical seams (enough radial segments)
+ *  - A tapered silhouette (wider base, slightly narrower top)
+ *  - Controlled displacement that never exceeds the canvas bounds
+ */
+const createRockGeometry = (heightScale: number, seed: number) => {
+	// 48 radial segments remove visible straight edges.
+	// 32 height segments give enough vertical resolution for erosion detail.
+	// Top radius < bottom radius = natural tapered stone column.
+	const geo = new THREE.CylinderGeometry(0.7, 1.0, 2.0, 48, 32, true);
+	const pos = geo.attributes.position;
+
+	for (let i = 0; i < pos.count; i++) {
+		let x = pos.getX(i);
+		let y = pos.getY(i);
+		let z = pos.getZ(i);
+
+		// Height in 0..1 range (bottom=0, top=1)
+		const h = (y + 1.0) / 2.0;
+
+		// --- Erosion layers (coordinate-based, NOT vertex-index-based) ---
+		// Large weathering chunks
+		const n1 = srand(Math.floor(x * 3.1 + seed) * 73 + Math.floor(z * 3.1 + seed) * 137 + Math.floor(y * 2.0 + seed) * 59);
+		// Medium cracks and ridges
+		const n2 = srand(Math.floor(x * 7.7 + seed) * 31 + Math.floor(z * 7.7 + seed) * 97 + Math.floor(y * 5.0 + seed) * 43);
+		// Fine surface grit
+		const n3 = srand(i * 17.3 + seed * 3.7);
+
+		// Weighted combination: large features dominant, fine detail subtle
+		const erosion = n1 * 0.12 + n2 * 0.06 + n3 * 0.03;
+
+		// Taper the displacement so bottom stays wider and more stable
+		const taperMult = 0.7 + h * 0.3;
+
+		// Radial direction from center (XZ plane)
+		const r = Math.sqrt(x * x + z * z) || 0.001;
+		const dirX = x / r;
+		const dirZ = z / r;
+
+		// Push vertices inward by erosion amount (carve INTO the stone)
+		x -= dirX * erosion * taperMult;
+		z -= dirZ * erosion * taperMult;
+
+		// Slight vertical wobble for organic feel
+		y += (n1 - 0.5) * 0.04;
+
+		pos.setXYZ(i, x, y * heightScale, z);
+	}
+
+	geo.computeVertexNormals();
+
+	// Add flat cap at the top and bottom so it's not an open cylinder
+	const topCap = new THREE.CircleGeometry(0.7, 48);
+	topCap.rotateX(-Math.PI / 2);
+	topCap.translate(0, 1.0 * heightScale, 0);
+	const bottomCap = new THREE.CircleGeometry(1.0, 48);
+	bottomCap.rotateX(Math.PI / 2);
+	bottomCap.translate(0, -1.0 * heightScale, 0);
+
+	// Merge all parts
+	const merged = new THREE.BufferGeometry();
+	const geos = [geo, topCap, bottomCap];
+	// Manually merge positions and normals
+	let totalVerts = 0;
+	for (const g of geos) totalVerts += g.attributes.position.count;
+	const mergedPos = new Float32Array(totalVerts * 3);
+	const mergedNorm = new Float32Array(totalVerts * 3);
+	let offset = 0;
+	for (const g of geos) {
+		const p = g.attributes.position;
+		const n = g.attributes.normal;
+		for (let j = 0; j < p.count; j++) {
+			mergedPos[offset * 3] = p.getX(j);
+			mergedPos[offset * 3 + 1] = p.getY(j);
+			mergedPos[offset * 3 + 2] = p.getZ(j);
+			mergedNorm[offset * 3] = n.getX(j);
+			mergedNorm[offset * 3 + 1] = n.getY(j);
+			mergedNorm[offset * 3 + 2] = n.getZ(j);
+			offset++;
+		}
+	}
+	// Merge indices
+	let totalIdx = 0;
+	for (const g of geos) totalIdx += (g.index?.count ?? 0);
+	const mergedIdx = new Uint32Array(totalIdx);
+	let idxOffset = 0;
+	let vertOffset = 0;
+	for (const g of geos) {
+		const idx = g.index;
+		if (idx) {
+			for (let j = 0; j < idx.count; j++) {
+				mergedIdx[idxOffset + j] = idx.getX(j) + vertOffset;
+			}
+			idxOffset += idx.count;
+		}
+		vertOffset += g.attributes.position.count;
+	}
+
+	merged.setAttribute("position", new THREE.BufferAttribute(mergedPos, 3));
+	merged.setAttribute("normal", new THREE.BufferAttribute(mergedNorm, 3));
+	merged.setIndex(new THREE.BufferAttribute(mergedIdx, 1));
+	merged.computeVertexNormals();
+
+	return merged;
+};
+
+// Light grey stone material with subtle warm tint
+const stoneMaterial = new THREE.MeshStandardMaterial({
+	color: new THREE.Color("#B8BAC8"),
+	roughness: 0.92,
+	metalness: 0.02,
+	flatShading: true,
+});
+
+const StonePedestalMesh = ({
+	scaleY,
+	seed,
+}: {
+	scaleY: number;
+	seed: number;
+}) => {
+	const geometry = useMemo(
+		() => createRockGeometry(scaleY, seed),
+		[scaleY, seed],
+	);
+
+	return (
+		<mesh geometry={geometry} material={stoneMaterial} position={[0, -0.2, 0]} castShadow receiveShadow />
+	);
+};
+
+// Canvas sized to comfortably contain the rock with breathing room on all sides.
+// The rock maxes out at ~2.0 units wide, camera at z=5 with fov=35 sees ~3.2 units wide,
+// so the rock will never clip.
+const PEDESTAL_CANVAS_WIDTH = 420;
+const PEDESTAL_CANVAS_HEIGHT = 380;
+
 const ProductionPedestal = ({
 	bodyHeightTarget,
 	motion,
@@ -235,114 +379,43 @@ const ProductionPedestal = ({
 	bodyHeightTarget: number;
 	motion: ReturnType<typeof usePortraitBiographySteleMotion>;
 }) => {
-	const bodyHeightTargetNum = bodyHeightTarget; // Just to make sure we don't break logic by removing too much
-	const bodyHeight = Math.max(24, Math.round(interpolate(motion.enter, [0, 1], [24, bodyHeightTargetNum])));
+	const stoneScaleY = interpolate(bodyHeightTarget, [140, 280], [1.0, 1.8]);
+	const animatedScaleY = interpolate(motion.enter, [0, 1], [0.2, stoneScaleY]);
 
-	const stoneNoise = (
+	// Center of glass card = left 78 + width 404/2 = 280
+	// Canvas center = left + width/2, so left = 280 - 420/2 = 70
+	const canvasLeft = 70;
+
+	return (
 		<div
 			style={{
 				position: "absolute",
-				inset: 0,
-				opacity: 0.55,
-				background: `url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='1.5'/%3E%3CfeFuncG type='linear' slope='1.5'/%3E%3CfeFuncB type='linear' slope='1.5'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-				mixBlendMode: "multiply",
-				pointerEvents: "none",
+				left: canvasLeft,
+				bottom: -60,
+				width: PEDESTAL_CANVAS_WIDTH,
+				height: PEDESTAL_CANVAS_HEIGHT,
+				transform: `translateY(${Math.round((1 - motion.enter) * 60)}px)`,
+				opacity: motion.opacity,
+				filter: "drop-shadow(0px 12px 24px rgba(0,0,0,0.55))",
 			}}
-		/>
-	);
-
-	return (
-		<>
-			{/* Ambient ground shadow */}
-			<div
-				style={{
-					position: "absolute",
-					left: 130,
-					bottom: -15,
-					width: 300,
-					height: 44,
-					borderRadius: "50%",
-					background: "radial-gradient(ellipse at 50% 50%, rgba(6,10,18,0.88) 0%, rgba(6,10,18,0.4) 40%, transparent 100%)",
-					filter: "blur(6px)",
-					opacity: motion.opacity,
-					transform: `scale(${0.8 + motion.enter * 0.2})`,
-				}}
-			/>
-
-			<div
-				style={{
-					position: "absolute",
-					left: 160, // 240 width, centered at 280 -> left: 160
-					bottom: 0,
-					width: 240, 
-					height: bodyHeight + 15,
-					transform: `translateY(${Math.round((1 - motion.enter) * 90)}px)`,
-					opacity: motion.opacity,
-					filter: "drop-shadow(0px 15px 30px rgba(0,0,0,0.65))",
-				}}
+		>
+			<ThreeCanvas
+				width={PEDESTAL_CANVAS_WIDTH}
+				height={PEDESTAL_CANVAS_HEIGHT}
+				camera={{position: [0, 1.0, 5.0], fov: 35, near: 0.1, far: 100}}
+				style={{width: "100%", height: "100%"}}
 			>
-				{/* FACET 1: Darkest Back/Right jagged slab */}
-				<div
-					style={{
-						position: "absolute",
-						inset: 0,
-						background: "linear-gradient(135deg, #4A4D58 0%, #292B32 100%)",
-						clipPath: "polygon(5% 10%, 82% 0%, 98% 18%, 100% 45%, 94% 80%, 98% 100%, 85% 98%, 15% 100%, 5% 85%, 0% 50%, 5% 20%)",
-					}}
-				>
-					{stoneNoise}
-				</div>
+				<ambientLight intensity={0.85} color="#dde4f0" />
+				<directionalLight position={[3, 5, 4]} intensity={1.6} color="#fff5ec" castShadow />
+				<directionalLight position={[-3, 2, 2]} intensity={0.7} color="#b0b8d0" />
+				<pointLight position={[-2, 0.5, -2]} intensity={2.0} distance={8} color="#ffc080" />
+				<pointLight position={[2, -0.5, -1.5]} intensity={1.5} distance={8} color="#88aaee" />
 
-				{/* FACET 2: Mid-Front face (adds thickness) */}
-				<div
-					style={{
-						position: "absolute",
-						inset: 0,
-						background: "linear-gradient(190deg, #6C6E7A 0%, #4D4E56 100%)",
-						clipPath: "polygon(10% 12%, 78% 6%, 88% 22%, 90% 48%, 82% 82%, 88% 97%, 75% 96%, 22% 98%, 12% 82%, 8% 48%, 12% 24%)",
-					}}
-				>
-					{stoneNoise}
-				</div>
-
-				{/* FACET 3: Bright Left-lit face (creates 3D corner) */}
-				<div
-					style={{
-						position: "absolute",
-						inset: 0,
-						background: "linear-gradient(160deg, #9699A6 0%, #686A75 100%)",
-						clipPath: "polygon(10% 12%, 48% 18%, 52% 48%, 45% 78%, 52% 97%, 22% 98%, 12% 82%, 8% 48%, 12% 24%)",
-					}}
-				>
-					{stoneNoise}
-				</div>
-
-				{/* FACET 4: Jagged Top Cap Surface (The flat top of the stone) */}
-				<div
-					style={{
-						position: "absolute",
-						inset: 0,
-						height: 50,
-						background: "linear-gradient(110deg, #AFB1C0 0%, #898A94 100%)",
-						clipPath: "polygon(5% 10%, 82% 0%, 98% 18%, 88% 22%, 48% 18%, 10% 12%)",
-					}}
-				>
-					{stoneNoise}
-				</div>
-
-				{/* Crack details / structural lines in the stone */}
-				<div style={{
-					position: "absolute", left: "62%", top: "30%", width: "3%", height: "45%",
-					background: "linear-gradient(90deg, rgba(0,0,0,0.4), rgba(0,0,0,0))", 
-					transform: "rotate(12deg)", filter: "blur(1px)", clipPath: "polygon(0 0, 100% 15%, 80% 100%, 10% 85%)"
-				}} />
-				<div style={{
-					position: "absolute", left: "45%", top: "65%", width: "2%", height: "35%",
-					background: "linear-gradient(90deg, rgba(0,0,0,0.5), rgba(0,0,0,0))", 
-					transform: "rotate(-18deg)", filter: "blur(1.5px)",
-				}} />
-			</div>
-		</>
+				<group rotation={[0, -0.12, 0]}>
+					<StonePedestalMesh scaleY={animatedScaleY} seed={212} />
+				</group>
+			</ThreeCanvas>
+		</div>
 	);
 };
 
@@ -374,10 +447,10 @@ const InfoSideCard = ({
 		<div
 			style={{
 				position: "absolute",
-				left: 488,
-				top: 160,
+				left: 510,
+				top: 100,
 				width: fixedInfoCardWidth,
-				borderRadius: 26,
+				borderRadius: 44,
 				background: "linear-gradient(180deg, rgba(18,11,14,0.98) 0%, rgba(24,14,18,0.98) 100%)",
 				boxShadow: `0 24px 70px rgba(0,0,0,0.42), 0 0 0 1px ${theme.secondaryShell} inset`,
 				transform: `translateX(${Math.round((1 - motion.copy) * 56)}px) translateY(${Math.round((1 - motion.copy) * 12)}px)`,
@@ -391,13 +464,13 @@ const InfoSideCard = ({
 					left: 0,
 					right: 0,
 					top: 0,
-					height: 4,
+					height: 6,
 					background: "linear-gradient(90deg, rgba(255,180,120,0.1) 0%, rgba(255,180,120,0.82) 26%, rgba(255,180,120,0.1) 100%)",
 				}}
 			/>
 			<div
 				style={{
-					padding: "26px 28px 24px",
+					padding: "44px 48px 40px",
 					display: "flex",
 					flexDirection: "column",
 					boxSizing: "border-box",
@@ -410,7 +483,7 @@ const InfoSideCard = ({
 						letterSpacing: "0.12em",
 						fontWeight: 800,
 						color: "rgba(225, 175, 160, 0.74)",
-						marginBottom: 8,
+						marginBottom: 14,
 					}}
 				>
 					Money From
@@ -422,7 +495,7 @@ const InfoSideCard = ({
 						fontWeight: 700,
 						color: "#FFF5F0",
 						whiteSpace: "pre-line",
-						marginBottom: 18,
+						marginBottom: 30,
 					}}
 				>
 					{moneyFromLines}
@@ -431,17 +504,17 @@ const InfoSideCard = ({
 					style={{
 						height: 1,
 						background: "linear-gradient(90deg, rgba(148,163,184,0.08) 0%, rgba(148,163,184,0.42) 18%, rgba(148,163,184,0.08) 100%)",
-						marginBottom: 18,
+						marginBottom: 30,
 					}}
 				/>
 				<div
 					style={{
-						fontSize: 13,
+						fontSize: 22,
 						textTransform: "uppercase",
 						letterSpacing: "0.12em",
 						fontWeight: 800,
 						color: "rgba(225, 175, 160, 0.74)",
-						marginBottom: 12,
+						marginBottom: 20,
 					}}
 				>
 					Key Fact
@@ -761,8 +834,8 @@ export const PortraitBiographySteleHero = ({
 	theme = portraitBiographySteleDefaultTheme,
 	moneyFromMaxLines = 6,
 	factMaxLines = 8,
-	contentFontSize = 22,
-	contentLineHeight = 1.18,
+	contentFontSize = 28,
+	contentLineHeight = 1.22,
 }: PortraitBiographySteleHeroProps) => {
 	const motion = usePortraitBiographySteleMotion(delay);
 
@@ -771,15 +844,15 @@ export const PortraitBiographySteleHero = ({
 			<ProductionPedestal bodyHeightTarget={pedestalBodyHeight} motion={motion} />
 			<InfoSideCard
 				moneyFrom={moneyFrom}
-				fact={fact}
-				theme={theme}
-				motion={motion}
-				moneyFromMaxLines={moneyFromMaxLines}
-				factMaxLines={factMaxLines}
-				contentFontSize={contentFontSize}
-				contentLineHeight={contentLineHeight}
+					fact={fact}
+					theme={theme}
+					motion={motion}
+					moneyFromMaxLines={moneyFromMaxLines}
+					factMaxLines={factMaxLines}
+					contentFontSize={contentFontSize}
+					contentLineHeight={contentLineHeight}
 			/>
-			<FlagMast flagCode={flagCode} delay={delay} />
+				<FlagMast flagCode={flagCode} delay={delay} />
 			<div
 				style={{
 					position: "absolute",

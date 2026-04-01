@@ -25,6 +25,7 @@
 | richest-women-portraits | all 93 entries | image-set | `public/final_images/*.jpg` | - | user-provided | user | selected | high | final | портреты используются как image-first media-slot |
 | shared-flags | countries with local flag assets | image-set | `public/flags/*.{png,svg}` | - | existing repo assets + imported world svg pack | ai | selected | high | final | shared flag base покрывает текущий dataset и общий мировой набор country flags; единый runtime baseline идет через `svg`, legacy png сохранены только как исторические assets |
 | review-still-final | entry #16 | review-artifact | `projects/2026-03-30-richest-women/review-artifacts/richest-women-variant-comparison-website-flag-baseline.png` | - | local render | ai | selected | high | final | контрольный still финализированного hero-модуля |
+| review-still-refresh-2026-04-01 | entry #16 | review-artifact | `projects/2026-03-30-richest-women/review-artifacts/richest-women-variant-comparison-website-flag-baseline.png` | - | local render | ai | selected | high | final | still обновлен после user-refresh library hero: widened right card, larger content typography, front-facing shell и sculpted stone pedestal |
 
 ## Очередь недостающих или заменяемых ассетов
 
@@ -34,3 +35,4 @@
 
 - Этот manifest относится к hero-finalization pass, а не к полному corridor production package
 - Library promotion не потребовал новых медиа-ассетов: в reusable-слой вынесен только код hero/object family
+- `2026-04-01 refresh`: визуальный контракт library hero изменился на уровне layout/code, но не потребовал новых внешних ассетов; обновлен только контрольный still того же preview-container

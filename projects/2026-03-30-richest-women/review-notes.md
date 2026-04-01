@@ -21,6 +21,7 @@
 
 - Цикл review: 1
 - Пакет предпросмотра: композиция `RichestWomenVariantComparison`, финальный single-hero preview на entry `#16 Marguerite Harbert`, контрольный still `projects/2026-03-30-richest-women/review-artifacts/richest-women-variant-comparison-website-flag-baseline.png`
+- `2026-04-01 refresh`: контрольный still подтверждает user-updated library baseline с более широкой правой biography-card, увеличенной типографикой контента, фронтальной shell-посадкой и sculpted stone pedestal
 - Решение: `approve`
 - Проверенный охват: hero-module, portrait-slot, typography, right biography-card, flag/pole grammar, value-driven pedestal
 - Что подтверждено: фото не кропается по высоте, имя переносится в 2 строки, biography-card адаптируется по контенту, флаг сидит в grammar `most-visited-websites`, визуальный шум убран
