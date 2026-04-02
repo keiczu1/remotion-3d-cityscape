@@ -44,6 +44,11 @@ export type PortraitBiographySteleHeroProps = {
 	factMaxLines?: number;
 	contentFontSize?: number;
 	contentLineHeight?: number;
+	frame?: number;
+	fps?: number;
+	showPedestal?: boolean;
+	showFlagMast?: boolean;
+	showInfoSideCard?: boolean;
 };
 
 export const PORTRAIT_BIOGRAPHY_STELE_BASE_WIDTH = 1380;
@@ -137,6 +142,71 @@ export const wrapPortraitBiographySteleLines = (text: string, maxChars: number, 
 	}
 
 	const words = normalized.split(/\s+/).filter(Boolean);
+
+	const buildBalancedLines = () => {
+		const memo = new Map<string, {score: number; lines: string[]} | null>();
+
+		const solve = (wordIndex: number, linesUsed: number): {score: number; lines: string[]} | null => {
+			const key = `${wordIndex}:${linesUsed}`;
+			const cached = memo.get(key);
+			if (cached !== undefined) {
+				return cached;
+			}
+
+			if (wordIndex >= words.length) {
+				const done = {score: 0, lines: []};
+				memo.set(key, done);
+				return done;
+			}
+
+			if (linesUsed >= maxLines) {
+				memo.set(key, null);
+				return null;
+			}
+
+			let best: {score: number; lines: string[]} | null = null;
+			let currentLine = "";
+
+			for (let nextIndex = wordIndex; nextIndex < words.length; nextIndex += 1) {
+				currentLine = currentLine ? `${currentLine} ${words[nextIndex]}` : words[nextIndex];
+				if (currentLine.length > maxChars) {
+					break;
+				}
+
+				const lineWordsCount = nextIndex - wordIndex + 1;
+				const isLastLine = nextIndex === words.length - 1;
+				const remainingChars = maxChars - currentLine.length;
+				const raggednessPenalty = isLastLine ? remainingChars * remainingChars * 0.18 : remainingChars * remainingChars;
+				const singleWordPenalty = !isLastLine && lineWordsCount === 1 ? 420 : 0;
+				const shortLastLinePenalty = isLastLine && lineWordsCount === 1 && currentLine.length < Math.max(8, Math.floor(maxChars * 0.42)) ? 240 : 0;
+				const localScore = raggednessPenalty + singleWordPenalty + shortLastLinePenalty;
+				const rest = solve(nextIndex + 1, linesUsed + 1);
+
+				if (!rest) {
+					continue;
+				}
+
+				const totalScore = localScore + rest.score;
+				if (!best || totalScore < best.score) {
+					best = {
+						score: totalScore,
+						lines: [currentLine, ...rest.lines],
+					};
+				}
+			}
+
+			memo.set(key, best);
+			return best;
+		};
+
+		return solve(0, 0)?.lines ?? null;
+	};
+
+	const balancedLines = buildBalancedLines();
+	if (balancedLines && balancedLines.length <= maxLines) {
+		return balancedLines;
+	}
+
 	const lines: string[] = [];
 	let current = "";
 	let truncated = false;
@@ -180,9 +250,15 @@ export const wrapPortraitBiographySteleLines = (text: string, maxChars: number, 
 	return lines.slice(0, maxLines);
 };
 
-const usePortraitBiographySteleMotion = (delay: number) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
+const getPortraitBiographySteleMotion = ({
+	frame,
+	fps,
+	delay,
+}: {
+	frame: number;
+	fps: number;
+	delay: number;
+}) => {
 	const animatedFrame = Math.max(0, frame - delay);
 	const enter = spring({
 		fps,
@@ -227,6 +303,8 @@ const usePortraitBiographySteleMotion = (delay: number) => {
 		glow: 0.55 + Math.sin(frame * 0.055 + delay * 0.12) * 0.08,
 	};
 };
+
+type PortraitBiographySteleMotion = ReturnType<typeof getPortraitBiographySteleMotion>;
 
 /** Seeded pseudo-random */
 const srand = (s: number) => {
@@ -377,7 +455,7 @@ const ProductionPedestal = ({
 	motion,
 }: {
 	bodyHeightTarget: number;
-	motion: ReturnType<typeof usePortraitBiographySteleMotion>;
+	motion: PortraitBiographySteleMotion;
 }) => {
 	const stoneScaleY = interpolate(bodyHeightTarget, [140, 280], [1.0, 1.8]);
 	const animatedScaleY = interpolate(motion.enter, [0, 1], [0.2, stoneScaleY]);
@@ -424,24 +502,18 @@ const InfoSideCard = ({
 	fact,
 	theme,
 	motion,
-	moneyFromMaxLines,
-	factMaxLines,
 	contentFontSize,
 	contentLineHeight,
 }: {
 	moneyFrom: string;
 	fact: string;
 	theme: PortraitBiographySteleTheme;
-	motion: ReturnType<typeof usePortraitBiographySteleMotion>;
-	moneyFromMaxLines: number;
-	factMaxLines: number;
+	motion: PortraitBiographySteleMotion;
 	contentFontSize: number;
 	contentLineHeight: number;
 }) => {
-	const moneyFromWrapped = wrapPortraitBiographySteleLines(moneyFrom, 34, moneyFromMaxLines);
-	const factWrapped = wrapPortraitBiographySteleLines(fact, 40, factMaxLines);
-	const moneyFromLines = moneyFromWrapped.join("\n");
-	const factLines = factWrapped.join("\n");
+	const normalizedMoneyFrom = moneyFrom.trim().replace(/\s+/g, " ");
+	const normalizedFact = fact.trim().replace(/\s+/g, " ");
 
 	return (
 		<div
@@ -494,11 +566,13 @@ const InfoSideCard = ({
 						lineHeight: contentLineHeight,
 						fontWeight: 700,
 						color: "#FFF5F0",
-						whiteSpace: "pre-line",
+						whiteSpace: "normal",
+						textWrap: "pretty",
+						overflowWrap: "break-word",
 						marginBottom: 30,
 					}}
 				>
-					{moneyFromLines}
+					{normalizedMoneyFrom}
 				</div>
 				<div
 					style={{
@@ -525,10 +599,12 @@ const InfoSideCard = ({
 						lineHeight: contentLineHeight,
 						fontWeight: 600,
 						color: "#FFECD9",
-						whiteSpace: "pre-line",
+						whiteSpace: "normal",
+						textWrap: "pretty",
+						overflowWrap: "break-word",
 					}}
 				>
-					{factLines}
+					{normalizedFact}
 				</div>
 			</div>
 		</div>
@@ -538,12 +614,14 @@ const InfoSideCard = ({
 const FlagMast = ({
 	flagCode,
 	delay,
+	frame,
+	fps,
 }: {
 	flagCode?: string | null;
 	delay: number;
+	frame: number;
+	fps: number;
 }) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
 	const rise = spring({
 		fps,
 		frame: Math.max(0, frame - (delay + 10)),
@@ -624,7 +702,7 @@ const FlagMast = ({
 					opacity: clothReveal,
 				}}
 			>
-				<AnimatedFlagCloth countryCode={flagCode} width={clothWidth} height={clothHeight} />
+				<AnimatedFlagCloth countryCode={flagCode} width={clothWidth} height={clothHeight} frame={frame} />
 			</div>
 		</div>
 	);
@@ -665,7 +743,7 @@ const PortraitImage = ({
 	</div>
 );
 
-const shimmerOverlay = (motion: ReturnType<typeof usePortraitBiographySteleMotion>) => (
+const shimmerOverlay = (motion: PortraitBiographySteleMotion) => (
 	<div
 		style={{
 			position: "absolute",
@@ -713,14 +791,15 @@ const AnimatedFlagCloth = ({
 	countryCode,
 	width,
 	height,
+	frame,
 }: {
 	countryCode: string;
 	width: number;
 	height: number;
+	frame: number;
 }) => {
 	const [texture, setTexture] = useState<THREE.Texture | null>(null);
 	const [renderHandle] = useState(() => delayRender("Loading portrait biography stele flag texture"));
-	const frame = useCurrentFrame();
 
 	useEffect(() => {
 		let cancelled = false;
@@ -818,7 +897,7 @@ const AnimatedFlagCloth = ({
 	);
 };
 
-export const PortraitBiographySteleHero = ({
+const PortraitBiographySteleHeroBase = ({
 	photoSrc,
 	flagCode = null,
 	order,
@@ -832,27 +911,37 @@ export const PortraitBiographySteleHero = ({
 	pedestalBodyHeight = 170,
 	delay = 0,
 	theme = portraitBiographySteleDefaultTheme,
-	moneyFromMaxLines = 6,
-	factMaxLines = 8,
 	contentFontSize = 28,
 	contentLineHeight = 1.22,
-}: PortraitBiographySteleHeroProps) => {
-	const motion = usePortraitBiographySteleMotion(delay);
+	frame,
+	fps,
+	showPedestal = true,
+	showFlagMast = true,
+	showInfoSideCard = true,
+}: PortraitBiographySteleHeroProps & {
+	frame: number;
+	fps: number;
+}) => {
+	const motion = getPortraitBiographySteleMotion({
+		frame,
+		fps,
+		delay,
+	});
 
 	return (
 		<div style={baseCardStyle}>
-			<ProductionPedestal bodyHeightTarget={pedestalBodyHeight} motion={motion} />
-			<InfoSideCard
-				moneyFrom={moneyFrom}
+			{showPedestal ? <ProductionPedestal bodyHeightTarget={pedestalBodyHeight} motion={motion} /> : null}
+			{showInfoSideCard ? (
+				<InfoSideCard
+					moneyFrom={moneyFrom}
 					fact={fact}
 					theme={theme}
 					motion={motion}
-					moneyFromMaxLines={moneyFromMaxLines}
-					factMaxLines={factMaxLines}
 					contentFontSize={contentFontSize}
 					contentLineHeight={contentLineHeight}
-			/>
-				<FlagMast flagCode={flagCode} delay={delay} />
+				/>
+			) : null}
+			{showFlagMast ? <FlagMast flagCode={flagCode} delay={delay} frame={frame} fps={fps} /> : null}
 			<div
 				style={{
 					position: "absolute",
@@ -983,4 +1072,19 @@ export const PortraitBiographySteleHero = ({
 			</div>
 		</div>
 	);
+};
+
+const PortraitBiographySteleHeroWithHooks = (props: PortraitBiographySteleHeroProps) => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+
+	return <PortraitBiographySteleHeroBase {...props} frame={frame} fps={fps} />;
+};
+
+export const PortraitBiographySteleHero = (props: PortraitBiographySteleHeroProps) => {
+	if (typeof props.frame === "number" && typeof props.fps === "number") {
+		return <PortraitBiographySteleHeroBase {...props} frame={props.frame} fps={props.fps} />;
+	}
+
+	return <PortraitBiographySteleHeroWithHooks {...props} />;
 };

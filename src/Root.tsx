@@ -8,6 +8,10 @@ import {
   durationInFrames as richestWomenVariantsDuration,
   type RichestWomenVariantsProps,
 } from "./compositions/2026-03-30-richest-women-variants";
+import {
+  Scene as RichestWomenCorridorScene,
+  durationInFrames as richestWomenCorridorDuration,
+} from "./compositions/2026-03-30-richest-women";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -46,6 +50,14 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           previewOrder: 16,
         } satisfies RichestWomenVariantsProps}
+      />
+      <Composition
+        id="RichestWomenCorridor"
+        component={RichestWomenCorridorScene}
+        durationInFrames={richestWomenCorridorDuration}
+        fps={60}
+        width={1920}
+        height={1080}
       />
     </>
   );
