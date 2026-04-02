@@ -91,13 +91,8 @@ export const milestones = getMilestones();
 export const baseDurationInFrames = timingPlan.baseDurationInFrames;
 export const sequenceCompleteFrame = timingPlan.sequenceCompleteFrame;
 export const FINAL_CAMERA_SLOWDOWN_FACTOR = timingPlan.finalCameraSlowdownFactor;
-const FINAL_CINEMATIC_TAIL_FRAMES = Math.max(0, baseDurationInFrames - sequenceCompleteFrame);
-export const FINAL_CAMERA_SLOWDOWN_START_FRAME =
-    FINAL_CINEMATIC_TAIL_FRAMES > 0 ? sequenceCompleteFrame : baseDurationInFrames;
-export const durationInFrames =
-    FINAL_CINEMATIC_TAIL_FRAMES > 0
-        ? FINAL_CAMERA_SLOWDOWN_START_FRAME + FINAL_CINEMATIC_TAIL_FRAMES * FINAL_CAMERA_SLOWDOWN_FACTOR
-        : timingPlan.durationInFrames;
+export const FINAL_CAMERA_SLOWDOWN_START_FRAME = sequenceCompleteFrame;
+export const durationInFrames = sequenceCompleteFrame;
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const mix = (from: number, to: number, progress: number) => from + (to - from) * progress;

@@ -387,7 +387,6 @@ export const FocusedBiographyOverlay = ({
                 const left = projectedBottomX - BIO_STELE_SHELL_BOTTOM_CENTER_X_PX * scale;
                 const top = projectedBottomY - BIO_STELE_SHELL_BOTTOM_CENTER_Y_PX * scale;
                 const shouldShowInfoSideCard = isCurrentFocus && overlayProgress >= SIDEBAR_VISIBILITY_GATE;
-                const shouldIsolateSideCardOpacity = isCurrentFocus && shouldShowInfoSideCard;
                 const focusVisibleInViewport = isOverlayVisibleInViewport(presentationState);
                 const shouldFreezeCurrentHeroFrame =
                     isCurrentFocus &&
@@ -398,6 +397,7 @@ export const FocusedBiographyOverlay = ({
                     !isCurrentFocus || focusVisibleInViewport ? revealProgress : 0,
                     isCurrentFocus ? overlayProgress : 0,
                 );
+                const visualOpacity = isCurrentFocus ? 1 : overlayOpacity;
 
                 if (shouldFreezeCurrentHeroFrame && !settledHeroFrameRef.current.has(index)) {
                     settledHeroFrameRef.current.set(index, frame);
@@ -411,7 +411,7 @@ export const FocusedBiographyOverlay = ({
                     ? settledHeroFrameRef.current.get(index) ?? frame
                     : frozenHeroFrameRef.current.get(index) ?? frame;
 
-                if (overlayOpacity <= 0.001) {
+                if (visualOpacity <= 0.001) {
                     return null;
                 }
 
@@ -424,7 +424,7 @@ export const FocusedBiographyOverlay = ({
                             top,
                             width: PORTRAIT_BIOGRAPHY_STELE_BASE_WIDTH * scale,
                             height: PORTRAIT_BIOGRAPHY_STELE_BASE_HEIGHT * scale,
-                            opacity: shouldIsolateSideCardOpacity ? 1 : overlayOpacity,
+                            opacity: visualOpacity,
                             transform: `translateZ(0)`,
                             willChange: "transform, opacity",
                             contain: "layout paint style",
@@ -457,7 +457,8 @@ export const FocusedBiographyOverlay = ({
                                 showPedestal={false}
                                 showFlagMast={false}
                                 showInfoSideCard={shouldShowInfoSideCard}
-                                shellOpacityMultiplier={shouldIsolateSideCardOpacity ? overlayOpacity : 1}
+                                shellOpacityMultiplier={1}
+                                preserveEntranceColors={isCurrentFocus}
                             />
                         </div>
                     </div>

@@ -50,6 +50,7 @@ export type PortraitBiographySteleHeroProps = {
 	showFlagMast?: boolean;
 	showInfoSideCard?: boolean;
 	shellOpacityMultiplier?: number;
+	preserveEntranceColors?: boolean;
 };
 
 export const PORTRAIT_BIOGRAPHY_STELE_BASE_WIDTH = 1380;
@@ -505,6 +506,7 @@ const InfoSideCard = ({
 	motion,
 	contentFontSize,
 	contentLineHeight,
+	contentOpacity,
 }: {
 	moneyFrom: string;
 	fact: string;
@@ -512,6 +514,7 @@ const InfoSideCard = ({
 	motion: PortraitBiographySteleMotion;
 	contentFontSize: number;
 	contentLineHeight: number;
+	contentOpacity: number;
 }) => {
 	const normalizedMoneyFrom = moneyFrom.trim().replace(/\s+/g, " ");
 	const normalizedFact = fact.trim().replace(/\s+/g, " ");
@@ -548,7 +551,7 @@ const InfoSideCard = ({
 					flexDirection: "column",
 					boxSizing: "border-box",
 					transform: `translateX(${contentTranslateX}px) translateY(${contentTranslateY}px)`,
-					opacity: motion.copyOpacity,
+					opacity: contentOpacity,
 				}}
 			>
 				<div
@@ -922,6 +925,7 @@ const PortraitBiographySteleHeroBase = ({
 	showFlagMast = true,
 	showInfoSideCard = true,
 	shellOpacityMultiplier = 1,
+	preserveEntranceColors = false,
 }: PortraitBiographySteleHeroProps & {
 	frame: number;
 	fps: number;
@@ -931,6 +935,9 @@ const PortraitBiographySteleHeroBase = ({
 		fps,
 		delay,
 	});
+	const shellOpacity = preserveEntranceColors ? shellOpacityMultiplier : motion.opacity * shellOpacityMultiplier;
+	const mediaOpacity = preserveEntranceColors ? 1 : motion.media;
+	const copyOpacity = preserveEntranceColors ? 1 : motion.copyOpacity;
 
 	return (
 		<div style={baseCardStyle}>
@@ -943,6 +950,7 @@ const PortraitBiographySteleHeroBase = ({
 					motion={motion}
 					contentFontSize={contentFontSize}
 					contentLineHeight={contentLineHeight}
+					contentOpacity={copyOpacity}
 				/>
 			) : null}
 			{showFlagMast ? <FlagMast flagCode={flagCode} delay={delay} frame={frame} fps={fps} /> : null}
@@ -957,7 +965,7 @@ const PortraitBiographySteleHeroBase = ({
 					background: theme.shell,
 					boxShadow: `0 28px 80px rgba(0,0,0,0.55), 0 0 0 1px ${theme.secondaryShell} inset, 0 0 44px rgba(255,180,120,${0.12 + motion.glow * 0.08})`,
 					transform: `${theme.tilt} translateY(${Math.round(motion.y)}px) scale(${motion.scale})`,
-					opacity: motion.opacity * shellOpacityMultiplier,
+					opacity: shellOpacity,
 					overflow: "hidden",
 				}}
 			>
@@ -985,7 +993,7 @@ const PortraitBiographySteleHeroBase = ({
 				>
 					<PortraitImage
 						src={photoSrc}
-						opacity={motion.media}
+						opacity={mediaOpacity}
 						scale={motion.mediaScale}
 						radius={28}
 					/>
@@ -1024,7 +1032,7 @@ const PortraitBiographySteleHeroBase = ({
 						flexDirection: "column",
 						gap: 8,
 						transform: `translateY(${Math.round(motion.copyY)}px)`,
-						opacity: motion.copyOpacity,
+						opacity: copyOpacity,
 					}}
 				>
 					<div
