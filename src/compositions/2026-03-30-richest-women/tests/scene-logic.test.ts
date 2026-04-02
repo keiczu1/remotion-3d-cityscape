@@ -15,7 +15,7 @@ test("main-pass timing keeps short cuts and readable four-second holds", () => {
     const current = milestones[1];
     const previous = milestones[0];
 
-    assert.equal(current.arriveFrame - previous.leaveFrame, 72);
+    assert.equal(current.arriveFrame - previous.leaveFrame, 108);
     assert.equal(current.leaveFrame - current.arriveFrame, 240);
 });
 
