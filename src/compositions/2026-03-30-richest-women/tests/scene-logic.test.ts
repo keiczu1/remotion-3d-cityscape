@@ -15,7 +15,7 @@ test("main-pass timing keeps short cuts and readable four-second holds", () => {
     const current = milestones[1];
     const previous = milestones[0];
 
-    assert.equal(current.arriveFrame - previous.leaveFrame, 36);
+    assert.equal(current.arriveFrame - previous.leaveFrame, 72);
     assert.equal(current.leaveFrame - current.arriveFrame, 240);
 });
 
@@ -29,11 +29,11 @@ test("focus stays on the current stele during the rail move and switches on arri
     assert.equal(getFocusedSteleIndex(next.arriveFrame), next.index);
 });
 
-test("camera holds on one stele and only drifts in a gentle orbit during the readable window", () => {
+test("camera holds on one stele with a stable rightward rail drift and fixed depth", () => {
     const target = milestones[10];
-    const earlyFrame = target.arriveFrame + 60;
-    const midFrame = target.arriveFrame + 120;
-    const lateFrame = target.arriveFrame + 180;
+    const earlyFrame = target.arriveFrame + 90;
+    const midFrame = target.arriveFrame + 150;
+    const lateFrame = target.arriveFrame + 210;
 
     const earlyState = getCameraState(earlyFrame);
     const midState = getCameraState(midFrame);
@@ -47,19 +47,21 @@ test("camera holds on one stele and only drifts in a gentle orbit during the rea
     assert.equal(getFocusedSteleIndex(midFrame), target.index);
     assert.equal(getFocusedSteleIndex(lateFrame), target.index);
     assert.ok(Math.abs(earlyState.lookX - target.xCenter) <= 0.6);
-    assert.ok(Math.abs(midState.lookX - target.xCenter) <= 0.4);
-    assert.ok(Math.abs(lateState.lookX - target.xCenter) <= 0.4);
+    assert.ok(Math.abs(midState.lookX - target.xCenter) <= 0.5);
+    assert.ok(Math.abs(lateState.lookX - target.xCenter) <= 0.5);
+    assert.ok(earlyState.camX < midState.camX);
+    assert.ok(midState.camX < lateState.camX);
     assert.ok(camXSpan >= 0.4 && camXSpan <= 3);
-    assert.ok(camZSpan >= 0.3 && camZSpan <= 1.5);
+    assert.ok(camZSpan <= 0.2);
 });
 
-test("camera performs a short rail move before arrival and then settles into the hold orbit", () => {
+test("camera performs a short rail move before arrival and then keeps moving right after arrival", () => {
     const target = milestones[10];
     const previous = milestones[9];
     const approachFrame = previous.leaveFrame + 6;
     const midRailFrame = previous.leaveFrame + 18;
     const revealFrame = target.arriveFrame;
-    const settledFrame = target.arriveFrame + 42;
+    const settledFrame = target.arriveFrame + 90;
 
     const approachState = getCameraState(approachFrame);
     const midRailState = getCameraState(midRailFrame);
@@ -71,10 +73,8 @@ test("camera performs a short rail move before arrival and then settles into the
     assert.equal(getFocusedSteleIndex(revealFrame), target.index);
     assert.ok(approachState.camX < midRailState.camX);
     assert.ok(midRailState.camX < revealState.camX);
-    assert.ok(settledState.camX < revealState.camX);
-    assert.ok(approachState.camZOffset < midRailState.camZOffset);
-    assert.ok(midRailState.camZOffset < revealState.camZOffset);
-    assert.ok(settledState.camZOffset < revealState.camZOffset);
+    assert.ok(revealState.camX < settledState.camX);
+    assert.ok(Math.abs(revealState.camZOffset - settledState.camZOffset) <= 0.2);
 });
 
 test("duration ends with the ranking sequence and does not keep a slowed cinematic tail", () => {

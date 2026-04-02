@@ -32,11 +32,10 @@ const CINEMATIC_TURN_FRAMES = 180;
 const CINEMATIC_RETURN_FRAMES = 600;
 
 /* Cut-hold orbit camera mode */
-const MAIN_PASS_MOVE_FRAMES = 36;
+const MAIN_PASS_MOVE_FRAMES = 72;
 const MAIN_PASS_HOLD_FRAMES = 240;
 const MAIN_PASS_WINNER_HOLD_FRAMES = 300;
 const CAMERA_SETTLE_FRAMES = 18;
-const CAMERA_APPROACH_FRAMES = MAIN_PASS_MOVE_FRAMES + CAMERA_SETTLE_FRAMES;
 const CAMERA_ORBIT_HOLD_FRAMES = 60;
 const STELE_PRELOAD_LEAD_FRAMES = 120;
 const FULL_DETAIL_RADIUS = 2;
@@ -265,43 +264,29 @@ function getHeldCameraState({
 }): CameraState {
     const focusWindowFrames = Math.max(1, milestone.leaveFrame - milestone.arriveFrame);
     const focusProgress = clamp01((frame - milestone.arriveFrame) / focusWindowFrames);
-    const settleProgress = smoothstep(
-        milestone.arriveFrame,
-        Math.min(milestone.leaveFrame, milestone.arriveFrame + CAMERA_APPROACH_FRAMES),
-        frame
-    );
+    const stableRailProgress = smoothstep(0.1, 0.92, focusProgress);
     const orbitUnlockProgress = smoothstep(
         Math.min(milestone.leaveFrame, milestone.arriveFrame + 6),
         Math.min(milestone.leaveFrame, milestone.arriveFrame + CAMERA_SETTLE_FRAMES + 10),
         frame
     );
-    const orbitPhase = focusProgress * Math.PI * 2;
     const pushIn = getPushInForIndex(milestone.index);
     const drone = getDroneOffsets(frame);
 
-    const orbitRadiusX = mix(0.8, 1.8, pushIn) * orbitUnlockProgress;
-    const orbitRadiusY = mix(0.35, 0.85, pushIn) * orbitUnlockProgress;
-    const orbitRadiusZ = mix(0.6, 1.5, pushIn) * orbitUnlockProgress;
-    const orbitX = Math.sin(orbitPhase) * orbitRadiusX;
-    const orbitY = Math.sin(orbitPhase * 0.5) * orbitRadiusY;
-    const orbitZ = Math.cos(orbitPhase) * orbitRadiusZ;
+    const railDriftX = mix(-0.2, mix(0.9, 1.8, pushIn), stableRailProgress) * orbitUnlockProgress;
+    const hoverY = Math.sin(focusProgress * Math.PI) * mix(0.18, 0.42, pushIn) * orbitUnlockProgress;
 
     const sideOffset = mix(6.2, 4.5, pushIn);
     const camYOffset = mix(5.6, 7.4, pushIn);
     const lookYOffset = mix(-0.8, 1.8, pushIn);
     const baseZOffset = mix(34, 27, pushIn);
-    const arrivalSideOffset = sideOffset + mix(7.6, 5.8, pushIn);
-    const arrivalCamYOffset = camYOffset + mix(2.8, 1.6, pushIn);
-    const arrivalLookXOffset = -mix(3.2, 1.6, pushIn);
-    const arrivalLookYOffset = lookYOffset - mix(1.8, 0.8, pushIn);
-    const arrivalZOffset = baseZOffset + mix(9.5, 7.2, pushIn);
 
     return {
-        camX: milestone.xCenter + mix(arrivalSideOffset, sideOffset, settleProgress) + orbitX + drone.sine * 0.18,
-        camY: milestone.yCenter + mix(arrivalCamYOffset, camYOffset, settleProgress) + orbitY + drone.sine * 0.12,
-        lookX: milestone.xCenter + mix(arrivalLookXOffset, 0, settleProgress) + orbitX * 0.1 + drone.cosine * 0.03,
-        lookY: milestone.yCenter + mix(arrivalLookYOffset, lookYOffset, settleProgress) + orbitY * 0.18 + drone.cosine * 0.08,
-        camZOffset: mix(arrivalZOffset, baseZOffset, settleProgress) + orbitZ,
+        camX: milestone.xCenter + sideOffset + railDriftX + drone.sine * 0.08,
+        camY: milestone.yCenter + camYOffset + hoverY + drone.sine * 0.08,
+        lookX: milestone.xCenter + railDriftX * 0.08 + drone.cosine * 0.02,
+        lookY: milestone.yCenter + lookYOffset + hoverY * 0.14 + drone.cosine * 0.05,
+        camZOffset: baseZOffset + drone.cosine * 0.04,
     };
 }
 
