@@ -1,6 +1,6 @@
 import { interpolate } from "remotion";
 import * as THREE from "three";
-import { buildRailFocusVipFinaleTimingPlan } from "../../../lib/ranking-corridor/scene-presets/rail-focus-vip-finale-v1/timing";
+import { buildSharedScenePresetTimingPlan } from "../../../lib/ranking-corridor/scene-presets/shared-timing";
 
 import {
     BIO_STELE_BOTTOM_LOCAL_Y,
@@ -31,7 +31,12 @@ const CINEMATIC_OVERVIEW_FRAMES = 540;
 const CINEMATIC_TURN_FRAMES = 180;
 const CINEMATIC_RETURN_FRAMES = 600;
 
-/* Dolly-Push continuous camera mode */
+/* Cut-hold orbit camera mode */
+const MAIN_PASS_MOVE_FRAMES = 36;
+const MAIN_PASS_HOLD_FRAMES = 240;
+const MAIN_PASS_WINNER_HOLD_FRAMES = 300;
+const CAMERA_SETTLE_FRAMES = 18;
+const CAMERA_APPROACH_FRAMES = MAIN_PASS_MOVE_FRAMES + CAMERA_SETTLE_FRAMES;
 const CAMERA_ORBIT_HOLD_FRAMES = 60;
 const STELE_PRELOAD_LEAD_FRAMES = 120;
 const FULL_DETAIL_RADIUS = 2;
@@ -66,11 +71,28 @@ export const getSteleHeight = (relHeight: number) => {
     return Math.max(3, scaledHeight);
 };
 
-const timingPlan = buildRailFocusVipFinaleTimingPlan({
+const timingPlan = buildSharedScenePresetTimingPlan({
     itemCount: reversedData.length,
     introDurationFrames: INTRO_DURATION_IN_FRAMES,
+    supportedFps: 60,
+    sourceItemCount: reversedData.length,
+    supportedCountRange: [20, 150] as const,
+    targetDurationBandSeconds: [240, 900] as const,
+    baseMoveFrames: MAIN_PASS_MOVE_FRAMES,
+    baseHoldFrames: MAIN_PASS_HOLD_FRAMES,
+    sourceWinnerHoldFrames: MAIN_PASS_WINNER_HOLD_FRAMES,
+    adaptiveWinnerHoldFrames: MAIN_PASS_WINNER_HOLD_FRAMES,
+    adaptiveMinMoveFrames: MAIN_PASS_MOVE_FRAMES,
+    adaptiveMinHoldFrames: MAIN_PASS_HOLD_FRAMES,
+    adaptiveTopWindowCount: 1,
+    adaptiveTopWindowHoldMultiplier: 0,
+    moveScaleExponent: 1,
+    holdScaleExponent: 1,
+    finalCinematicFrames: 0,
+    legacySlowdownStartBaseFrames: 0,
+    legacySlowdownFactor: 1,
     strategy: "source-compatible",
-    finaleTailPolicy: "legacy-cinematic-slowdown",
+    finaleTailPolicy: "off",
 });
 
 const getMilestones = () =>
@@ -91,8 +113,8 @@ export const milestones = getMilestones();
 export const baseDurationInFrames = timingPlan.baseDurationInFrames;
 export const sequenceCompleteFrame = timingPlan.sequenceCompleteFrame;
 export const FINAL_CAMERA_SLOWDOWN_FACTOR = timingPlan.finalCameraSlowdownFactor;
-export const FINAL_CAMERA_SLOWDOWN_START_FRAME = sequenceCompleteFrame;
-export const durationInFrames = sequenceCompleteFrame;
+export const FINAL_CAMERA_SLOWDOWN_START_FRAME = timingPlan.finalCameraSlowdownStartFrame;
+export const durationInFrames = timingPlan.durationInFrames;
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const mix = (from: number, to: number, progress: number) => from + (to - from) * progress;
@@ -110,40 +132,6 @@ const easeInOutCubic = (value: number) => {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 };
 
-const sortedSteleCenters = milestones.map((milestone) => milestone.yCenter).sort((a, b) => a - b);
-const pickSteleCenterPercentile = (percentile: number) =>
-    sortedSteleCenters[Math.min(sortedSteleCenters.length - 1, Math.floor((sortedSteleCenters.length - 1) * percentile))];
-
-const VIP_HEIGHT_THRESHOLD = pickSteleCenterPercentile(0.95);
-const VIP_MAX_HEIGHT = sortedSteleCenters[sortedSteleCenters.length - 1];
-const VIP_SETTLE_MIN_FRAMES = 30;
-const VIP_SETTLE_MAX_FRAMES = 84;
-const VIP_ORBIT_SIDE_OFFSET_MIN = 3.0;
-const VIP_ORBIT_SIDE_OFFSET_MAX = 1.6;
-const VIP_ORBIT_X_RADIUS_MIN = 1.9;
-const VIP_ORBIT_X_RADIUS_MAX = 3.8;
-const VIP_ORBIT_Z_RADIUS_MIN = 1.0;
-const VIP_ORBIT_Z_RADIUS_MAX = 2.8;
-const VIP_ORBIT_Y_RADIUS_MIN = 0.45;
-const VIP_ORBIT_Y_RADIUS_MAX = 1.8;
-const VIP_ORBIT_SWEEP_RADIANS = 0.9;
-const FINAL_VIP_FRONT_SWEEP_X_RADIUS_MIN = 4.6;
-const FINAL_VIP_FRONT_SWEEP_X_RADIUS_MAX = 8.4;
-const FINAL_VIP_FRONT_EDGE_Z_BONUS_MIN = 0.9;
-const FINAL_VIP_FRONT_EDGE_Z_BONUS_MAX = 2.2;
-const FINAL_VIP_FRONT_Y_RADIUS_MIN = 0.35;
-const FINAL_VIP_FRONT_Y_RADIUS_MAX = 1.4;
-const FINAL_VIP_FRONT_LOOK_X_LEAD = 0.07;
-const FINAL_VIP_PULL_AWAY_START = 0.72;
-const FINAL_VIP_PULL_AWAY_Z_MIN = 1.6;
-const FINAL_VIP_PULL_AWAY_Z_MAX = 4.8;
-const FINAL_VIP_PULL_AWAY_Y_MIN = 0.4;
-const FINAL_VIP_PULL_AWAY_Y_MAX = 1.8;
-const FINAL_VIP_PULL_AWAY_LOOK_X_LEAD = 0.03;
-const VIP_LAUNCH_TRAVEL_DELAY = 0.04;
-const VIP_LAUNCH_LIFT_DELAY = 0.18;
-const VIP_LAUNCH_LIFT_POWER = 1.35;
-
 type CameraState = {
     camX: number;
     camY: number;
@@ -152,15 +140,8 @@ type CameraState = {
     camZOffset: number;
 };
 
-type VipFocusProfile = {
-    index: number;
-    heightNorm: number;
-    arriveFrame: number;
-    focusLockFrame: number;
-    leaveFrame: number;
-    segmentEndFrame: number;
-    xCenter: number;
-    yCenter: number;
+type HoldMilestoneWindow = {
+    milestone: (typeof milestones)[number];
 };
 
 const getPushInForIndex = (indexPosition: number) => {
@@ -174,66 +155,33 @@ const getDroneOffsets = (frame: number) => ({
     cosine: Math.cos(frame * 0.012),
 });
 
-const mixCameraStates = (from: CameraState, to: CameraState, progress: number): CameraState => ({
-    camX: mix(from.camX, to.camX, progress),
-    camY: mix(from.camY, to.camY, progress),
-    lookX: mix(from.lookX, to.lookX, progress),
-    lookY: mix(from.lookY, to.lookY, progress),
-    camZOffset: mix(from.camZOffset, to.camZOffset, progress),
-});
-
-export const isVipStele = (index: number) => {
-    const milestone = milestones[index];
-    return Boolean(milestone && milestone.yCenter >= VIP_HEIGHT_THRESHOLD);
-};
-
-const getVipFocusProfile = (index: number): VipFocusProfile | null => {
-    const milestone = milestones[index];
-    if (!milestone || !isVipStele(index)) {
-        return null;
+const getHoldMilestoneWindow = (frame: number): HoldMilestoneWindow => {
+    if (frame <= milestones[0].arriveFrame) {
+        return {
+            milestone: milestones[0],
+        };
     }
 
-    const heightNorm = clamp01((milestone.yCenter - VIP_HEIGHT_THRESHOLD) / Math.max(1, VIP_MAX_HEIGHT - VIP_HEIGHT_THRESHOLD));
-    const settleFrames = Math.round(mix(VIP_SETTLE_MIN_FRAMES, VIP_SETTLE_MAX_FRAMES, heightNorm));
-    const nextMilestone = milestones[index + 1];
+    for (let index = 0; index < milestones.length; index += 1) {
+        const milestone = milestones[index];
+
+        if (frame >= milestone.arriveFrame && frame <= milestone.leaveFrame) {
+            return {
+                milestone,
+            };
+        }
+    }
+
+    const lastMilestone = milestones[milestones.length - 1];
 
     return {
-        index,
-        heightNorm,
-        arriveFrame: milestone.arriveFrame,
-        focusLockFrame: Math.min(milestone.leaveFrame, milestone.arriveFrame + settleFrames),
-        leaveFrame: milestone.leaveFrame,
-        segmentEndFrame: nextMilestone?.arriveFrame ?? milestone.leaveFrame,
-        xCenter: milestone.xCenter,
-        yCenter: milestone.yCenter,
+        milestone: lastMilestone,
     };
 };
 
-const vipFocusProfiles = milestones.map((_, index) => getVipFocusProfile(index));
+export const isVipStele = () => false;
 
-const getVipFocusProfileForFrame = (frame: number) => {
-    for (const profile of vipFocusProfiles) {
-        if (!profile) {
-            continue;
-        }
-
-        const isFinalOrbitHold = profile.segmentEndFrame === profile.leaveFrame;
-        const isWithinProfile =
-            frame >= profile.arriveFrame &&
-            (frame < profile.segmentEndFrame || (isFinalOrbitHold && frame === profile.leaveFrame));
-
-        if (isWithinProfile) {
-            return profile;
-        }
-    }
-
-    return null;
-};
-
-export const getSteleFocusLockFrame = (index: number) => {
-    const vipProfile = vipFocusProfiles[index];
-    return vipProfile ? vipProfile.focusLockFrame : milestones[index]?.arriveFrame ?? 0;
-};
+export const getSteleFocusLockFrame = (index: number) => milestones[index]?.arriveFrame ?? 0;
 
 /* ---- Environment Act Boundaries ---- */
 const {
@@ -248,13 +196,7 @@ export const ACT3_END_FRAME = milestones[ACT3_END_INDEX].leaveFrame;
 export const FINALE_FRAME = milestones[FINALE_INDEX]?.arriveFrame ?? milestones[milestones.length - 1].arriveFrame;
 
 export function getEnvironmentState(frame: number) {
-    let focusedIndex = 0;
-    for (let i = milestones.length - 1; i >= 0; i--) {
-        if (frame >= milestones[i].arriveFrame) {
-            focusedIndex = i;
-            break;
-        }
-    }
+    const focusedIndex = getFocusedSteleIndex(Math.min(frame, sequenceCompleteFrame));
     const focusedX = focusedIndex * X_SPACING + BIO_STELE_FOCUS_SHIFT_X;
 
     const totalProgress = interpolate(frame, [INTRO_DURATION_IN_FRAMES, sequenceCompleteFrame], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -314,166 +256,91 @@ export function getIntroTitleState(frame: number) {
     };
 }
 
-function getContinuousCameraState(frame: number): CameraState {
-    const getPeak = (i: number) => (milestones[i].arriveFrame + milestones[i].leaveFrame) / 2;
-
-    let continuousIndex = 0;
-    const firstPeak = getPeak(0);
-    const lastPeak = getPeak(milestones.length - 1);
-
-    if (frame <= firstPeak) {
-        const secondPeak = getPeak(1);
-        const dist = secondPeak - firstPeak;
-        continuousIndex = (frame - firstPeak) / dist;
-    } else if (frame >= lastPeak) {
-        const prevPeak = getPeak(milestones.length - 2);
-        const dist = lastPeak - prevPeak;
-        continuousIndex = (milestones.length - 1) + (frame - lastPeak) / dist;
-    } else {
-        for (let i = 0; i < milestones.length - 1; i++) {
-            const p1 = getPeak(i);
-            const p2 = getPeak(i + 1);
-            if (frame >= p1 && frame < p2) {
-                const t = frame - p1;
-                const endMove = p2 - p1;
-                const pRaw = t / endMove;
-                continuousIndex = i + pRaw;
-                break;
-            }
-        }
-    }
-
-    const i0 = Math.max(0, Math.floor(continuousIndex));
-    const i1 = Math.min(milestones.length - 1, i0 + 1);
-    const fraction = continuousIndex - Math.floor(continuousIndex);
-
-    const m0 = milestones[i0];
-    const m1 = milestones[i1];
-
-    const currentX = continuousIndex * X_SPACING + BIO_STELE_FOCUS_SHIFT_X;
-
-    let yProgress = fraction;
-    if (m1.yCenter > m0.yCenter + 1.0) {
-        yProgress = 1 - Math.pow(1 - fraction, 3);
-    } else {
-        yProgress = fraction * fraction * (3 - 2 * fraction);
-    }
-    const targetY = m0.yCenter + (m1.yCenter - m0.yCenter) * yProgress;
-
-    const total = reversedData.length;
-    const pushInFactor0 = Math.max(0, (i0 - Math.floor(total * 0.65)) / Math.ceil(total * 0.35));
-    const pushInFactor1 = Math.max(0, (i1 - Math.floor(total * 0.65)) / Math.ceil(total * 0.35));
-
-    const pushIn0 = pushInFactor0 * pushInFactor0;
-    const pushIn1 = pushInFactor1 * pushInFactor1;
-    let currentPushIn = pushIn0 + (pushIn1 - pushIn0) * fraction;
-
-    currentPushIn = Math.max(0, Math.min(1, currentPushIn));
-
-    const zOffset = 38 - currentPushIn * 22;
-    const xOffset = 7 - currentPushIn * 5;
-    const lookXOffset = 20 - currentPushIn * 15;
-
-    const camY = targetY + 3 + currentPushIn * 2;
-    const lookY = targetY - 2 + currentPushIn * 8;
-
+function getHeldCameraState({
+    milestone,
+    frame,
+}: {
+    milestone: (typeof milestones)[number];
+    frame: number;
+}): CameraState {
+    const focusWindowFrames = Math.max(1, milestone.leaveFrame - milestone.arriveFrame);
+    const focusProgress = clamp01((frame - milestone.arriveFrame) / focusWindowFrames);
+    const settleProgress = smoothstep(
+        milestone.arriveFrame,
+        Math.min(milestone.leaveFrame, milestone.arriveFrame + CAMERA_APPROACH_FRAMES),
+        frame
+    );
+    const orbitUnlockProgress = smoothstep(
+        Math.min(milestone.leaveFrame, milestone.arriveFrame + 6),
+        Math.min(milestone.leaveFrame, milestone.arriveFrame + CAMERA_SETTLE_FRAMES + 10),
+        frame
+    );
+    const orbitPhase = focusProgress * Math.PI * 2;
+    const pushIn = getPushInForIndex(milestone.index);
     const drone = getDroneOffsets(frame);
 
+    const orbitRadiusX = mix(0.8, 1.8, pushIn) * orbitUnlockProgress;
+    const orbitRadiusY = mix(0.35, 0.85, pushIn) * orbitUnlockProgress;
+    const orbitRadiusZ = mix(0.6, 1.5, pushIn) * orbitUnlockProgress;
+    const orbitX = Math.sin(orbitPhase) * orbitRadiusX;
+    const orbitY = Math.sin(orbitPhase * 0.5) * orbitRadiusY;
+    const orbitZ = Math.cos(orbitPhase) * orbitRadiusZ;
+
+    const sideOffset = mix(6.2, 4.5, pushIn);
+    const camYOffset = mix(5.6, 7.4, pushIn);
+    const lookYOffset = mix(-0.8, 1.8, pushIn);
+    const baseZOffset = mix(34, 27, pushIn);
+    const arrivalSideOffset = sideOffset + mix(7.6, 5.8, pushIn);
+    const arrivalCamYOffset = camYOffset + mix(2.8, 1.6, pushIn);
+    const arrivalLookXOffset = -mix(3.2, 1.6, pushIn);
+    const arrivalLookYOffset = lookYOffset - mix(1.8, 0.8, pushIn);
+    const arrivalZOffset = baseZOffset + mix(9.5, 7.2, pushIn);
+
     return {
-        camX: currentX + xOffset,
-        camY: camY + drone.sine * 2.0,
-        lookX: currentX + lookXOffset,
-        lookY: lookY + drone.cosine * 1.5,
-        camZOffset: zOffset,
+        camX: milestone.xCenter + mix(arrivalSideOffset, sideOffset, settleProgress) + orbitX + drone.sine * 0.18,
+        camY: milestone.yCenter + mix(arrivalCamYOffset, camYOffset, settleProgress) + orbitY + drone.sine * 0.12,
+        lookX: milestone.xCenter + mix(arrivalLookXOffset, 0, settleProgress) + orbitX * 0.1 + drone.cosine * 0.03,
+        lookY: milestone.yCenter + mix(arrivalLookYOffset, lookYOffset, settleProgress) + orbitY * 0.18 + drone.cosine * 0.08,
+        camZOffset: mix(arrivalZOffset, baseZOffset, settleProgress) + orbitZ,
     };
 }
 
-const getVipOrbitCameraState = (profile: VipFocusProfile, frame: number): CameraState => {
-    const holdRange = Math.max(1, profile.leaveFrame - profile.focusLockFrame);
-    const orbitProgress = clamp01((frame - profile.focusLockFrame) / holdRange);
-    const pushIn = getPushInForIndex(profile.index);
-    const drone = getDroneOffsets(frame);
-    const isFinalOrbitHold = profile.segmentEndFrame === profile.leaveFrame;
+function getContinuousCameraState(frame: number): CameraState {
+    const clampedFrame = Math.max(0, Math.min(sequenceCompleteFrame, frame));
 
-    if (isFinalOrbitHold) {
-        const sweepProgress = easeInOutCubic(orbitProgress);
-        const frontSweepXRadius = mix(FINAL_VIP_FRONT_SWEEP_X_RADIUS_MIN, FINAL_VIP_FRONT_SWEEP_X_RADIUS_MAX, profile.heightNorm);
-        const frontEdgeZBonus = mix(FINAL_VIP_FRONT_EDGE_Z_BONUS_MIN, FINAL_VIP_FRONT_EDGE_Z_BONUS_MAX, profile.heightNorm);
-        const frontYRadius = mix(FINAL_VIP_FRONT_Y_RADIUS_MIN, FINAL_VIP_FRONT_Y_RADIUS_MAX, profile.heightNorm);
-        const pullAwayProgress = smoothstep(FINAL_VIP_PULL_AWAY_START, 1, sweepProgress);
-        const pullAwayZ = mix(FINAL_VIP_PULL_AWAY_Z_MIN, FINAL_VIP_PULL_AWAY_Z_MAX, profile.heightNorm) * pullAwayProgress;
-        const pullAwayY = mix(FINAL_VIP_PULL_AWAY_Y_MIN, FINAL_VIP_PULL_AWAY_Y_MAX, profile.heightNorm) * pullAwayProgress;
-        const framingZOffset = Math.max(11.4, 38 - pushIn * 22 - mix(2.4, 4.8, profile.heightNorm));
-        const frontSweepX = mix(-frontSweepXRadius, frontSweepXRadius, sweepProgress);
-        const edgeDistance = Math.abs(sweepProgress * 2 - 1);
-        const frontOrbitY = Math.sin(sweepProgress * Math.PI) * frontYRadius;
-        const lookXLead = mix(FINAL_VIP_FRONT_LOOK_X_LEAD, FINAL_VIP_PULL_AWAY_LOOK_X_LEAD, pullAwayProgress);
+    for (let index = 0; index < milestones.length - 1; index += 1) {
+        const current = milestones[index];
+        const next = milestones[index + 1];
 
-        return {
-            camX: profile.xCenter + frontSweepX + drone.sine * 0.3,
-            camY: profile.yCenter + mix(4.2, 8.8, profile.heightNorm) + frontOrbitY + pullAwayY + drone.sine * 0.22,
-            lookX: profile.xCenter + frontSweepX * lookXLead + drone.cosine * 0.04,
-            lookY: profile.yCenter + mix(-0.6, 3.2, profile.heightNorm) + Math.cos(sweepProgress * Math.PI) * frontYRadius * 0.16 + drone.cosine * 0.16,
-            camZOffset: framingZOffset + edgeDistance * frontEdgeZBonus + pullAwayZ,
-        };
+        if (clampedFrame > current.leaveFrame && clampedFrame < next.arriveFrame) {
+            const moveProgress = smoothstep(current.leaveFrame, next.arriveFrame, clampedFrame);
+            const fromState = getHeldCameraState({
+                milestone: current,
+                frame: current.leaveFrame,
+            });
+            const toState = getHeldCameraState({
+                milestone: next,
+                frame: next.arriveFrame,
+            });
+
+            return {
+                camX: mix(fromState.camX, toState.camX, moveProgress),
+                camY: mix(fromState.camY, toState.camY, moveProgress),
+                lookX: mix(fromState.lookX, toState.lookX, moveProgress),
+                lookY: mix(fromState.lookY, toState.lookY, moveProgress),
+                camZOffset: mix(fromState.camZOffset, toState.camZOffset, moveProgress),
+            };
+        }
     }
 
-    const orbitAngle = mix(-VIP_ORBIT_SWEEP_RADIANS, VIP_ORBIT_SWEEP_RADIANS, orbitProgress);
-    const orbitWave = orbitProgress * Math.PI * 2;
-
-    const sideOffset = mix(VIP_ORBIT_SIDE_OFFSET_MIN, VIP_ORBIT_SIDE_OFFSET_MAX, profile.heightNorm);
-    const orbitRadiusX = mix(VIP_ORBIT_X_RADIUS_MIN, VIP_ORBIT_X_RADIUS_MAX, profile.heightNorm);
-    const orbitRadiusZ = mix(VIP_ORBIT_Z_RADIUS_MIN, VIP_ORBIT_Z_RADIUS_MAX, profile.heightNorm);
-    const orbitRadiusY = mix(VIP_ORBIT_Y_RADIUS_MIN, VIP_ORBIT_Y_RADIUS_MAX, profile.heightNorm);
-    const framingZOffset = Math.max(12, 38 - pushIn * 22 - mix(1.2, 3.8, profile.heightNorm));
-    const orbitX = Math.sin(orbitAngle) * orbitRadiusX;
-    const orbitZ = Math.sin(orbitProgress * Math.PI) * orbitRadiusZ;
-    const orbitY = Math.sin(orbitWave) * orbitRadiusY;
-
-    return {
-        camX: profile.xCenter + sideOffset + orbitX + drone.sine * 0.55,
-        camY: profile.yCenter + mix(4.0, 8.5, profile.heightNorm) + orbitY + drone.sine * 0.45,
-        lookX: profile.xCenter + drone.cosine * 0.08,
-        lookY: profile.yCenter + mix(-0.8, 3.4, profile.heightNorm) + Math.cos(orbitWave) * orbitRadiusY * 0.22 + drone.cosine * 0.25,
-        camZOffset: framingZOffset + orbitZ,
-    };
-};
-
-const getVipCameraState = (frame: number): CameraState | null => {
-    const profile = getVipFocusProfileForFrame(frame);
-    if (!profile) {
-        return null;
-    }
-
-    const baseState = getContinuousCameraState(frame);
-    const orbitLockState = getVipOrbitCameraState(profile, profile.focusLockFrame);
-
-    if (frame < profile.focusLockFrame) {
-        const settleProgress = smoothstep(profile.arriveFrame, profile.focusLockFrame, frame);
-        return mixCameraStates(baseState, orbitLockState, settleProgress);
-    }
-
-    if (frame <= profile.leaveFrame || profile.segmentEndFrame === profile.leaveFrame) {
-        return getVipOrbitCameraState(profile, frame);
-    }
-
-    const launchProgress = smoothstep(profile.leaveFrame, profile.segmentEndFrame, frame);
-    const sourceState = getVipOrbitCameraState(profile, profile.leaveFrame);
-    const targetState = getContinuousCameraState(profile.segmentEndFrame);
-    const travelProgress = smoothstep(VIP_LAUNCH_TRAVEL_DELAY, 1, launchProgress);
-    const liftProgress = Math.pow(smoothstep(VIP_LAUNCH_LIFT_DELAY, 1, launchProgress), VIP_LAUNCH_LIFT_POWER);
-
-    return {
-        camX: mix(sourceState.camX, targetState.camX, travelProgress),
-        camY: mix(sourceState.camY, targetState.camY, liftProgress),
-        lookX: mix(sourceState.lookX, targetState.lookX, travelProgress),
-        lookY: mix(sourceState.lookY, targetState.lookY, liftProgress),
-        camZOffset: mix(sourceState.camZOffset, targetState.camZOffset, launchProgress),
-    };
-};
+    return getHeldCameraState({
+        milestone: getHoldMilestoneWindow(clampedFrame).milestone,
+        frame: clampedFrame,
+    });
+}
 
 export function getCameraState(frame: number) {
-    return getVipCameraState(frame) ?? getContinuousCameraState(frame);
+    return getContinuousCameraState(frame);
 }
 
 type CinematicCameraState = {
@@ -646,19 +513,16 @@ export function getFocusedSteleIndex(frame: number) {
         return milestones[milestones.length - 1].index;
     }
 
-    for (let i = 0; i < milestones.length; i++) {
-        const cur = milestones[i];
+    for (let index = 0; index < milestones.length; index += 1) {
+        const milestone = milestones[index];
 
-        if (cameraFrame >= cur.arriveFrame && cameraFrame <= cur.leaveFrame) {
-            return cur.index;
+        if (cameraFrame >= milestone.arriveFrame && cameraFrame <= milestone.leaveFrame) {
+            return milestone.index;
         }
 
-        if (i < milestones.length - 1) {
-            const next = milestones[i + 1];
-            if (cameraFrame > cur.leaveFrame && cameraFrame < next.arriveFrame) {
-                const midpoint = cur.leaveFrame + (next.arriveFrame - cur.leaveFrame) / 2;
-                return cameraFrame < midpoint ? cur.index : next.index;
-            }
+        const next = milestones[index + 1];
+        if (next && cameraFrame > milestone.leaveFrame && cameraFrame < next.arriveFrame) {
+            return milestone.index;
         }
     }
 
