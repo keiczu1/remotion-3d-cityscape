@@ -432,6 +432,7 @@ export const FocusedBiographyOverlay = ({
                                 frame={frame}
                                 fps={fps}
                                 showPedestal={false}
+                                showFlagMast={false}
                                 showInfoSideCard={shouldShowInfoSideCard}
                             />
                         </div>

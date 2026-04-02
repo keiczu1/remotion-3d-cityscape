@@ -15,7 +15,6 @@ import { useCurrentFrame, random, interpolate } from "remotion";
 import * as THREE from "three";
 
 import {
-    ForestBackdrop,
     HighwayRibbon,
     HorizonMountainRidge,
     LowPolyCloud,
@@ -23,6 +22,7 @@ import {
     StormRainLayer,
     WindTurbine,
 } from "../../../lib/ranking-corridor/art";
+import { BirchBackdrop } from "./BirchBackdrop";
 import { composeInstanceMatrix, DynamicInstances } from "../../../lib/ranking-corridor/three";
 import {
     X_SPACING,
@@ -464,7 +464,7 @@ export const BackgroundEnvironment = () => {
 
             <GridFloor />
             <HighwayRibbon frame={frame} groundY={GROUND_Y} />
-            <ForestBackdrop maxX={maxX} groundY={GROUND_Y} />
+            <BirchBackdrop maxX={maxX} groundY={GROUND_Y} />
             <HorizonMountainRidge groundY={GROUND_Y} />
 
             <Sun progress={env.totalProgress} maxX={maxX} />

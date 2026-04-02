@@ -5,7 +5,13 @@ import * as THREE from "three";
 import { getFlagTextureUrl } from "../assets/asset-urls";
 import { useSharedTexture } from "../assets/texture-cache";
 
-export const Flag = ({ flagCode, position }: { flagCode: string; position: [number, number, number] }) => {
+export const Flag = ({
+    flagCode,
+    position,
+}: {
+    flagCode: string;
+    position: [number, number, number];
+}) => {
     const texture = useSharedTexture(getFlagTextureUrl(flagCode), "flag");
     const frame = useCurrentFrame();
 
@@ -47,6 +53,7 @@ export const Flag = ({ flagCode, position }: { flagCode: string; position: [numb
                 `}
                 uniforms={uniforms}
                 side={THREE.DoubleSide}
+                transparent
             />
         </mesh>
     );
