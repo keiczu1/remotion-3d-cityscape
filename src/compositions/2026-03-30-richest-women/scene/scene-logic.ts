@@ -1,7 +1,6 @@
 import { interpolate } from "remotion";
 import * as THREE from "three";
 import { buildRailFocusVipFinaleTimingPlan } from "../../../lib/ranking-corridor/scene-presets/rail-focus-vip-finale-v1/timing";
-import { getCameraTimelineFrameFromPlan } from "../../../lib/ranking-corridor/scene-presets/shared-timing";
 
 import {
     BIO_STELE_BOTTOM_LOCAL_Y,
@@ -37,6 +36,7 @@ const CAMERA_ORBIT_HOLD_FRAMES = 60;
 const STELE_PRELOAD_LEAD_FRAMES = 120;
 const FULL_DETAIL_RADIUS = 2;
 const STANDBY_RADIUS = 3;
+const NON_CINEMATIC_MOUNT_RADIUS = STANDBY_RADIUS + 2;
 const CINEMATIC_CARD_RADIUS = 3;
 const CINEMATIC_STANDBY_RADIUS_MIN = CINEMATIC_CARD_RADIUS + 2;
 const CINEMATIC_STANDBY_RADIUS_MAX = 11;
@@ -48,6 +48,8 @@ const CINEMATIC_VISIBILITY_VIEWPORT_WIDTH = 1920;
 const CINEMATIC_VISIBILITY_VIEWPORT_HEIGHT = 1080;
 const CINEMATIC_VISIBILITY_MARGIN_X = 0.06;
 const CINEMATIC_VISIBILITY_MARGIN_Y = 0.1;
+const CINEMATIC_VISIBLE_STANDBY_MIN_HEIGHT_NEAR = 0.04;
+const CINEMATIC_VISIBLE_STANDBY_MIN_HEIGHT_FAR = 0.07;
 
 const cinematicVisibilityCamera = new THREE.PerspectiveCamera(
     45,
@@ -88,9 +90,14 @@ const getMilestones = () =>
 export const milestones = getMilestones();
 export const baseDurationInFrames = timingPlan.baseDurationInFrames;
 export const sequenceCompleteFrame = timingPlan.sequenceCompleteFrame;
-export const FINAL_CAMERA_SLOWDOWN_START_FRAME = timingPlan.finalCameraSlowdownStartFrame;
 export const FINAL_CAMERA_SLOWDOWN_FACTOR = timingPlan.finalCameraSlowdownFactor;
-export const durationInFrames = timingPlan.durationInFrames;
+const FINAL_CINEMATIC_TAIL_FRAMES = Math.max(0, baseDurationInFrames - sequenceCompleteFrame);
+export const FINAL_CAMERA_SLOWDOWN_START_FRAME =
+    FINAL_CINEMATIC_TAIL_FRAMES > 0 ? sequenceCompleteFrame : baseDurationInFrames;
+export const durationInFrames =
+    FINAL_CINEMATIC_TAIL_FRAMES > 0
+        ? FINAL_CAMERA_SLOWDOWN_START_FRAME + FINAL_CINEMATIC_TAIL_FRAMES * FINAL_CAMERA_SLOWDOWN_FACTOR
+        : timingPlan.durationInFrames;
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const mix = (from: number, to: number, progress: number) => from + (to - from) * progress;
@@ -277,7 +284,15 @@ export function getEnvironmentState(frame: number) {
 }
 
 export function getCameraTimelineFrame(frame: number) {
-    return getCameraTimelineFrameFromPlan(timingPlan, frame);
+    if (frame <= FINAL_CAMERA_SLOWDOWN_START_FRAME) {
+        return frame;
+    }
+
+    const slowedFrame =
+        FINAL_CAMERA_SLOWDOWN_START_FRAME +
+        (frame - FINAL_CAMERA_SLOWDOWN_START_FRAME) / FINAL_CAMERA_SLOWDOWN_FACTOR;
+
+    return Math.min(baseDurationInFrames, slowedFrame);
 }
 export function isIntroFrame(frame: number) {
     return frame < INTRO_DURATION_IN_FRAMES;
@@ -693,6 +708,11 @@ function getCinematicDetailWindow(frame: number) {
     return {
         cinematicRadius: CINEMATIC_CARD_RADIUS,
         standbyRadius: Math.max(CINEMATIC_CARD_RADIUS + 1, standbyRadius),
+        visibleStandbyMinProjectedHeight: mix(
+            CINEMATIC_VISIBLE_STANDBY_MIN_HEIGHT_NEAR,
+            CINEMATIC_VISIBLE_STANDBY_MIN_HEIGHT_FAR,
+            overviewCoverage,
+        ),
     };
 }
 
@@ -725,6 +745,7 @@ type CinematicVisibilityState = {
     detailWindow: {
         cinematicRadius: number;
         standbyRadius: number;
+        visibleStandbyMinProjectedHeight: number;
     };
 };
 
@@ -758,8 +779,10 @@ function getCinematicVisibilityState(frame: number): CinematicVisibilityState {
             center.x <= 1 + CINEMATIC_VISIBILITY_MARGIN_X &&
             bottom.y >= -CINEMATIC_VISIBILITY_MARGIN_Y &&
             top.y <= 1 + CINEMATIC_VISIBILITY_MARGIN_Y;
+        const projectedHeight = Math.abs(bottom.y - top.y);
+        const isLargeEnoughForStandby = projectedHeight >= detailWindow.visibleStandbyMinProjectedHeight;
 
-        if (intersectsViewport) {
+        if (intersectsViewport && isLargeEnoughForStandby) {
             visibleIndices.add(milestone.index);
         }
     }
@@ -839,4 +862,30 @@ export function getSteleFrameState(frame: number) {
         isCinematic,
         renderModes: reversedData.map((_, index) => getSteleRenderModeForFocus(frame, index, focusedIndex)),
     };
+}
+
+export function getMountedSteleIndices(frame: number) {
+    const state = getSteleFrameState(frame);
+
+    if (state.isCinematic) {
+        return state.renderModes
+            .map((mode, index) => (mode === "minimal" ? null : index))
+            .filter((index): index is number => index !== null);
+    }
+
+    const mounted = new Set<number>();
+    const rangeStart = Math.max(0, state.focusedIndex - NON_CINEMATIC_MOUNT_RADIUS);
+    const rangeEnd = Math.min(reversedData.length - 1, state.focusedIndex + NON_CINEMATIC_MOUNT_RADIUS);
+
+    for (let index = rangeStart; index <= rangeEnd; index += 1) {
+        mounted.add(index);
+    }
+
+    state.renderModes.forEach((mode, index) => {
+        if (mode !== "minimal") {
+            mounted.add(index);
+        }
+    });
+
+    return [...mounted].sort((a, b) => a - b);
 }

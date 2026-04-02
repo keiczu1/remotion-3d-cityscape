@@ -1,6 +1,10 @@
 import { memo, useMemo } from "react";
 import { random } from "remotion";
 import * as THREE from "three";
+import { composeInstanceMatrix, DynamicInstances, StaticInstances } from "../../three";
+
+const sharedCarMaterialRed = new THREE.MeshBasicMaterial({ color: "#EF4444" });
+const sharedCarMaterialWhite = new THREE.MeshBasicMaterial({ color: "#F8FAFC" });
 
 export const HighwayRibbon = memo(({ frame, groundY }: { frame: number; groundY: number }) => {
     const curve = useMemo(
@@ -57,6 +61,46 @@ export const HighwayRibbon = memo(({ frame, groundY }: { frame: number; groundY:
     const signBoardMat = useMemo(() => new THREE.MeshStandardMaterial({ color: "#0F172A" }), []);
     const signGlowGeo = useMemo(() => new THREE.PlaneGeometry(6, 3.5), []);
     const signGlowMat = useMemo(() => new THREE.MeshBasicMaterial({ color: "#10B981" }), []);
+    const signMatrices = useMemo(() => {
+        const poleMatrices: THREE.Matrix4[] = [];
+        const boardMatrices: THREE.Matrix4[] = [];
+        const glowMatrices: THREE.Matrix4[] = [];
+
+        signs.forEach((sign) => {
+            const signBaseMatrix = new THREE.Matrix4().compose(
+                new THREE.Vector3(sign.x, 6, sign.z),
+                new THREE.Quaternion().setFromEuler(new THREE.Euler(0, sign.rotY, 0)),
+                new THREE.Vector3(1, 1, 1),
+            );
+
+            poleMatrices.push(signBaseMatrix.clone());
+
+            const boardMatrix = signBaseMatrix.clone().multiply(
+                new THREE.Matrix4().compose(
+                    new THREE.Vector3(3.5, 4, 0),
+                    new THREE.Quaternion(),
+                    new THREE.Vector3(1, 1, 1),
+                ),
+            );
+            boardMatrices.push(boardMatrix);
+
+            glowMatrices.push(
+                boardMatrix.clone().multiply(
+                    new THREE.Matrix4().compose(
+                        new THREE.Vector3(0, 0, 0.26),
+                        new THREE.Quaternion(),
+                        new THREE.Vector3(1, 1, 1),
+                    ),
+                ),
+            );
+        });
+
+        return {
+            poleMatrices,
+            boardMatrices,
+            glowMatrices,
+        };
+    }, [signs]);
 
     const cars = useMemo(() => {
         const arr: {
@@ -86,36 +130,50 @@ export const HighwayRibbon = memo(({ frame, groundY }: { frame: number; groundY:
             <mesh geometry={roadGeo} material={roadMat} scale={[1, 0.02, 1]} />
             <primitive object={lineObject} position={[0, 0.45, 0]} />
 
-            {signs.map((sign, index) => (
-                <group key={`sign-${index}`} position={[sign.x, 6, sign.z]} rotation={[0, sign.rotY, 0]}>
-                    <mesh geometry={signPoleGeo} material={signPoleMat} />
-                    <group position={[3.5, 4, 0]}>
-                        <mesh geometry={signBoardGeo} material={signBoardMat} />
-                        <mesh position={[0, 0, 0.26]} geometry={signGlowGeo} material={signGlowMat} />
-                    </group>
-                </group>
-            ))}
+            <StaticInstances geometry={signPoleGeo} material={signPoleMat} matrices={signMatrices.poleMatrices} />
+            <StaticInstances geometry={signBoardGeo} material={signBoardMat} matrices={signMatrices.boardMatrices} />
+            <StaticInstances geometry={signGlowGeo} material={signGlowMat} matrices={signMatrices.glowMatrices} />
 
-            {cars.map((car) => {
-                const rawT = car.startT + frame * car.speed * car.lane;
-                const t = ((rawT % 1.0) + 1.0) % 1.0;
-                const pos = curve.getPointAt(t);
-                const tangent = curve.getTangentAt(t);
-                let rotY = Math.atan2(tangent.x, tangent.z);
-                if (car.lane === -1) {
-                    rotY += Math.PI;
-                }
-                const perpX = -tangent.z;
-                const perpZ = tangent.x;
-                const finalX = pos.x + perpX * car.laneOffset;
-                const finalZ = pos.z + perpZ * car.laneOffset;
+            {(() => {
+                const redMatrices: THREE.Matrix4[] = [];
+                const whiteMatrices: THREE.Matrix4[] = [];
+
+                cars.forEach((car) => {
+                    const rawT = car.startT + frame * car.speed * car.lane;
+                    const t = ((rawT % 1.0) + 1.0) % 1.0;
+                    const pos = curve.getPointAt(t);
+                    const tangent = curve.getTangentAt(t);
+                    let rotY = Math.atan2(tangent.x, tangent.z);
+                    if (car.lane === -1) {
+                        rotY += Math.PI;
+                    }
+                    const perpX = -tangent.z;
+                    const perpZ = tangent.x;
+                    const finalX = pos.x + perpX * car.laneOffset;
+                    const finalZ = pos.z + perpZ * car.laneOffset;
+                    const matrix = composeInstanceMatrix({
+                        position: [finalX, 0.5, finalZ],
+                        rotation: [0, rotY, 0],
+                    });
+
+                    if (car.color === "#EF4444") {
+                        redMatrices.push(matrix);
+                    } else {
+                        whiteMatrices.push(matrix);
+                    }
+                });
 
                 return (
-                    <mesh key={car.idx} position={[finalX, 0.5, finalZ]} rotation={[0, rotY, 0]} geometry={carGeo}>
-                        <meshBasicMaterial color={car.color} />
-                    </mesh>
+                    <>
+                        <DynamicInstances geometry={carGeo} matrices={redMatrices}>
+                            <primitive object={sharedCarMaterialRed} attach="material" />
+                        </DynamicInstances>
+                        <DynamicInstances geometry={carGeo} matrices={whiteMatrices}>
+                            <primitive object={sharedCarMaterialWhite} attach="material" />
+                        </DynamicInstances>
+                    </>
                 );
-            })}
+            })()}
         </group>
     );
 });

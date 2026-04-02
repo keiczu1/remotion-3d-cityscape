@@ -28,8 +28,10 @@ import {
     X_SPACING,
     FINALE_FRAME,
     GROUND_Y,
+    getCameraTimelineFrame,
     milestones,
     getEnvironmentState,
+    sequenceCompleteFrame,
 } from "../scene/scene-logic";
 
 /* ============================================================
@@ -39,6 +41,7 @@ import {
 const particleGeo = new THREE.BoxGeometry(1, 1, 1);
 const particleMat = new THREE.MeshBasicMaterial({ color: "#D4A574", transparent: true, opacity: 0.3 });
 const particleWireMat = new THREE.MeshBasicMaterial({ color: "#D4A574", wireframe: true, transparent: true, opacity: 0.4 });
+const quantizeFrame = (frame: number, step: number) => Math.floor(frame / step) * step;
 
 const fireworkGeo = new THREE.SphereGeometry(1.0, 4, 4);
 const rainGeo = new THREE.PlaneGeometry(1.5, 1.0);
@@ -84,7 +87,7 @@ type CloudDescriptor = {
 
 const buildCloudDescriptors = (): CloudDescriptor[] => {
     const arr: CloudDescriptor[] = [];
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < 42; i++) {
         arr.push({
             id: i,
             x: (random(`c-x-${i}`) - 0.2) * 4000,
@@ -125,11 +128,13 @@ const CloudEntity = ({
     const xPos = cloud.x - frame * cloud.speed * speedMultiplier;
     const width = 5000;
     const loopedX = ((xPos % width) + width) % width - 1000;
+    const weatherFrame = quantizeFrame(frame, 2);
+    const supportsLocalLightning = cloud.id % 4 === 0 && cloud.scale >= 4.8;
 
     let activeFlashOffset = -1;
-    if (stormIntensity > 0) {
+    if (supportsLocalLightning && stormIntensity > 0) {
         for(let i=0; i<3; i++) {
-            if (random(`flash-in-${cloud.id}-${frame - i}`) < 0.012 * stormIntensity) {
+            if (random(`flash-in-${cloud.id}-${weatherFrame - i}`) < 0.012 * stormIntensity) {
                 activeFlashOffset = i;
                 break;
             }
@@ -140,16 +145,16 @@ const CloudEntity = ({
         : 0;
 
     let boltActiveOffset = -1;
-    if (stormIntensity > 0) {
+    if (supportsLocalLightning && stormIntensity > 0) {
         for(let i=0; i<4; i++) {
-            if (random(`bolt-${cloud.id}-${frame - i}`) < 0.001 * stormIntensity) {
+            if (random(`bolt-${cloud.id}-${weatherFrame - i}`) < 0.001 * stormIntensity) {
                 boltActiveOffset = i;
                 break;
             }
         }
     }
 
-    const anchorFrame = frame - boltActiveOffset;
+    const anchorFrame = weatherFrame - boltActiveOffset;
     const bolts = useMemo(() => {
         if (boltActiveOffset === -1) return [];
         const segments: {p1: THREE.Vector3, p2: THREE.Vector3, t: number}[] = [];
@@ -183,7 +188,7 @@ const CloudEntity = ({
     return (
         <group position={[loopedX, cloud.y, cloud.z]} scale={cloud.scale}>
             <LowPolyCloud opacity={cloud.opacity * globalOpacity} color={color} flashIntensity={flashIntensity} />
-            {flashIntensity > 0 && <pointLight intensity={flashIntensity * 30} distance={1500} color="#E0F2FE" />}
+            {flashIntensity > 0.14 && <pointLight intensity={flashIntensity * 30} distance={1500} color="#E0F2FE" />}
             {boltActiveOffset !== -1 && bolts.map((b, i) => (
                 <LightningSegment key={i} p1={b.p1} p2={b.p2} thickness={Math.max(0.01, b.t)} opacity={boltOpacity} />
             ))}
@@ -194,7 +199,7 @@ const CloudEntity = ({
     );
 };
 
-const Clouds = ({ clouds, frame, speedMultiplier, color, globalOpacity = 1, stormIntensity = 0 }: {
+const Clouds = memo(({ clouds, frame, speedMultiplier, color, globalOpacity = 1, stormIntensity = 0 }: {
     clouds: readonly CloudDescriptor[]; frame: number; speedMultiplier: number; color: THREE.Color; globalOpacity?: number; stormIntensity?: number;
 }) => (
     <group>
@@ -202,16 +207,17 @@ const Clouds = ({ clouds, frame, speedMultiplier, color, globalOpacity = 1, stor
             <CloudEntity key={i} cloud={cloud} frame={frame} speedMultiplier={speedMultiplier} color={color} globalOpacity={globalOpacity} stormIntensity={stormIntensity} />
         ))}
     </group>
-);
+));
+Clouds.displayName = "Clouds";
 
 /* ============================================================
    DATA PARTICLES
    ============================================================ */
 
-const DataParticles = ({ frame, speedMultiplier }: { frame: number; speedMultiplier: number }) => {
+const DataParticles = memo(({ frame, speedMultiplier }: { frame: number; speedMultiplier: number }) => {
     const particles = useMemo(() => {
         const arr = [];
-        for (let i = 0; i < 60; i++) {
+        for (let i = 0; i < 32; i++) {
             arr.push({
                 x: random(`dp-x-${i}`) * 4000 - 400,
                 y: 10 + random(`dp-y-${i}`) * 40,
@@ -222,31 +228,52 @@ const DataParticles = ({ frame, speedMultiplier }: { frame: number; speedMultipl
         }
         return arr;
     }, []);
+    const solidMatrices = particles.map((p) => {
+        const xPos = p.x - frame * p.speed * speedMultiplier;
+        const width = 5000;
+        const loopedX = ((xPos % width) + width) % width - 600;
+        const rotation = frame * p.speed * 0.05;
+
+        return composeInstanceMatrix({
+            position: [loopedX, p.y, p.z],
+            rotation: [rotation, rotation, 0],
+            scale: p.size,
+        });
+    });
+    const wireMatrices = particles.map((p) => {
+        const xPos = p.x - frame * p.speed * speedMultiplier;
+        const width = 5000;
+        const loopedX = ((xPos % width) + width) % width - 600;
+        const rotation = frame * p.speed * 0.05;
+
+        return composeInstanceMatrix({
+            position: [loopedX, p.y, p.z],
+            rotation: [rotation, rotation, 0],
+            scale: p.size * 2.0,
+        });
+    });
+
     return (
         <group>
-            {particles.map((p, i) => {
-                const xPos = p.x - frame * p.speed * speedMultiplier;
-                const width = 5000;
-                const loopedX = ((xPos % width) + width) % width - 600;
-                return (
-                    <group key={i} position={[loopedX, p.y, p.z]}>
-                        <mesh rotation={[frame * p.speed * 0.05, frame * p.speed * 0.05, 0]} geometry={particleGeo} material={particleMat} scale={[p.size, p.size, p.size]} />
-                        <mesh rotation={[frame * p.speed * 0.05, frame * p.speed * 0.05, 0]} geometry={particleGeo} material={particleWireMat} scale={[p.size * 2.0, p.size * 2.0, p.size * 2.0]} />
-                    </group>
-                );
-            })}
+            <DynamicInstances geometry={particleGeo} matrices={solidMatrices}>
+                <primitive object={particleMat} attach="material" />
+            </DynamicInstances>
+            <DynamicInstances geometry={particleGeo} matrices={wireMatrices}>
+                <primitive object={particleWireMat} attach="material" />
+            </DynamicInstances>
         </group>
     );
-};
+});
+DataParticles.displayName = "DataParticles";
 
 /* ============================================================
    WIND TURBINES
    ============================================================ */
 
-const WindTurbines = ({ frame }: { frame: number }) => {
+const WindTurbines = memo(({ frame }: { frame: number }) => {
     const turbines = useMemo(() => {
         const arr = [];
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 12; i++) {
             const yRot = (random(`wt-yrot-${i}`) - 0.5) * Math.PI * 0.7;
             const distZ = 80 + random(`wt-z-${i}`) * 150;
             const height = 45 + random(`wt-h-${i}`) * 40;
@@ -261,7 +288,8 @@ const WindTurbines = ({ frame }: { frame: number }) => {
             ))}
         </group>
     );
-};
+});
+WindTurbines.displayName = "WindTurbines";
 
 /* ============================================================
    FIREWORKS
@@ -417,6 +445,15 @@ export const BackgroundEnvironment = () => {
     const frame = useCurrentFrame();
     const env = getEnvironmentState(frame);
     const clouds = useMemo(() => buildCloudDescriptors(), []);
+    const isSlowTail = frame > sequenceCompleteFrame;
+    const remappedMotionFrame = Math.floor(getCameraTimelineFrame(frame));
+    const cloudFrame = isSlowTail ? sequenceCompleteFrame : env.act >= 3 ? quantizeFrame(frame, 2) : frame;
+    const transportFrame = isSlowTail ? remappedMotionFrame : env.act >= 3 ? quantizeFrame(frame, 2) : frame;
+    const decorativeFrame = isSlowTail
+        ? quantizeFrame(remappedMotionFrame, 3)
+        : env.act >= 3
+            ? quantizeFrame(frame, 3)
+            : quantizeFrame(frame, 2);
 
     /* Warm rose-gold toned sky progression */
     const skyR = interpolate(env.totalProgress, [0, 0.3, 0.5, 0.65, 0.85, 0.98, 1], [0.95, 0.45, 0.99, 0.27, 0.08, 0.08, 0.08]);
@@ -463,16 +500,21 @@ export const BackgroundEnvironment = () => {
             )}
 
             <GridFloor />
-            <HighwayRibbon frame={frame} groundY={GROUND_Y} />
-            <BirchBackdrop maxX={maxX} groundY={GROUND_Y} />
+            <HighwayRibbon frame={transportFrame} groundY={GROUND_Y} />
+            <BirchBackdrop
+                maxX={maxX}
+                groundY={GROUND_Y}
+                animationFrame={decorativeFrame}
+                detailMode={isSlowTail ? "tail-safe" : "full"}
+            />
             <HorizonMountainRidge groundY={GROUND_Y} />
 
             <Sun progress={env.totalProgress} maxX={maxX} />
-            <WindTurbines frame={frame} />
+            {!isSlowTail ? <WindTurbines frame={decorativeFrame} /> : null}
             {globalCloudOpacity > 0 && (
-                <Clouds clouds={clouds} frame={frame} speedMultiplier={cloudSpeed} color={cloudColor} globalOpacity={globalCloudOpacity} stormIntensity={stormIntensity} />
+                <Clouds clouds={clouds} frame={cloudFrame} speedMultiplier={cloudSpeed} color={cloudColor} globalOpacity={globalCloudOpacity} stormIntensity={stormIntensity} />
             )}
-            <DataParticles frame={frame} speedMultiplier={cloudSpeed} />
+            {!isSlowTail ? <DataParticles frame={decorativeFrame} speedMultiplier={cloudSpeed} /> : null}
 
             <StormRainLayer frame={frame} progress={env.totalProgress} maxX={maxX} />
             <StormLightningBursts frame={frame} progress={env.totalProgress} anchors={clouds} cloudSpeedMultiplier={cloudSpeed} groundY={GROUND_Y} />

@@ -1,14 +1,13 @@
 import { memo, useMemo } from "react";
-import { random, useCurrentFrame } from "remotion";
+import { random } from "remotion";
 import * as THREE from "three";
 
-import { DynamicInstances } from "../../../lib/ranking-corridor/three";
+import { DynamicInstances, StaticInstances } from "../../../lib/ranking-corridor/three";
 
 const trunkGeo = new THREE.CylinderGeometry(0.2, 0.4, 6, 5);
 const trunkMat = new THREE.MeshStandardMaterial({ color: "#E2E8F0", roughness: 0.9, flatShading: true });
 
 const leavesGeo = new THREE.DodecahedronGeometry(1.5, 1);
-// Golden/yellow autumn leaves look great with rose-gold theme and fit birches well
 const leavesMat1 = new THREE.MeshStandardMaterial({ color: "#FBBF24", roughness: 0.8, flatShading: true });
 const leavesMat2 = new THREE.MeshStandardMaterial({ color: "#D97706", roughness: 0.8, flatShading: true });
 const leavesMat3 = new THREE.MeshStandardMaterial({ color: "#F59E0B", roughness: 0.8, flatShading: true });
@@ -21,6 +20,13 @@ type BirchItem = {
     swayPhase: number;
     swaySpeed: number;
     variant: number;
+};
+
+type BirchMatrices = {
+    trunks: THREE.Matrix4[];
+    leavesGroup1: THREE.Matrix4[];
+    leavesGroup2: THREE.Matrix4[];
+    leavesGroup3: THREE.Matrix4[];
 };
 
 const composeBirchInstanceMatrix = ({
@@ -50,12 +56,134 @@ const composeBirchInstanceMatrix = ({
     return parentMatrix.multiply(localMatrix);
 };
 
-export const BirchBackdrop = memo(({ maxX, groundY }: { maxX: number; groundY: number }) => {
-    const frame = useCurrentFrame();
+const buildBirchMatrices = ({
+    items,
+    groundY,
+    animatedFrame,
+}: {
+    items: BirchItem[];
+    groundY: number;
+    animatedFrame: number | null;
+}): BirchMatrices => {
+    const trunks: THREE.Matrix4[] = [];
+    const leavesGroup1: THREE.Matrix4[] = [];
+    const leavesGroup2: THREE.Matrix4[] = [];
+    const leavesGroup3: THREE.Matrix4[] = [];
+
+    items.forEach((item) => {
+        const globalWindPhase = animatedFrame === null ? 0 : animatedFrame * 0.05;
+        const localWindEffect = animatedFrame === null ? 0 : Math.sin(globalWindPhase + item.swayPhase);
+        const swayAngleZ = localWindEffect * 0.08 * item.swaySpeed * 20;
+        const swayAngleX =
+            animatedFrame === null
+                ? 0
+                : Math.cos(globalWindPhase * 0.8 + item.swayPhase) * 0.04 * item.swaySpeed * 20;
+
+        trunks.push(
+            composeBirchInstanceMatrix({
+                item,
+                groundY,
+                partPosition: [0, 3, 0],
+                partRotation: [swayAngleX * 0.3, 0, swayAngleZ * 0.3],
+            }),
+        );
+
+        const dispX = 6.0 * swayAngleZ;
+        const dispZ = -6.0 * swayAngleX;
+
+        if (item.variant === 0) {
+            leavesGroup1.push(
+                composeBirchInstanceMatrix({
+                    item,
+                    groundY,
+                    partPosition: [dispX, 6.0, dispZ],
+                    partScale: [1.4, 2.0, 1.4],
+                    partRotation: [swayAngleX, 0, swayAngleZ],
+                }),
+            );
+            leavesGroup2.push(
+                composeBirchInstanceMatrix({
+                    item,
+                    groundY,
+                    partPosition: [0.8 + dispX * 0.7, 4.5, 0.5 + dispZ * 0.7],
+                    partScale: [1.1, 1.3, 1.1],
+                    partRotation: [swayAngleX * 1.5, 0, swayAngleZ * 1.5],
+                }),
+            );
+            leavesGroup1.push(
+                composeBirchInstanceMatrix({
+                    item,
+                    groundY,
+                    partPosition: [-0.6 + dispX * 0.5, 3.5, -0.6 + dispZ * 0.5],
+                    partScale: [0.9, 1.1, 0.9],
+                    partRotation: [swayAngleX * 1.2, 0, swayAngleZ * 1.2],
+                }),
+            );
+        } else if (item.variant === 1) {
+            leavesGroup2.push(
+                composeBirchInstanceMatrix({
+                    item,
+                    groundY,
+                    partPosition: [dispX, 5.8, dispZ],
+                    partScale: [1.6, 2.2, 1.6],
+                    partRotation: [swayAngleX, 0, swayAngleZ],
+                }),
+            );
+            leavesGroup3.push(
+                composeBirchInstanceMatrix({
+                    item,
+                    groundY,
+                    partPosition: [-0.8 + dispX * 0.6, 4.0, 0.8 + dispZ * 0.6],
+                    partScale: [1.0, 1.2, 1.0],
+                    partRotation: [swayAngleX * 1.3, 0, swayAngleZ * 1.3],
+                }),
+            );
+        } else {
+            leavesGroup3.push(
+                composeBirchInstanceMatrix({
+                    item,
+                    groundY,
+                    partPosition: [dispX, 6.2, dispZ],
+                    partScale: [1.5, 1.8, 1.5],
+                    partRotation: [swayAngleX, 0, swayAngleZ],
+                }),
+            );
+            leavesGroup1.push(
+                composeBirchInstanceMatrix({
+                    item,
+                    groundY,
+                    partPosition: [0.6 + dispX * 0.6, 4.8, -0.7 + dispZ * 0.6],
+                    partScale: [1.2, 1.4, 1.2],
+                    partRotation: [swayAngleX * 1.1, 0, swayAngleZ * 1.1],
+                }),
+            );
+        }
+    });
+
+    return {
+        trunks,
+        leavesGroup1,
+        leavesGroup2,
+        leavesGroup3,
+    };
+};
+
+export const BirchBackdrop = memo(({
+    maxX,
+    groundY,
+    animationFrame,
+    detailMode = "full",
+}: {
+    maxX: number;
+    groundY: number;
+    animationFrame: number;
+    detailMode?: "full" | "tail-safe";
+}) => {
+    const swayFrame = Math.floor(animationFrame / 2) * 2;
 
     const items = useMemo(() => {
         const arr: BirchItem[] = [];
-        for (let i = 0; i < 800; i++) {
+        for (let i = 0; i < 420; i++) {
             const skewedX = Math.pow(random(`b-x-${i}`), 1.5);
             const x = -1000 + skewedX * (maxX + 6000);
             const z = -80 - random(`b-z-${i}`) * 2500;
@@ -70,105 +198,54 @@ export const BirchBackdrop = memo(({ maxX, groundY }: { maxX: number; groundY: n
         return arr;
     }, [maxX]);
 
-    const matrices = useMemo(() => {
-        const trunks: THREE.Matrix4[] = [];
-        
-        // 分 group so we can apply different leaf colors
-        const leavesGroup1: THREE.Matrix4[] = [];
-        const leavesGroup2: THREE.Matrix4[] = [];
-        const leavesGroup3: THREE.Matrix4[] = [];
+    const tailSafeItems = useMemo(
+        () =>
+            items.filter(
+                (item, index) => item.z > -500 || item.scale >= 3.0 || index % 3 === 0,
+            ),
+        [items],
+    );
+    const activeItems = detailMode === "tail-safe" ? tailSafeItems : items;
+    const dynamicItems = useMemo(
+        () =>
+            detailMode === "tail-safe"
+                ? []
+                : activeItems.filter((item) => item.z > -900 || item.scale >= 2.5),
+        [activeItems, detailMode],
+    );
+    const staticItems = useMemo(
+        () =>
+            detailMode === "tail-safe"
+                ? activeItems
+                : activeItems.filter((item) => item.z <= -900 && item.scale < 2.5),
+        [activeItems, detailMode],
+    );
 
-        items.forEach((item) => {
-            // Calculate wind sway angle: stronger at the top
-            // Since it's wind, all trees roughly sway in same global direction but with phase
-            const globalWindPhase = frame * 0.05;
-            const localWindEffect = Math.sin(globalWindPhase + item.swayPhase);
-            // Apply wind to Z axis mostly, making it lean
-            const swayAngleZ = localWindEffect * 0.08 * item.swaySpeed * 20;
-            const swayAngleX = Math.cos(globalWindPhase * 0.8 + item.swayPhase) * 0.04 * item.swaySpeed * 20;
-
-            // Trunk (pivot at ground)
-            trunks.push(composeBirchInstanceMatrix({ 
-                item, groundY, 
-                partPosition: [0, 3, 0], // Center of cylinder is at 3
-                partRotation: [swayAngleX * 0.3, 0, swayAngleZ * 0.3] 
-            }));
-
-            // Using pure trigonometry for simple offset displacement based on height
-            // Small angles so displacement is approx height * angle
-            const dispX = 6.0 * swayAngleZ; // mapping pitch/roll to displacement roughly
-            const dispZ = -6.0 * swayAngleX;
-
-            if (item.variant === 0) {
-                leavesGroup1.push(composeBirchInstanceMatrix({ 
-                    item, groundY, 
-                    partPosition: [dispX, 6.0, dispZ], 
-                    partScale: [1.4, 2.0, 1.4], 
-                    partRotation: [swayAngleX, 0, swayAngleZ] 
-                }));
-                leavesGroup2.push(composeBirchInstanceMatrix({ 
-                    item, groundY, 
-                    partPosition: [0.8 + dispX * 0.7, 4.5, 0.5 + dispZ * 0.7], 
-                    partScale: [1.1, 1.3, 1.1], 
-                    partRotation: [swayAngleX * 1.5, 0, swayAngleZ * 1.5] 
-                }));
-                leavesGroup1.push(composeBirchInstanceMatrix({ 
-                    item, groundY, 
-                    partPosition: [-0.6 + dispX * 0.5, 3.5, -0.6 + dispZ * 0.5], 
-                    partScale: [0.9, 1.1, 0.9], 
-                    partRotation: [swayAngleX * 1.2, 0, swayAngleZ * 1.2] 
-                }));
-            } else if (item.variant === 1) {
-                leavesGroup2.push(composeBirchInstanceMatrix({ 
-                    item, groundY, 
-                    partPosition: [dispX, 5.8, dispZ], 
-                    partScale: [1.6, 2.2, 1.6], 
-                    partRotation: [swayAngleX, 0, swayAngleZ] 
-                }));
-                leavesGroup3.push(composeBirchInstanceMatrix({ 
-                    item, groundY, 
-                    partPosition: [-0.8 + dispX * 0.6, 4.0, 0.8 + dispZ * 0.6], 
-                    partScale: [1.0, 1.2, 1.0], 
-                    partRotation: [swayAngleX * 1.3, 0, swayAngleZ * 1.3] 
-                }));
-            } else {
-                leavesGroup3.push(composeBirchInstanceMatrix({ 
-                    item, groundY, 
-                    partPosition: [dispX, 6.2, dispZ], 
-                    partScale: [1.5, 1.8, 1.5], 
-                    partRotation: [swayAngleX, 0, swayAngleZ] 
-                }));
-                leavesGroup1.push(composeBirchInstanceMatrix({ 
-                    item, groundY, 
-                    partPosition: [0.6 + dispX * 0.6, 4.8, -0.7 + dispZ * 0.6], 
-                    partScale: [1.2, 1.4, 1.2], 
-                    partRotation: [swayAngleX * 1.1, 0, swayAngleZ * 1.1] 
-                }));
-            }
-        });
-
-        return {
-            trunks,
-            leavesGroup1,
-            leavesGroup2,
-            leavesGroup3,
-        };
-    }, [frame, groundY, items]);
+    const staticMatrices = useMemo(() => buildBirchMatrices({ items: staticItems, groundY, animatedFrame: null }), [groundY, staticItems]);
+    const dynamicMatrices = useMemo(() => buildBirchMatrices({ items: dynamicItems, groundY, animatedFrame: swayFrame }), [dynamicItems, groundY, swayFrame]);
 
     return (
         <group>
-            <DynamicInstances geometry={trunkGeo} matrices={matrices.trunks}>
-                <primitive object={trunkMat} attach="material" />
-            </DynamicInstances>
-            <DynamicInstances geometry={leavesGeo} matrices={matrices.leavesGroup1}>
-                <primitive object={leavesMat1} attach="material" />
-            </DynamicInstances>
-            <DynamicInstances geometry={leavesGeo} matrices={matrices.leavesGroup2}>
-                <primitive object={leavesMat2} attach="material" />
-            </DynamicInstances>
-            <DynamicInstances geometry={leavesGeo} matrices={matrices.leavesGroup3}>
-                <primitive object={leavesMat3} attach="material" />
-            </DynamicInstances>
+            <StaticInstances geometry={trunkGeo} material={trunkMat} matrices={staticMatrices.trunks} />
+            <StaticInstances geometry={leavesGeo} material={leavesMat1} matrices={staticMatrices.leavesGroup1} />
+            <StaticInstances geometry={leavesGeo} material={leavesMat2} matrices={staticMatrices.leavesGroup2} />
+            <StaticInstances geometry={leavesGeo} material={leavesMat3} matrices={staticMatrices.leavesGroup3} />
+            {detailMode === "full" ? (
+                <>
+                    <DynamicInstances geometry={trunkGeo} matrices={dynamicMatrices.trunks}>
+                        <primitive object={trunkMat} attach="material" />
+                    </DynamicInstances>
+                    <DynamicInstances geometry={leavesGeo} matrices={dynamicMatrices.leavesGroup1}>
+                        <primitive object={leavesMat1} attach="material" />
+                    </DynamicInstances>
+                    <DynamicInstances geometry={leavesGeo} matrices={dynamicMatrices.leavesGroup2}>
+                        <primitive object={leavesMat2} attach="material" />
+                    </DynamicInstances>
+                    <DynamicInstances geometry={leavesGeo} matrices={dynamicMatrices.leavesGroup3}>
+                        <primitive object={leavesMat3} attach="material" />
+                    </DynamicInstances>
+                </>
+            ) : null}
         </group>
     );
 });

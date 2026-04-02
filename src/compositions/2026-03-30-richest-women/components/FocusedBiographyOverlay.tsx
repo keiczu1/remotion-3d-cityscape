@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 import * as THREE from "three";
 
@@ -129,6 +130,8 @@ const getOverlayScale = ({
 const OVERLAY_VIEWPORT_MARGIN_X = 0.22;
 const OVERLAY_VIEWPORT_MARGIN_Y = 0.18;
 const SIDEBAR_VISIBILITY_GATE = 0.45;
+const OVERLAY_HISTORY_RADIUS = 4;
+const NON_FOCUSED_REVEAL_COMPLETE_GATE = 0.995;
 
 const isOverlayVisibleInViewport = (presentationState: {
     viewport: {
@@ -199,52 +202,32 @@ export const getBiographyOverlayStateForIndex = ({
     };
 };
 
-const getPinnedSidebarVisibleScale = ({
-    index,
-    frame,
-    width,
-    height,
+const getOverlayCandidateIndices = ({
+    focusedIndex,
+    previousFocusIndex,
+    renderModes,
+    totalCount,
 }: {
-    index: number;
-    frame: number;
-    width: number;
-    height: number;
+    focusedIndex: number;
+    previousFocusIndex: number | null;
+    renderModes: SteleRenderMode[];
+    totalCount: number;
 }) => {
-    const milestone = milestones[index];
+    const indices = new Set<number>();
+    const rangeStart = Math.max(0, focusedIndex - OVERLAY_HISTORY_RADIUS);
+    const rangeEnd = Math.min(totalCount - 1, focusedIndex);
 
-    if (!milestone) {
-        return null;
+    for (let index = rangeStart; index <= rangeEnd; index += 1) {
+        if (index === focusedIndex || renderModes[index] !== "minimal") {
+            indices.add(index);
+        }
     }
 
-    const searchStartFrame = Math.max(milestone.arriveFrame, frame - 180);
-
-    for (let checkFrame = frame; checkFrame >= searchStartFrame; checkFrame -= 1) {
-        if (getFocusedSteleIndex(checkFrame) !== index) {
-            continue;
-        }
-
-        const state = getBiographyOverlayStateForIndex({
-            index,
-            frame: checkFrame,
-            width,
-            height,
-        });
-
-        if (!state || state.overlayProgress < SIDEBAR_VISIBILITY_GATE) {
-            continue;
-        }
-
-        return getOverlayScale({
-            index,
-            pedestalHeight: state.pedestalHeight,
-            presentationState: state.presentationState,
-            frame: checkFrame,
-            width,
-            height,
-        });
+    if (previousFocusIndex !== null && previousFocusIndex >= 0 && previousFocusIndex < totalCount) {
+        indices.add(previousFocusIndex);
     }
 
-    return null;
+    return [...indices].sort((a, b) => a - b);
 };
 
 export const FocusedBiographyOverlay = ({
@@ -258,13 +241,23 @@ export const FocusedBiographyOverlay = ({
 }) => {
     const frame = useCurrentFrame();
     const { width, height, fps } = useVideoConfig();
+    const pinnedSidebarScaleRef = useRef<{ index: number; scale: number } | null>(null);
+    const frozenHeroFrameRef = useRef(new Map<number, number>());
+    const settledHeroFrameRef = useRef(new Map<number, number>());
 
     if (isIntro) {
         return null;
     }
 
-    const allOverlayStates = reversedData
-        .map((_, index) =>
+    const previousFocusIndex = frame > 0 ? getFocusedSteleIndex(frame - 1) : focusedIndex;
+    const candidateIndices = getOverlayCandidateIndices({
+        focusedIndex,
+        previousFocusIndex,
+        renderModes,
+        totalCount: reversedData.length,
+    });
+    const allOverlayStates = candidateIndices
+        .map((index) =>
             getBiographyOverlayStateForIndex({
                 index,
                 frame,
@@ -277,8 +270,11 @@ export const FocusedBiographyOverlay = ({
         allOverlayStates.find(
             (state): state is NonNullable<typeof state> => Boolean(state && state.index === focusedIndex)
         ) ?? null;
+    const currentFocusVisibleInViewport = currentFocusState
+        ? isOverlayVisibleInViewport(currentFocusState.presentationState)
+        : false;
+    const currentSidebarVisible = (currentFocusState?.overlayProgress ?? 0) >= SIDEBAR_VISIBILITY_GATE;
     const currentOverlayReady = (currentFocusState?.overlayProgress ?? 0) >= 0.32;
-    const previousFocusIndex = frame > 0 ? getFocusedSteleIndex(frame - 1) : focusedIndex;
     const pinnedPreviousIndex =
         !currentOverlayReady && previousFocusIndex !== focusedIndex ? previousFocusIndex : null;
 
@@ -287,26 +283,25 @@ export const FocusedBiographyOverlay = ({
                 return false;
             }
 
+            const isVisibleInViewport = isOverlayVisibleInViewport(state.presentationState);
+
             if (state.revealProgress <= 0.001) {
                 return false;
             }
 
-            if (state.index > focusedIndex) {
-                return false;
-            }
-
             if (state.index === focusedIndex) {
-                return true;
+                return state.overlayProgress > 0.001 || currentFocusVisibleInViewport;
             }
 
             if (pinnedPreviousIndex !== null && state.index === pinnedPreviousIndex) {
                 return true;
             }
 
-            return (
-                renderModes[state.index] !== "minimal" ||
-                isOverlayVisibleInViewport(state.presentationState)
-            );
+            if (currentSidebarVisible && state.revealProgress < NON_FOCUSED_REVEAL_COMPLETE_GATE) {
+                return false;
+            }
+
+            return isVisibleInViewport;
         });
 
     if (overlayStates.length === 0) {
@@ -323,6 +318,14 @@ export const FocusedBiographyOverlay = ({
         width,
         height,
     });
+
+    frozenHeroFrameRef.current.set(focusedIndex, frame);
+    if (currentSidebarVisible) {
+        pinnedSidebarScaleRef.current = {
+            index: focusedIndex,
+            scale: focusedScale,
+        };
+    }
 
     const previousOverlayState =
         pinnedPreviousIndex !== null
@@ -346,6 +349,10 @@ export const FocusedBiographyOverlay = ({
         pinnedPreviousIndex !== null && currentFocusState
             ? smoothstep(0.32, 0.72, currentFocusState.overlayProgress)
             : 1;
+    const pinnedPreviousScale =
+        pinnedPreviousIndex !== null && pinnedSidebarScaleRef.current?.index === pinnedPreviousIndex
+            ? pinnedSidebarScaleRef.current.scale
+            : null;
 
     return (
         <AbsoluteFill style={{ pointerEvents: "none", overflow: "visible" }}>
@@ -356,12 +363,6 @@ export const FocusedBiographyOverlay = ({
                     index,
                     pedestalHeight,
                     presentationState,
-                    frame,
-                    width,
-                    height,
-                });
-                const pinnedSidebarScale = getPinnedSidebarVisibleScale({
-                    index,
                     frame,
                     width,
                     height,
@@ -379,18 +380,38 @@ export const FocusedBiographyOverlay = ({
                     scale = focusedScale;
                 }
 
-                if (pinnedSidebarScale !== null) {
-                    if (!isCurrentFocus || overlayProgress < SIDEBAR_VISIBILITY_GATE) {
-                        scale = pinnedSidebarScale;
-                    }
+                if (pinnedPreviousScale !== null && index === pinnedPreviousIndex) {
+                    scale = pinnedPreviousScale;
                 }
 
                 const left = projectedBottomX - BIO_STELE_SHELL_BOTTOM_CENTER_X_PX * scale;
                 const top = projectedBottomY - BIO_STELE_SHELL_BOTTOM_CENTER_Y_PX * scale;
                 const shouldShowInfoSideCard = isCurrentFocus && overlayProgress >= SIDEBAR_VISIBILITY_GATE;
-                const opacity = Math.max(revealProgress, isCurrentFocus ? overlayProgress : 0);
+                const shouldIsolateSideCardOpacity = isCurrentFocus && shouldShowInfoSideCard;
+                const focusVisibleInViewport = isOverlayVisibleInViewport(presentationState);
+                const shouldFreezeCurrentHeroFrame =
+                    isCurrentFocus &&
+                    shouldShowInfoSideCard &&
+                    overlayProgress >= 0.995 &&
+                    revealProgress >= NON_FOCUSED_REVEAL_COMPLETE_GATE;
+                const overlayOpacity = Math.max(
+                    !isCurrentFocus || focusVisibleInViewport ? revealProgress : 0,
+                    isCurrentFocus ? overlayProgress : 0,
+                );
 
-                if (opacity <= 0.001) {
+                if (shouldFreezeCurrentHeroFrame && !settledHeroFrameRef.current.has(index)) {
+                    settledHeroFrameRef.current.set(index, frame);
+                }
+
+                if (isCurrentFocus && !shouldFreezeCurrentHeroFrame) {
+                    settledHeroFrameRef.current.delete(index);
+                }
+
+                const heroFrame = isCurrentFocus
+                    ? settledHeroFrameRef.current.get(index) ?? frame
+                    : frozenHeroFrameRef.current.get(index) ?? frame;
+
+                if (overlayOpacity <= 0.001) {
                     return null;
                 }
 
@@ -403,8 +424,10 @@ export const FocusedBiographyOverlay = ({
                             top,
                             width: PORTRAIT_BIOGRAPHY_STELE_BASE_WIDTH * scale,
                             height: PORTRAIT_BIOGRAPHY_STELE_BASE_HEIGHT * scale,
-                            opacity,
+                            opacity: shouldIsolateSideCardOpacity ? 1 : overlayOpacity,
                             transform: `translateZ(0)`,
+                            willChange: "transform, opacity",
+                            contain: "layout paint style",
                             overflow: "visible",
                         }}
                     >
@@ -429,11 +452,12 @@ export const FocusedBiographyOverlay = ({
                                 fact={item.fact}
                                 pedestalBodyHeight={Math.round(120 + pedestalHeight * 8)}
                                 delay={Math.max(0, milestone.arriveFrame - 12)}
-                                frame={frame}
+                                frame={heroFrame}
                                 fps={fps}
                                 showPedestal={false}
                                 showFlagMast={false}
                                 showInfoSideCard={shouldShowInfoSideCard}
+                                shellOpacityMultiplier={shouldIsolateSideCardOpacity ? overlayOpacity : 1}
                             />
                         </div>
                     </div>

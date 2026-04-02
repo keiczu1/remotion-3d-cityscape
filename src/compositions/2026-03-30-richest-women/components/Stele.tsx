@@ -33,7 +33,8 @@ export const Stele = memo(
         const xPos = index * X_SPACING;
         const shouldHideCarrier = false;
         const flagCode = getFlagCode(item);
-        const shouldShowFlag = renderMode !== "minimal" && Boolean(flagCode);
+        const shouldShowFlag =
+            (renderMode === "full" || renderMode === "cinematic") && Boolean(flagCode);
         const poleTopY = height + 10;
         const flagY = height + 8;
         const poleX = 12.2;

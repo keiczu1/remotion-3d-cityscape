@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import { random } from "remotion";
 import * as THREE from "three";
+import { StaticInstances } from "../../three";
 
 const mountainGeo = new THREE.DodecahedronGeometry(1, 1);
 const mountainMat = new THREE.MeshStandardMaterial({
@@ -43,19 +44,21 @@ export const HorizonMountainRidge = memo(({ groundY }: { groundY: number }) => {
         arr.sort((a, b) => a.z - b.z);
         return arr;
     }, []);
+    const matrices = useMemo(
+        () =>
+            mountains.map((mountain) =>
+                new THREE.Matrix4().compose(
+                    new THREE.Vector3(mountain.x, groundY + mountain.h * 0.2, mountain.z),
+                    new THREE.Quaternion().setFromEuler(new THREE.Euler(0, mountain.rotY, mountain.rotZ)),
+                    new THREE.Vector3(mountain.w, mountain.h, mountain.d),
+                ),
+            ),
+        [groundY, mountains],
+    );
 
     return (
         <group>
-            {mountains.map((mountain, index) => (
-                <mesh
-                    key={index}
-                    geometry={mountainGeo}
-                    material={mountainMat}
-                    position={[mountain.x, groundY + mountain.h * 0.2, mountain.z]}
-                    scale={[mountain.w, mountain.h, mountain.d]}
-                    rotation={[0, mountain.rotY, mountain.rotZ]}
-                />
-            ))}
+            <StaticInstances geometry={mountainGeo} material={mountainMat} matrices={matrices} />
         </group>
     );
 });

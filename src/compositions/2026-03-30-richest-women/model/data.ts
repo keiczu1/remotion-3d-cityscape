@@ -21,6 +21,7 @@ type RawFile = {
 };
 
 const rankingFile = rawRankingFile as RawFile;
+const OPTIMIZED_PHOTO_BASE_PATH = "ranking-corridor/2026-03-30-richest-women/photos-optimized";
 
 /**
  * Parse a wealth string like "$134B", "$2.7B-$5.4B", "$17M"
@@ -43,16 +44,28 @@ const parseWealthBillions = (wealth: string): number => {
     return maxVal || 0.001;
 };
 
-const allEntries = rankingFile.entries;
-const wealthValues = allEntries.map((e) => parseWealthBillions(e.wealth));
+const sortedEntries = [...rankingFile.entries]
+    .map((entry) => ({
+        entry,
+        wealthBillions: parseWealthBillions(entry.wealth),
+    }))
+    .sort((a, b) => {
+        if (b.wealthBillions !== a.wealthBillions) {
+            return b.wealthBillions - a.wealthBillions;
+        }
+
+        return a.entry.order - b.entry.order;
+    });
+
+const wealthValues = sortedEntries.map(({ wealthBillions }) => wealthBillions);
 const maxWealth = Math.max(...wealthValues);
 
 /**
  * Build flat data array similar to most-visited-websites.
  * `relHeight` is 0..100 normalised to max wealth (100 = richest).
  */
-export const data = allEntries.map((entry, i) => ({
-    order: entry.order,
+export const data = sortedEntries.map(({ entry, wealthBillions }, i) => ({
+    order: i + 1,
     name: entry.name,
     country: entry.country,
     lifeYears: entry.life_years,
@@ -63,10 +76,18 @@ export const data = allEntries.map((entry, i) => ({
     wealth: entry.wealth,
     imagePath: entry.image_path,
     moneyFrom: entry.source_detail ?? entry.money_from ?? entry.wealth_source ?? "Not specified",
-    relHeight: maxWealth > 0 ? (wealthValues[i] / maxWealth) * 100 : 1,
+    relHeight: maxWealth > 0 ? (wealthBillions / maxWealth) * 100 : 1,
 }));
 
-export const getPhotoSrc = (item: (typeof data)[number]) => staticFile(item.imagePath);
+export const getPhotoSrc = (item: (typeof data)[number]) => {
+    const fileName = item.imagePath.split("/").pop();
+
+    if (!fileName) {
+        return staticFile(item.imagePath);
+    }
+
+    return staticFile(`${OPTIMIZED_PHOTO_BASE_PATH}/${fileName}`);
+};
 
 const countryToFlagCode: Record<string, string> = {
     "Australia": "au",

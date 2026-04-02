@@ -49,6 +49,7 @@ export type PortraitBiographySteleHeroProps = {
 	showPedestal?: boolean;
 	showFlagMast?: boolean;
 	showInfoSideCard?: boolean;
+	shellOpacityMultiplier?: number;
 };
 
 export const PORTRAIT_BIOGRAPHY_STELE_BASE_WIDTH = 1380;
@@ -514,6 +515,8 @@ const InfoSideCard = ({
 }) => {
 	const normalizedMoneyFrom = moneyFrom.trim().replace(/\s+/g, " ");
 	const normalizedFact = fact.trim().replace(/\s+/g, " ");
+	const contentTranslateX = Math.round((1 - motion.copy) * 32);
+	const contentTranslateY = Math.round((1 - motion.copy) * 10);
 
 	return (
 		<div
@@ -525,8 +528,6 @@ const InfoSideCard = ({
 				borderRadius: 44,
 				background: "linear-gradient(180deg, rgba(18,11,14,0.98) 0%, rgba(24,14,18,0.98) 100%)",
 				boxShadow: `0 24px 70px rgba(0,0,0,0.42), 0 0 0 1px ${theme.secondaryShell} inset`,
-				transform: `translateX(${Math.round((1 - motion.copy) * 56)}px) translateY(${Math.round((1 - motion.copy) * 12)}px)`,
-				opacity: motion.copyOpacity,
 				overflow: "hidden",
 			}}
 		>
@@ -546,6 +547,8 @@ const InfoSideCard = ({
 					display: "flex",
 					flexDirection: "column",
 					boxSizing: "border-box",
+					transform: `translateX(${contentTranslateX}px) translateY(${contentTranslateY}px)`,
+					opacity: motion.copyOpacity,
 				}}
 			>
 				<div
@@ -918,6 +921,7 @@ const PortraitBiographySteleHeroBase = ({
 	showPedestal = true,
 	showFlagMast = true,
 	showInfoSideCard = true,
+	shellOpacityMultiplier = 1,
 }: PortraitBiographySteleHeroProps & {
 	frame: number;
 	fps: number;
@@ -953,7 +957,7 @@ const PortraitBiographySteleHeroBase = ({
 					background: theme.shell,
 					boxShadow: `0 28px 80px rgba(0,0,0,0.55), 0 0 0 1px ${theme.secondaryShell} inset, 0 0 44px rgba(255,180,120,${0.12 + motion.glow * 0.08})`,
 					transform: `${theme.tilt} translateY(${Math.round(motion.y)}px) scale(${motion.scale})`,
-					opacity: motion.opacity,
+					opacity: motion.opacity * shellOpacityMultiplier,
 					overflow: "hidden",
 				}}
 			>

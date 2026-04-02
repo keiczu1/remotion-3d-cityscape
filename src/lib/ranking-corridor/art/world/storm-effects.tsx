@@ -135,6 +135,8 @@ export const StormRainLayer = ({
     maxX: number;
 }) => {
     const rainIntensity = getStormRainIntensity(progress);
+    const activeDropCount = Math.round(260 + rainIntensity * 340);
+    const motionFrame = rainIntensity >= 0.8 ? frame : Math.floor(frame / 2) * 2;
 
     const raindrops = useMemo(() => {
         const arr: StormRaindrop[] = [];
@@ -153,8 +155,8 @@ export const StormRainLayer = ({
         return null;
     }
 
-    const matrices = raindrops.map((drop) => {
-        const yPos = 120 - ((frame * drop.speed + drop.yOffset) % 150);
+    const matrices = raindrops.slice(0, activeDropCount).map((drop) => {
+        const yPos = 120 - ((motionFrame * drop.speed + drop.yOffset) % 150);
 
         return composeInstanceMatrix({
             position: [drop.x, yPos, drop.z],

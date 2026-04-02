@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import { getPhotoTextureUrl, getFlagTextureUrl } from "../assets/asset-urls";
+import { getFlagTextureUrl } from "../assets/asset-urls";
 import { preloadSharedTexture } from "../assets/texture-cache";
 import { reversedData, type SteleRenderMode } from "../scene/scene-logic";
 import { getFlagCode } from "../model/data";
@@ -11,7 +11,6 @@ const preloadSteleAssets = (index: number) => {
         return;
     }
 
-    preloadSharedTexture(getPhotoTextureUrl(item.imagePath), "photo");
     const flagCode = getFlagCode(item);
     if (flagCode) {
         preloadSharedTexture(getFlagTextureUrl(flagCode), "flag");
@@ -35,18 +34,6 @@ export const SceneAssetPreloader = ({
         }
 
         preloadSignatureRef.current = preloadSignature;
-
-        if (isCinematic) {
-            reversedData.forEach((_, index) => {
-                if (requestedSteleIndicesRef.current.has(index)) {
-                    return;
-                }
-
-                preloadSteleAssets(index);
-                requestedSteleIndicesRef.current.add(index);
-            });
-            return;
-        }
 
         renderModes.forEach((mode, index) => {
             if (mode === "minimal" || requestedSteleIndicesRef.current.has(index)) {
