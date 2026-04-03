@@ -34,8 +34,8 @@
   - название: Hero preview stage
   - id: `hero-preview-stage`
   - политика reuse: `none`
-  - source-of-truth files: `src/compositions/2026-03-30-richest-women-variants/RichestWomenVariantsComposition.tsx`
-  - что считается зафиксированным без пересборки: одиночный Studio-ready preview одной башни без corridor-world и без полного scene-package
+  - source-of-truth files: `src/lib/ranking-corridor/hero/portrait-biography-stele.tsx`, `src/compositions/2026-03-30-richest-women/scene/Scene.tsx`
+  - что считается зафиксированным без пересборки: grammar одиночного hero/object preview зафиксирован в library-backed hero-модуле; отдельная variant-composition позже выведена из Studio как больше не нужная
 - Пакет появления hero-модуля:
   - название: Portrait biography stele reveal
   - id: `portrait-biography-stele-v1`
@@ -79,7 +79,7 @@
 - Нужен ли ресерч: нет
 - Основные источники: `public/final_ranking.json`, `public/final_images/`
 - Дата актуальности: 2026-03-31
-- Заметки по конфликтам: dataset хранит страны полными именами, поэтому flag-layer использует project-local нормализацию в `src/compositions/2026-03-30-richest-women-variants/data.ts`
+- Заметки по конфликтам: dataset хранит страны полными именами, поэтому flag-layer использует project-local нормализацию в `src/compositions/2026-03-30-richest-women/model/data.ts`
 
 ## Допущения
 

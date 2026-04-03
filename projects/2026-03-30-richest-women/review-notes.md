@@ -20,7 +20,7 @@
 ## Предпросмотр
 
 - Цикл review: 1
-- Пакет предпросмотра: композиция `RichestWomenVariantComparison`, финальный single-hero preview на entry `#16 Marguerite Harbert`, контрольный still `projects/2026-03-30-richest-women/review-artifacts/richest-women-variant-comparison-website-flag-baseline.png`
+- Пакет предпросмотра: library-backed single-hero preview для entry `#16 Marguerite Harbert`, контрольный still `projects/2026-03-30-richest-women/review-artifacts/richest-women-variant-comparison-website-flag-baseline.png`; отдельный preview-контур позднее выведен из Studio как архивный
 - `2026-04-01 refresh`: контрольный still подтверждает user-updated library baseline с более широкой правой biography-card, увеличенной типографикой контента, фронтальной shell-посадкой и sculpted stone pedestal
 - Решение: `approve`
 - Проверенный охват: hero-module, portrait-slot, typography, right biography-card, flag/pole grammar, value-driven pedestal
@@ -48,7 +48,7 @@
 - Какие изменения обязательны: выполнены в этом же pass
 - Можно ли идти дальше без повторного предпросмотра: yes
 - Нужно ли обязательно повторить предпросмотр: no
-- Верификация или подтверждающие материалы: `npm test`, `npm run lint`, `npm run build`, `npx remotion still build RichestWomenVariantComparison projects/2026-03-30-richest-women/review-artifacts/richest-women-variant-comparison-website-flag-baseline.png --frame=180`
+- Верификация или подтверждающие материалы: `npm test`, `npm run lint`, `npm run build`, контрольный still `projects/2026-03-30-richest-women/review-artifacts/richest-women-variant-comparison-website-flag-baseline.png`
 
 ## Финальное утверждение
 
@@ -71,7 +71,7 @@
 
 | candidateId | candidateType | currentStatus | sourceLocation | reusableWhy | proposedDecision | targetPlacement | finalEvidence | docsUpdated | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| portrait-biography-stele-v1 | hero/object family | project-local | `src/compositions/2026-03-30-richest-women-variants/RichestWomenVariantsComposition.tsx` | модуль отделим от темы "богатые женщины": он решает общую corridor-задачу image-first portrait stele с длинной biography-card, pedestal и flag assembly | promote-to-library | `src/lib/ranking-corridor/hero/portrait-biography-stele.tsx`, `src/lib/ranking-corridor/hero/index.ts` | accepted user review, final still, library-backed preview, `npm test`, `npm run lint`, `npm run build` | `projects/2026-03-30-richest-women/launch-card.md`, `projects/2026-03-30-richest-women/asset-manifest.md`, `projects/2026-03-30-richest-women/review-notes.md`, `docs/library/ranking-corridor-module-registry.md` | в библиотеку поднят именно hero/object family; dataset binding, country-to-flag mapping и composition-level wealth normalization остаются project-local |
+| portrait-biography-stele-v1 | hero/object family | project-local | `src/lib/ranking-corridor/hero/portrait-biography-stele.tsx` | модуль отделим от темы "богатые женщины": он решает общую corridor-задачу image-first portrait stele с длинной biography-card, pedestal и flag assembly | promote-to-library | `src/lib/ranking-corridor/hero/portrait-biography-stele.tsx`, `src/lib/ranking-corridor/hero/index.ts` | accepted user review, final still, library-backed preview, `npm test`, `npm run lint`, `npm run build` | `projects/2026-03-30-richest-women/launch-card.md`, `projects/2026-03-30-richest-women/asset-manifest.md`, `projects/2026-03-30-richest-women/review-notes.md`, `docs/library/ranking-corridor-module-registry.md` | в библиотеку поднят именно hero/object family; dataset binding, country-to-flag mapping и composition-level wealth normalization остаются project-local |
 
 ## Общие заметки
 

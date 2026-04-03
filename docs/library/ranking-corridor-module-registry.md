@@ -653,4 +653,4 @@
   - `projects/2026-03-30-richest-women/review-notes.md`
   - `docs/library/ranking-corridor-module-registry.md`
 - `2026-04-01 refresh`: widened right biography-card, larger content typography, front-facing shell without tilt and sculpted stone pedestal via embedded `ThreeCanvas` are part of the current approved baseline; reusable status stays unchanged.
-- `notes`: в библиотеку поднят именно hero/object family с его reveal и layout grammar; project-local остаются dataset binding, country-to-flag normalization, wealth-range normalization и composition-level background/camera preview stage.
+- `notes`: в библиотеку поднят именно hero/object family с его reveal и layout grammar; project-local остаются dataset binding, country-to-flag normalization, wealth-range normalization и composition-level background/camera logic основного corridor-проекта.
