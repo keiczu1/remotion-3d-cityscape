@@ -75,7 +75,7 @@ export const data = sortedEntries.map(({ entry, wealthBillions }, i) => ({
     fact: entry.fact,
     wealth: entry.wealth,
     imagePath: entry.image_path,
-    moneyFrom: entry.source_detail ?? entry.money_from ?? entry.wealth_source ?? "Not specified",
+    moneyFrom: entry.money_from ?? entry.source_detail ?? entry.wealth_source ?? "Not specified",
     relHeight: maxWealth > 0 ? (wealthBillions / maxWealth) * 100 : 1,
 }));
 
