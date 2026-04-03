@@ -11,12 +11,12 @@ import {
     sequenceCompleteFrame,
 } from "../scene/scene-logic";
 
-test("main-pass timing keeps short cuts and readable four-second holds", () => {
+test("main-pass timing keeps short cuts and readable nine-second holds", () => {
     const current = milestones[1];
     const previous = milestones[0];
 
     assert.equal(current.arriveFrame - previous.leaveFrame, 108);
-    assert.equal(current.leaveFrame - current.arriveFrame, 240);
+    assert.equal(current.leaveFrame - current.arriveFrame, 540);
 });
 
 test("focus stays on the current stele during the rail move and switches on arrival", () => {
@@ -31,9 +31,9 @@ test("focus stays on the current stele during the rail move and switches on arri
 
 test("camera holds on one stele with a stable rightward rail drift and fixed depth", () => {
     const target = milestones[10];
-    const earlyFrame = target.arriveFrame + 90;
-    const midFrame = target.arriveFrame + 150;
-    const lateFrame = target.arriveFrame + 210;
+    const earlyFrame = target.arriveFrame + 150;
+    const midFrame = target.arriveFrame + 300;
+    const lateFrame = target.arriveFrame + 510;
 
     const earlyState = getCameraState(earlyFrame);
     const midState = getCameraState(midFrame);
@@ -51,7 +51,7 @@ test("camera holds on one stele with a stable rightward rail drift and fixed dep
     assert.ok(Math.abs(lateState.lookX - target.xCenter) <= 0.5);
     assert.ok(earlyState.camX < midState.camX);
     assert.ok(midState.camX < lateState.camX);
-    assert.ok(camXSpan >= 0.4 && camXSpan <= 3);
+    assert.ok(camXSpan >= 0.4 && camXSpan <= 1.5);
     assert.ok(camZSpan <= 0.2);
 });
 
@@ -61,7 +61,7 @@ test("camera performs a short rail move before arrival and then keeps moving rig
     const approachFrame = previous.leaveFrame + 6;
     const midRailFrame = previous.leaveFrame + 18;
     const revealFrame = target.arriveFrame;
-    const settledFrame = target.arriveFrame + 90;
+    const settledFrame = target.arriveFrame + 150;
 
     const approachState = getCameraState(approachFrame);
     const midRailState = getCameraState(midRailFrame);

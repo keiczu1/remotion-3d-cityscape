@@ -51,10 +51,15 @@ export type PortraitBiographySteleHeroProps = {
 	showInfoSideCard?: boolean;
 	shellOpacityMultiplier?: number;
 	preserveEntranceColors?: boolean;
+	infoSideCardTextEffect?: "default" | "typewriter";
+	infoSideCardTypewriterFrame?: number;
 };
 
 export const PORTRAIT_BIOGRAPHY_STELE_BASE_WIDTH = 1380;
 export const PORTRAIT_BIOGRAPHY_STELE_BASE_HEIGHT = 1040;
+const TYPEWRITER_CHARS_PER_SECOND = 28;
+const TYPEWRITER_SECTION_PAUSE_FRAMES = 10;
+const INFO_SIDE_CARD_TYPEWRITER_MAX_CHARS = 29;
 
 export const portraitBiographySteleDefaultTheme: PortraitBiographySteleTheme = {
 	shell: "linear-gradient(180deg, rgba(18, 11, 14, 0.98) 0%, rgba(28, 17, 22, 0.98) 100%)",
@@ -250,6 +255,125 @@ export const wrapPortraitBiographySteleLines = (text: string, maxChars: number, 
 	}
 
 	return lines.slice(0, maxLines);
+};
+
+export const wrapPortraitBiographySteleLinesFull = (text: string, maxChars: number) => {
+	const normalized = text.trim();
+	if (!normalized) {
+		return [];
+	}
+
+	const words = normalized.split(/\s+/).filter(Boolean);
+	const lines: string[] = [];
+	let current = "";
+
+	for (const word of words) {
+		const next = current ? `${current} ${word}` : word;
+		if (next.length <= maxChars) {
+			current = next;
+			continue;
+		}
+
+		if (current) {
+			lines.push(current);
+		}
+
+		current = word;
+	}
+
+	if (current) {
+		lines.push(current);
+	}
+
+	return lines;
+};
+
+export const getTypewriterTextState = ({
+	text,
+	frame,
+	fps,
+	charsPerSecond = TYPEWRITER_CHARS_PER_SECOND,
+}: {
+	text: string;
+	frame: number;
+	fps: number;
+	charsPerSecond?: number;
+}) => {
+	const normalizedText = text.trim().replace(/\s+/g, " ");
+	const framesPerCharacter = Math.max(1, fps / charsPerSecond);
+	const durationFrames = normalizedText
+		? Math.max(1, Math.ceil(normalizedText.length * framesPerCharacter))
+		: 0;
+
+	if (!normalizedText) {
+		return {
+			text: "",
+			isComplete: true,
+			durationFrames,
+		};
+	}
+
+	if (frame < 0) {
+		return {
+			text: "",
+			isComplete: false,
+			durationFrames,
+		};
+	}
+
+	const safeFrame = Math.max(0, frame);
+	const visibleCharacterCount = Math.min(
+		normalizedText.length,
+		Math.floor(safeFrame / framesPerCharacter) + 1,
+	);
+	const isComplete = visibleCharacterCount >= normalizedText.length;
+
+	return {
+		text: normalizedText.slice(0, visibleCharacterCount),
+		isComplete,
+		durationFrames,
+	};
+};
+
+export const getWrappedTypewriterTextState = ({
+	text,
+	frame,
+	fps,
+	maxChars,
+	charsPerSecond = TYPEWRITER_CHARS_PER_SECOND,
+}: {
+	text: string;
+	frame: number;
+	fps: number;
+	maxChars: number;
+	charsPerSecond?: number;
+}) => {
+	const plannedLines = wrapPortraitBiographySteleLinesFull(text, maxChars);
+	const flattenedText = plannedLines.join(" ");
+	const typewriter = getTypewriterTextState({
+		text: flattenedText,
+		frame,
+		fps,
+		charsPerSecond,
+	});
+	let remainingVisibleCharacters = typewriter.text.length;
+	const visibleLines = plannedLines.map((line, index) => {
+		const visibleCharacterCount = Math.max(0, Math.min(line.length, remainingVisibleCharacters));
+		const visibleLine = line.slice(0, visibleCharacterCount);
+
+		remainingVisibleCharacters -= visibleCharacterCount;
+		if (index < plannedLines.length - 1 && remainingVisibleCharacters > 0) {
+			remainingVisibleCharacters = Math.max(0, remainingVisibleCharacters - 1);
+		}
+
+		return visibleLine;
+	});
+
+	return {
+		...typewriter,
+		plannedLines,
+		visibleLines,
+	};
 };
 
 const getPortraitBiographySteleMotion = ({
@@ -507,6 +631,9 @@ const InfoSideCard = ({
 	contentFontSize,
 	contentLineHeight,
 	contentOpacity,
+	textEffect,
+	typewriterFrame,
+	fps,
 }: {
 	moneyFrom: string;
 	fact: string;
@@ -515,11 +642,42 @@ const InfoSideCard = ({
 	contentFontSize: number;
 	contentLineHeight: number;
 	contentOpacity: number;
+	textEffect: "default" | "typewriter";
+	typewriterFrame: number;
+	fps: number;
 }) => {
 	const normalizedMoneyFrom = moneyFrom.trim().replace(/\s+/g, " ");
 	const normalizedFact = fact.trim().replace(/\s+/g, " ");
 	const contentTranslateX = Math.round((1 - motion.copy) * 32);
 	const contentTranslateY = Math.round((1 - motion.copy) * 10);
+	const moneyFromTypewriter = getWrappedTypewriterTextState({
+		text: normalizedMoneyFrom,
+		frame: typewriterFrame,
+		fps,
+		maxChars: INFO_SIDE_CARD_TYPEWRITER_MAX_CHARS,
+	});
+	const factTypewriterStartFrame = moneyFromTypewriter.durationFrames + TYPEWRITER_SECTION_PAUSE_FRAMES;
+	const factTypewriter = getWrappedTypewriterTextState({
+		text: normalizedFact,
+		frame: typewriterFrame - factTypewriterStartFrame,
+		fps,
+		maxChars: INFO_SIDE_CARD_TYPEWRITER_MAX_CHARS,
+	});
+	const renderTypewriterText = (value: {visibleLines: string[]}) => {
+		let lastVisibleLineIndex = -1;
+		for (let index = value.visibleLines.length - 1; index >= 0; index -= 1) {
+			if (value.visibleLines[index] && value.visibleLines[index].length > 0) {
+				lastVisibleLineIndex = index;
+				break;
+			}
+		}
+
+		if (lastVisibleLineIndex === -1) {
+			return "";
+		}
+
+		return value.visibleLines.slice(0, lastVisibleLineIndex + 1).join("\n");
+	};
 
 	return (
 		<div
@@ -572,13 +730,13 @@ const InfoSideCard = ({
 						lineHeight: contentLineHeight,
 						fontWeight: 700,
 						color: "#FFF5F0",
-						whiteSpace: "normal",
-						textWrap: "pretty",
+						whiteSpace: textEffect === "typewriter" ? "pre-line" : "normal",
+						textWrap: textEffect === "typewriter" ? "wrap" : "pretty",
 						overflowWrap: "break-word",
 						marginBottom: 30,
 					}}
 				>
-					{normalizedMoneyFrom}
+					{textEffect === "typewriter" ? renderTypewriterText(moneyFromTypewriter) : normalizedMoneyFrom}
 				</div>
 				<div
 					style={{
@@ -605,12 +763,12 @@ const InfoSideCard = ({
 						lineHeight: contentLineHeight,
 						fontWeight: 600,
 						color: "#FFECD9",
-						whiteSpace: "normal",
-						textWrap: "pretty",
+						whiteSpace: textEffect === "typewriter" ? "pre-line" : "normal",
+						textWrap: textEffect === "typewriter" ? "wrap" : "pretty",
 						overflowWrap: "break-word",
 					}}
 				>
-					{normalizedFact}
+					{textEffect === "typewriter" ? renderTypewriterText(factTypewriter) : normalizedFact}
 				</div>
 			</div>
 		</div>
@@ -926,6 +1084,8 @@ const PortraitBiographySteleHeroBase = ({
 	showInfoSideCard = true,
 	shellOpacityMultiplier = 1,
 	preserveEntranceColors = false,
+	infoSideCardTextEffect = "default",
+	infoSideCardTypewriterFrame,
 }: PortraitBiographySteleHeroProps & {
 	frame: number;
 	fps: number;
@@ -938,6 +1098,8 @@ const PortraitBiographySteleHeroBase = ({
 	const shellOpacity = preserveEntranceColors ? shellOpacityMultiplier : motion.opacity * shellOpacityMultiplier;
 	const mediaOpacity = preserveEntranceColors ? 1 : motion.media;
 	const copyOpacity = preserveEntranceColors ? 1 : motion.copyOpacity;
+	const typewriterFrameSource = infoSideCardTypewriterFrame ?? frame;
+	const typewriterFrame = typewriterFrameSource - (delay + 24);
 
 	return (
 		<div style={baseCardStyle}>
@@ -951,6 +1113,9 @@ const PortraitBiographySteleHeroBase = ({
 					contentFontSize={contentFontSize}
 					contentLineHeight={contentLineHeight}
 					contentOpacity={copyOpacity}
+					textEffect={infoSideCardTextEffect}
+					typewriterFrame={typewriterFrame}
+					fps={fps}
 				/>
 			) : null}
 			{showFlagMast ? <FlagMast flagCode={flagCode} delay={delay} frame={frame} fps={fps} /> : null}

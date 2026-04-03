@@ -30,6 +30,7 @@ import {
     reversedData,
 } from "../scene/scene-logic";
 import { getFlagCode, getPhotoSrc } from "../model/data";
+import { getEntranceEffect, getSidebarExitStyle } from "../entrance-effects";
 
 const PEDESTAL_TO_SHELL_WIDTH_RATIO = 1.36;
 const projectionCamera = new THREE.PerspectiveCamera(45, 16 / 9, 1, 7000);
@@ -386,7 +387,20 @@ export const FocusedBiographyOverlay = ({
 
                 const left = projectedBottomX - BIO_STELE_SHELL_BOTTOM_CENTER_X_PX * scale;
                 const top = projectedBottomY - BIO_STELE_SHELL_BOTTOM_CENTER_Y_PX * scale;
-                const shouldShowInfoSideCard = isCurrentFocus && overlayProgress >= SIDEBAR_VISIBILITY_GATE;
+
+                // ── entrance effect ──
+                const entranceAnimFrame = Math.max(0, frame - Math.max(0, milestone.arriveFrame - 12));
+                const entranceEffect = getEntranceEffect(index, entranceAnimFrame, fps);
+
+                // ── sidebar: keep visible for pinned previous during handoff ──
+                const isPinnedPrevious = pinnedPreviousIndex !== null && index === pinnedPreviousIndex;
+                const shouldShowInfoSideCard =
+                    (isCurrentFocus && overlayProgress >= SIDEBAR_VISIBILITY_GATE) ||
+                    (isPinnedPrevious && handoffProgress < 0.85);
+                const sidebarExitMultiplier = isPinnedPrevious
+                    ? getSidebarExitStyle(handoffProgress, index).opacity
+                    : 1;
+
                 const focusVisibleInViewport = isOverlayVisibleInViewport(presentationState);
                 const shouldFreezeCurrentHeroFrame =
                     isCurrentFocus &&
@@ -398,6 +412,9 @@ export const FocusedBiographyOverlay = ({
                     isCurrentFocus ? overlayProgress : 0,
                 );
                 const visualOpacity = isCurrentFocus ? 1 : overlayOpacity;
+
+                // ── combined entrance opacity (entrance spring × base × sidebar-exit) ──
+                const combinedOpacity = visualOpacity * entranceEffect.shell.opacity * sidebarExitMultiplier;
 
                 if (shouldFreezeCurrentHeroFrame && !settledHeroFrameRef.current.has(index)) {
                     settledHeroFrameRef.current.set(index, frame);
@@ -411,9 +428,16 @@ export const FocusedBiographyOverlay = ({
                     ? settledHeroFrameRef.current.get(index) ?? frame
                     : frozenHeroFrameRef.current.get(index) ?? frame;
 
-                if (visualOpacity <= 0.001) {
+                if (combinedOpacity <= 0.001) {
                     return null;
                 }
+
+                // ── transform origin anchored to pedestal contact point ──
+                const originX = BIO_STELE_SHELL_BOTTOM_CENTER_X_PX * scale;
+                const originY = BIO_STELE_SHELL_BOTTOM_CENTER_Y_PX * scale;
+                const entranceTransform = entranceEffect.shell.transform !== "none"
+                    ? `${entranceEffect.shell.transform} translateZ(0)`
+                    : "translateZ(0)";
 
                 return (
                     <div
@@ -424,11 +448,13 @@ export const FocusedBiographyOverlay = ({
                             top,
                             width: PORTRAIT_BIOGRAPHY_STELE_BASE_WIDTH * scale,
                             height: PORTRAIT_BIOGRAPHY_STELE_BASE_HEIGHT * scale,
-                            opacity: visualOpacity,
-                            transform: `translateZ(0)`,
+                            opacity: combinedOpacity,
+                            transform: entranceTransform,
+                            transformOrigin: `${originX}px ${originY}px`,
                             willChange: "transform, opacity",
                             contain: "layout paint style",
                             overflow: "visible",
+                            ...(entranceEffect.shell.filter ? { filter: entranceEffect.shell.filter } : {}),
                         }}
                     >
                         <div
@@ -459,6 +485,8 @@ export const FocusedBiographyOverlay = ({
                                 showInfoSideCard={shouldShowInfoSideCard}
                                 shellOpacityMultiplier={1}
                                 preserveEntranceColors={isCurrentFocus}
+                                infoSideCardTextEffect="typewriter"
+                                infoSideCardTypewriterFrame={frame}
                             />
                         </div>
                     </div>
