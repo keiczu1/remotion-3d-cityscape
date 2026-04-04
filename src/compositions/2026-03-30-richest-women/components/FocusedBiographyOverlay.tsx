@@ -485,7 +485,8 @@ export const FocusedBiographyOverlay = ({
                                 showInfoSideCard={shouldShowInfoSideCard}
                                 shellOpacityMultiplier={1}
                                 preserveEntranceColors={isCurrentFocus}
-                                infoSideCardTextEffect="typewriter"
+                                freezeMediaEffects={!isCurrentFocus}
+                                infoSideCardTextEffect={isCurrentFocus ? "typewriter" : "default"}
                                 infoSideCardTypewriterFrame={frame}
                             />
                         </div>

@@ -51,6 +51,7 @@ export type PortraitBiographySteleHeroProps = {
 	showInfoSideCard?: boolean;
 	shellOpacityMultiplier?: number;
 	preserveEntranceColors?: boolean;
+	freezeMediaEffects?: boolean;
 	infoSideCardTextEffect?: "default" | "typewriter";
 	infoSideCardTypewriterFrame?: number;
 };
@@ -60,6 +61,7 @@ export const PORTRAIT_BIOGRAPHY_STELE_BASE_HEIGHT = 1040;
 const TYPEWRITER_CHARS_PER_SECOND = 28;
 const TYPEWRITER_SECTION_PAUSE_FRAMES = 10;
 const INFO_SIDE_CARD_TYPEWRITER_MAX_CHARS = 29;
+const TYPEWRITER_SECTION_HEIGHT_PADDING_PX = 6;
 
 export const portraitBiographySteleDefaultTheme: PortraitBiographySteleTheme = {
 	shell: "linear-gradient(180deg, rgba(18, 11, 14, 0.98) 0%, rgba(28, 17, 22, 0.98) 100%)",
@@ -432,6 +434,24 @@ const getPortraitBiographySteleMotion = ({
 
 type PortraitBiographySteleMotion = ReturnType<typeof getPortraitBiographySteleMotion>;
 
+export const getPortraitBiographySteleShellAnimationState = ({
+	motion,
+	preserveEntranceColors,
+	freezeMediaEffects,
+}: {
+	motion: PortraitBiographySteleMotion;
+	preserveEntranceColors: boolean;
+	freezeMediaEffects: boolean;
+}) => ({
+	shellTranslateY: preserveEntranceColors ? 0 : motion.y,
+	shellScale: preserveEntranceColors ? 1 : motion.scale,
+	shellGlow: preserveEntranceColors || freezeMediaEffects ? 0.55 : motion.glow,
+	mediaScale: preserveEntranceColors || freezeMediaEffects ? 1 : motion.mediaScale,
+	shimmerTranslateX: preserveEntranceColors || freezeMediaEffects ? 0 : motion.shimmer,
+	shimmerOpacity: preserveEntranceColors || freezeMediaEffects ? 0 : motion.media * 0.9,
+	mainCopyTranslateY: preserveEntranceColors ? 0 : motion.copyY,
+});
+
 /** Seeded pseudo-random */
 const srand = (s: number) => {
 	const v = Math.sin(s * 127.1 + 311.7) * 43758.5453;
@@ -648,8 +668,9 @@ const InfoSideCard = ({
 }) => {
 	const normalizedMoneyFrom = moneyFrom.trim().replace(/\s+/g, " ");
 	const normalizedFact = fact.trim().replace(/\s+/g, " ");
-	const contentTranslateX = Math.round((1 - motion.copy) * 32);
-	const contentTranslateY = Math.round((1 - motion.copy) * 10);
+	const freezeContentMotion = textEffect === "typewriter";
+	const contentTranslateX = freezeContentMotion ? 0 : (1 - motion.copy) * 32;
+	const contentTranslateY = freezeContentMotion ? 0 : (1 - motion.copy) * 10;
 	const moneyFromTypewriter = getWrappedTypewriterTextState({
 		text: normalizedMoneyFrom,
 		frame: typewriterFrame,
@@ -678,6 +699,16 @@ const InfoSideCard = ({
 
 		return value.visibleLines.slice(0, lastVisibleLineIndex + 1).join("\n");
 	};
+	const moneyFromSectionMinHeight =
+		textEffect === "typewriter"
+			? Math.ceil(moneyFromTypewriter.plannedLines.length * contentFontSize * contentLineHeight) +
+				TYPEWRITER_SECTION_HEIGHT_PADDING_PX
+			: undefined;
+	const factSectionMinHeight =
+		textEffect === "typewriter"
+			? Math.ceil(factTypewriter.plannedLines.length * contentFontSize * contentLineHeight) +
+				TYPEWRITER_SECTION_HEIGHT_PADDING_PX
+			: undefined;
 
 	return (
 		<div
@@ -733,6 +764,7 @@ const InfoSideCard = ({
 						whiteSpace: textEffect === "typewriter" ? "pre-line" : "normal",
 						textWrap: textEffect === "typewriter" ? "wrap" : "pretty",
 						overflowWrap: "break-word",
+						minHeight: moneyFromSectionMinHeight,
 						marginBottom: 30,
 					}}
 				>
@@ -766,6 +798,7 @@ const InfoSideCard = ({
 						whiteSpace: textEffect === "typewriter" ? "pre-line" : "normal",
 						textWrap: textEffect === "typewriter" ? "wrap" : "pretty",
 						overflowWrap: "break-word",
+						minHeight: factSectionMinHeight,
 					}}
 				>
 					{textEffect === "typewriter" ? renderTypewriterText(factTypewriter) : normalizedFact}
@@ -907,14 +940,20 @@ const PortraitImage = ({
 	</div>
 );
 
-const shimmerOverlay = (motion: PortraitBiographySteleMotion) => (
+const shimmerOverlay = ({
+	translateX,
+	opacity,
+}: {
+	translateX: number;
+	opacity: number;
+}) => (
 	<div
 		style={{
 			position: "absolute",
 			inset: 0,
 			background: "linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.05) 42%, rgba(255,255,255,0.18) 52%, transparent 65%)",
-			transform: `translateX(${motion.shimmer}%)`,
-			opacity: motion.media * 0.9,
+			transform: `translateX(${translateX}%)`,
+			opacity,
 			mixBlendMode: "screen",
 			pointerEvents: "none",
 		}}
@@ -1084,6 +1123,7 @@ const PortraitBiographySteleHeroBase = ({
 	showInfoSideCard = true,
 	shellOpacityMultiplier = 1,
 	preserveEntranceColors = false,
+	freezeMediaEffects = false,
 	infoSideCardTextEffect = "default",
 	infoSideCardTypewriterFrame,
 }: PortraitBiographySteleHeroProps & {
@@ -1094,6 +1134,11 @@ const PortraitBiographySteleHeroBase = ({
 		frame,
 		fps,
 		delay,
+	});
+	const shellAnimation = getPortraitBiographySteleShellAnimationState({
+		motion,
+		preserveEntranceColors,
+		freezeMediaEffects,
 	});
 	const shellOpacity = preserveEntranceColors ? shellOpacityMultiplier : motion.opacity * shellOpacityMultiplier;
 	const mediaOpacity = preserveEntranceColors ? 1 : motion.media;
@@ -1128,8 +1173,8 @@ const PortraitBiographySteleHeroBase = ({
 					height: 790,
 					borderRadius: 36,
 					background: theme.shell,
-					boxShadow: `0 28px 80px rgba(0,0,0,0.55), 0 0 0 1px ${theme.secondaryShell} inset, 0 0 44px rgba(255,180,120,${0.12 + motion.glow * 0.08})`,
-					transform: `${theme.tilt} translateY(${Math.round(motion.y)}px) scale(${motion.scale})`,
+					boxShadow: `0 28px 80px rgba(0,0,0,0.55), 0 0 0 1px ${theme.secondaryShell} inset, 0 0 44px rgba(255,180,120,${0.12 + shellAnimation.shellGlow * 0.08})`,
+					transform: `${theme.tilt} translateY(${shellAnimation.shellTranslateY}px) scale(${shellAnimation.shellScale})`,
 					opacity: shellOpacity,
 					overflow: "hidden",
 				}}
@@ -1159,10 +1204,13 @@ const PortraitBiographySteleHeroBase = ({
 					<PortraitImage
 						src={photoSrc}
 						opacity={mediaOpacity}
-						scale={motion.mediaScale}
+						scale={shellAnimation.mediaScale}
 						radius={28}
 					/>
-					{shimmerOverlay(motion)}
+					{shimmerOverlay({
+						translateX: shellAnimation.shimmerTranslateX,
+						opacity: shellAnimation.shimmerOpacity,
+					})}
 					<div
 						style={{
 							position: "absolute",
@@ -1196,7 +1244,7 @@ const PortraitBiographySteleHeroBase = ({
 						display: "flex",
 						flexDirection: "column",
 						gap: 8,
-						transform: `translateY(${Math.round(motion.copyY)}px)`,
+						transform: `translateY(${shellAnimation.mainCopyTranslateY}px)`,
 						opacity: copyOpacity,
 					}}
 				>

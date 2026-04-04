@@ -4,6 +4,7 @@ import test from "node:test";
 import {
 	formatPortraitBiographySteleLifeYears,
 	formatPortraitBiographySteleName,
+	getPortraitBiographySteleShellAnimationState,
 	getTypewriterTextState,
 	getWrappedTypewriterTextState,
 	shortenPortraitBiographySteleOrigin,
@@ -100,4 +101,64 @@ test("portrait biography stele typewriter keeps planned line breaks stable acros
 	]);
 	assert.equal(wrapped.visibleLines[0], "Alpha beta");
 	assert.ok(wrapped.visibleLines[1]?.startsWith("g"));
+});
+
+test("portrait biography stele freezes internal shell motion for focused overlay cards", () => {
+	const state = getPortraitBiographySteleShellAnimationState({
+		motion: {
+			enter: 0.8,
+			media: 0.9,
+			copy: 0.7,
+			shimmer: 42,
+			y: 18,
+			opacity: 0.95,
+			scale: 0.97,
+			copyOpacity: 0.88,
+			copyY: 11,
+			mediaScale: 1.04,
+			glow: 0.6,
+		},
+		preserveEntranceColors: true,
+		freezeMediaEffects: false,
+	});
+
+	assert.deepEqual(state, {
+		shellTranslateY: 0,
+		shellScale: 1,
+		shellGlow: 0.55,
+		mediaScale: 1,
+		shimmerTranslateX: 0,
+		shimmerOpacity: 0,
+		mainCopyTranslateY: 0,
+	});
+});
+
+test("portrait biography stele can freeze ambient media effects without freezing shell copy motion", () => {
+	const state = getPortraitBiographySteleShellAnimationState({
+		motion: {
+			enter: 0.8,
+			media: 0.9,
+			copy: 0.7,
+			shimmer: 42,
+			y: 18,
+			opacity: 0.95,
+			scale: 0.97,
+			copyOpacity: 0.88,
+			copyY: 11,
+			mediaScale: 1.04,
+			glow: 0.6,
+		},
+		preserveEntranceColors: false,
+		freezeMediaEffects: true,
+	});
+
+	assert.deepEqual(state, {
+		shellTranslateY: 18,
+		shellScale: 0.97,
+		shellGlow: 0.55,
+		mediaScale: 1,
+		shimmerTranslateX: 0,
+		shimmerOpacity: 0,
+		mainCopyTranslateY: 11,
+	});
 });

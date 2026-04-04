@@ -153,14 +153,14 @@ const effectZoomBlur: EffectFn = ({ animFrame, fps }) => {
 
 // #7 Glitch Shift — jitter + RGB split feel
 const effectGlitchShift: EffectFn = ({ animFrame, fps }) => {
-    const stabilize = spring({ fps, frame: Math.max(0, animFrame - 5), config: { damping: 8, mass: 0.6, stiffness: 130 } });
-    const jitterX = stabilize < 0.95 ? Math.sin(animFrame * 7.3) * (1 - stabilize) * 30 : 0;
-    const jitterY = stabilize < 0.95 ? Math.cos(animFrame * 5.1) * (1 - stabilize) * 20 : 0;
-    const opacity = stabilize < 0.8 ? (Math.sin(animFrame * 11) > 0 ? 0.75 : 0.35) : Math.min(1, stabilize * 1.1);
+    const p = spring({ fps, frame: Math.max(0, animFrame), config: { damping: 17, mass: 0.92, stiffness: 92 } });
+    const driftX = interpolate(p, [0, 1], [-42, 0]);
+    const driftY = interpolate(p, [0, 1], [22, 0]);
+    const scale = interpolate(p, [0, 1], [0.985, 1]);
     return {
         shell: {
-            opacity,
-            transform: `translate(${jitterX}px, ${jitterY}px)`,
+            opacity: interpolate(p, [0, 1], [0, 1]),
+            transform: `translate(${driftX}px, ${driftY}px) scale(${scale})`,
         },
         sidebar: sidebarAppear(animFrame, fps, 22, "right"),
     };
