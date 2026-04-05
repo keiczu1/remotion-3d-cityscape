@@ -1,4 +1,4 @@
-# Asset Manifest
+﻿# Asset Manifest
 
 ## Проект
 
@@ -35,4 +35,4 @@
 - Все ассеты полностью переиспользуются из reference-проекта `ranking-towers`
 - Новому проекту не нужна отдельная директория `public/ranking-corridor/most-visited-websites/` — favicons и flags уже доступны
 - После optimization-pass код не вводит новых project-local ассетов: воспроизводимость preview по данным и ассетам сохраняется
-- После final-approved и library-audit-pass asset-set не менялся: promotion затронул только reusable math/preset слой и документацию, без новых медиа-ассетов
+- После final-approved и manual reusable review-pass asset-set не менялся: promotion затронул только reusable math/preset слой и документацию, без новых медиа-ассетов

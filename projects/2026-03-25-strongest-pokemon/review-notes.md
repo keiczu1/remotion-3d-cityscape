@@ -1,4 +1,4 @@
-# Review Notes
+﻿# Review Notes
 
 Сохраняется как `projects/2026-03-25-strongest-pokemon/review-notes.md`.
 
@@ -9,10 +9,10 @@
 - Начато: 2026-03-25
 - Обновлено: 2026-03-26
 
-## Режиссерский план
+## Исторический Pre-build Review
 
 - Цикл review: 1
-- Проверяемый director-pass: `v1` (Эволюция от леса к грозовой вершине)
+- Проверяемый pre-build review: `v1` (Эволюция от леса к грозовой вершине)
 - Решение: `approved`
 - Что подтверждено: Общая режиссерская задумка, 4-актная эскалация, world-slot каркас и theme-driven mountain-storm направление.
 - Что нужно изменить: -
@@ -26,11 +26,11 @@
 - Решение: `approve`
 - Проверенный охват: Главные checkpoint-задачи `BP-02 ... BP-08`, полный маршрут от ранних рангов к финалу и целостность image-first hero policy.
 - Что подтверждено: Камера, hero reveal, mountain-storm environment, directed-motion train-lines, corridor-relief ground и финальный storm payoff работают совместно.
-- Обещанные world-slot из `director-pass`: `horizon, side-dressing, atmospheric-motion, directed-motion, ground, light-weather, payoff`
+- Обещанные world-slot из `pre-build review`: `horizon, side-dressing, atmospheric-motion, directed-motion, ground, light-weather, payoff`
 - Реально реализованные world-slot: `horizon, side-dressing, atmospheric-motion, directed-motion, ground, light-weather, payoff`
 - Проверенное покрытие сцен: `scene-1, scene-2, scene-3, scene-4`
-- Результат director-pass-проверки: `ok`
-- Director-pass-заметки: Эскалация держится от спокойного леса к грозовой вершине; поезд и relief дают живую среду, но остаются вторичным world-layer.
+- Результат pre-build review-проверки: `ok`
+- Pre-build review-заметки: Эскалация держится от спокойного леса к грозовой вершине; поезд и relief дают живую среду, но остаются вторичным world-layer.
 - Перетягивает ли вторичная жизнь внимание с героя: `no`
 - Результат layout-проверки: `ok`
 - Layout-заметки: Имя и ранг сохраняют доминирование; active lane и podium separation удержаны после осветления ground.
@@ -46,7 +46,7 @@
   - Ground / podium separation: Основание башен отделяется от пола; dark-lane дефект не доминирует.
   - Camera / pacing: Rail-focus preset держит непрерывный проход и финальное замедление без дерганья.
   - Environment / secondary-life: Relief, поезда, лес, гроза и clouds живые, но не перетягивают внимание.
-  - Director-pass match: Финальный мир соответствует direction от леса к storm-plateau.
+  - Pre-build review match: Финальный мир соответствует direction от леса к storm-plateau.
 - Какие изменения обязательны: -
 - Можно ли идти дальше без повторного предпросмотра: yes
 - Нужно ли обязательно повторить предпросмотр: no
@@ -58,11 +58,11 @@
 - Статус: `final-approved-with-notes`
 - Проверенный build: `npm run build`, `npm run lint`
 - Проверенный снимок данных: `public/ranking-corridor/2026-03-25-strongest-pokemon/data.json`, `npm run validate:data -- 2026-03-25-strongest-pokemon`
-- Заметки: Финальный accepted проект использован как основа для library-audit; после самого promotion-pass сделаны свежие machine-check и новый still-set уже на library-backed версии сцены.
-- Обязательные последующие действия: library-audit выполнен; reusable world/art modules вынесены в `src/lib/ranking-corridor`.
+- Заметки: Финальный accepted проект использован как основа для manual reusable review; после самого promotion-pass сделаны свежие machine-check и новый still-set уже на library-backed версии сцены.
+- Обязательные последующие действия: manual reusable review выполнен; reusable world/art modules вынесены в `src/lib/ranking-corridor`.
 - Блокирующие причины: -
 
-## Аудит библиотеки
+## Ручной Review Reusable-Кандидатов
 
 - Дата аудита: 2026-03-26
 - Результат аудита: `auto-promotion-applied`

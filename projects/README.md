@@ -37,10 +37,13 @@
 
 - `projects/<project-slug>/launch-card.md`
 
-Обязательный минимум для production-цикла к моменту preview-ready работы
-production-цикл наследует launch-only минимум и дополнительно требует:
+Для нового режима `library-only-constructor-v1` рекомендуется materialize-ить вместе с `launch-card.md` и skeleton-файл:
 
-- `projects/<project-slug>/director-pass.md`
+- `projects/<project-slug>/review-notes.md`
+
+Обязательный минимум для production-цикла к моменту первого `preview-gate`
+production-цикл наследует launch-only минимум и к первому `preview-gate` дополнительно требует:
+
 - `projects/<project-slug>/build-plan.md`
 - `projects/<project-slug>/asset-manifest.md`
 - `projects/<project-slug>/review-notes.md`
@@ -53,24 +56,20 @@ production-цикл наследует launch-only минимум и допол�
 
 `README.md` проекта нужен только если проект живет дольше одной короткой сессии, требует handoff или накопил длинную историю решений.
 
-`director-pass.md` обязателен после утверждения `launch-card`, если проект дошел до production-этапа и готовится к `preview-gate`.
-
-`build-plan.md` обязателен после `director-pass.md` и до `preview-gate`. Это project-local исполнительный чеклист, который разносит `preview-build` и `post-preview-build` и позволяет продолжать работу по файловому состоянию проекта.
+`build-plan.md` обязателен после `launch-card.md` и до `preview-gate`. Это project-local исполнительный чеклист, который разносит `preview-build` и `post-preview-build` и позволяет продолжать работу по файловому состоянию проекта.
 
 Практически это означает:
 
 - при первом materialize production-container можно создать стартовый минимум без `build-plan.md`;
-- сразу после `director-pass.md` `build-plan.md` должен быть материализован, чтобы контейнер достиг полного production minimum.
-
-`asset-manifest.md`, `review-notes.md`, `data/` и `exports/` не нужно материализовать на launch-этапе заранее. Они становятся обязательной частью контейнера, когда проект переходит в production-цикл.
+- для нового режима `build-plan.md` materialize-ится сразу после утверждения `launch-card.md`;
+`build-plan.md` materialize-ится сразу после `launch-card.md`. `asset-manifest.md`, `data/` и `exports/` не нужно материализовать заранее на launch-этапе: они становятся обязательной частью production-контейнера к первому `preview-gate`. `review-notes.md` materialize-ится как skeleton уже вместе с `launch-card.md`.
 
 ## Роль файлов
 
 - `launch-card.md` — короткий контракт запуска ролика.
-- `director-pass.md` — подробный режиссерский проход и основной этап content enrichment между `launch-card` и `preview-gate`.
-- `build-plan.md` — project-local план реализации и декомпозиция задач между `director-pass.md` и production-сборкой.
-- `asset-manifest.md` — снимок данных, источников и локальных ассетов.
-- `review-notes.md` — единый файл для `Предпросмотра`, `Финального утверждения` и `Аудита библиотеки`.
+- `build-plan.md` — project-local план реализации и декомпозиция задач между `launch-card.md` и production-сборкой.
+- `asset-manifest.md` — рабочий снимок данных, источников и локальных ассетов для preview/full цикла.
+- `review-notes.md` — единый owner-файл для `Preview gate` и `Final approval`.
 - `data/` — локальные данные, research-notes и source snapshots.
 - `exports/` — кадры, фрагменты и другие материалы для проверки.
 

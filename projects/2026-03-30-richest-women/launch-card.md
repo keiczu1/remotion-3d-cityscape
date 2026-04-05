@@ -1,4 +1,4 @@
-# launch-card: 2026-03-30-richest-women
+﻿# launch-card: 2026-03-30-richest-women
 
 Сохраняется как `projects/2026-03-30-richest-women/launch-card.md`.
 
@@ -71,7 +71,7 @@
 - Утвержденное creative-направление: один выбранный вариант башни для проекта "Самые богатые женщины" с крупным фото, value-driven пьедесталом и вынесенной biography-card
 - Что зафиксировано референсом: image-first подача, flag-pole grammar из `most-visited-websites`, темный корпус с cyan accent-зонами и production-like pedestal
 - Что допускает адаптацию: конкретные тексты, размер правой карточки под dataset, нормализацию флагов и масштаб pedestal-height под метрику
-- Что `director pass` может режиссерски дообогатить без пересогласования core-направления: только будущий corridor-world, camera-package и pacing полного ролика
+- Что будущий full-corridor pass может дообогатить без пересогласования core-направления: только corridor-world, camera-package и pacing полного ролика
 - Заметки со статусом `design-only`: comparison из трех вариантов закрыт; production-baseline выбран и зафинален
 
 ## Заметки по данным

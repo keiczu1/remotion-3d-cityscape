@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { buildBiographySteleFocusHoldTimingPlan } from "./biography-stele-focus-hold-v1/timing";
+import { BIOGRAPHY_STELE_FOCUS_HOLD_V1_PACKAGE } from "./biography-stele-focus-hold-v1/package";
 import { buildRailFocusVipFinaleTimingPlan } from "./rail-focus-vip-finale-v1/timing";
 import { RAIL_FOCUS_VIP_FINALE_V1_PACKAGE } from "./rail-focus-vip-finale-v1/package";
 import { buildSoftSideOrbitClassicTimingPlan } from "./soft-side-orbit-classic-v1/timing";
@@ -38,6 +40,34 @@ test("soft-side-orbit source-compatible plan reproduces legacy tower cadence", (
     assert.equal(plan.milestones[39].holdFrames, 320);
     assert.equal(plan.finalCameraSlowdownFactor, 3);
     assert.equal(plan.durationInFrames, 19135);
+});
+
+test("biography-stele source-compatible plan preserves the approved read-first cadence", () => {
+    const plan = buildBiographySteleFocusHoldTimingPlan({
+        itemCount: 93,
+        introDurationFrames: INTRO_DURATION_IN_FRAMES,
+        strategy: "source-compatible",
+        finaleTailPolicy: "off",
+    });
+
+    assert.equal(plan.milestones[0].moveFrames, 0);
+    assert.equal(plan.milestones[1].moveFrames, 108);
+    assert.equal(plan.milestones[0].holdFrames, 540);
+    assert.equal(plan.milestones[92].holdFrames, 600);
+    assert.equal(plan.finalCameraSlowdownFactor, 1);
+    assert.equal(plan.finalCinematicFrames, 0);
+    assert.equal(plan.durationInFrames, plan.baseDurationInFrames);
+});
+
+test("biography-stele preset explicitly rejects adaptive-standard timing", () => {
+    assert.throws(() =>
+        buildBiographySteleFocusHoldTimingPlan({
+            itemCount: 93,
+            introDurationFrames: INTRO_DURATION_IN_FRAMES,
+            strategy: "adaptive-standard",
+            finaleTailPolicy: "off",
+        }),
+    );
 });
 
 test("rail-focus adaptive plan scales down 100-item runs and removes cinematic tail", () => {
@@ -90,8 +120,14 @@ test("adaptive preset plans stay within their declared duration bands", () => {
 });
 
 test("adaptive preset packages are explicitly 60fps-only", () => {
+    assert.equal(BIOGRAPHY_STELE_FOCUS_HOLD_V1_PACKAGE.supportedFps, 60);
     assert.equal(RAIL_FOCUS_VIP_FINALE_V1_PACKAGE.supportedFps, 60);
     assert.equal(SOFT_SIDE_ORBIT_CLASSIC_V1_PACKAGE.supportedFps, 60);
+});
+
+test("biography-stele package declares a source-compatible-only timing contract", () => {
+    assert.equal(BIOGRAPHY_STELE_FOCUS_HOLD_V1_PACKAGE.timingContract, "source-compatible-only");
+    assert.equal(BIOGRAPHY_STELE_FOCUS_HOLD_V1_PACKAGE.timingPolicyId, "biography-stele-focus-hold-v1/source-compatible-v1");
 });
 
 test("adaptive preset plans reject item counts outside supported range", () => {

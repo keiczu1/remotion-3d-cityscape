@@ -24,25 +24,21 @@
 
 Если элемент остался локальным решением одного ролика или только кандидатом на перенос в библиотеку, в реестр его вносить не нужно.
 
-Такие решения должны оставаться в `projects/<project-slug>/review-notes.md`, в секции `Аудит библиотеки`.
+Такие решения должны оставаться project-local до отдельного ручного решения о переносе в библиотеку.
 
-## Как `director pass` использует этот реестр
+## Как новый workflow использует этот реестр
 
 Для готовых world-элементов source-of-truth находится здесь, а не в памяти чата и не в повторном обходе всего репозитория.
 
 Правила такие:
 
-- перед сборкой `secondary-life system` ИИ сначала читает этот реестр;
+- в новом constructor-first режиме ИИ сначала читает этот реестр перед сборкой `scene world config`;
 - для каждого world-slot ИИ сначала предлагает подходящие registry-backed варианты;
 - если в реестре для слота есть подходящий модуль, он должен быть показан первым;
-- только если реестр не закрывает слот, ИИ может предложить `adapt-from-base` от project-local baseline или новый слой;
+- только если реестр не закрывает слот, ИИ может предложить ближайший допустимый `adapt-from-base` или template-based fallback;
 - project-local код не считается общей базой по умолчанию, пока он не promoted в этот реестр.
 
-Практически это значит:
-
-- `director pass` не должен каждый раз заново анализировать весь проект, чтобы понять, “что у нас уже есть”;
-- он должен фильтровать готовые world-модули по их metadata из этого реестра;
-- новый элемент предлагается только как осознанное дополнение к базе, а не как молчаливый greenfield-дефолт.
+Реестр используется только новым constructor-first маршрутом и production-слоем текущего формата.
 
 ## Базовая политика переноса в библиотеку
 
@@ -54,8 +50,7 @@
 2. элемент проходит `preview-gate`;
 3. элемент доходит до полного ролика;
 4. проект получает финальное утверждение;
-5. ИИ делает аудит библиотеки;
-6. только после этого элемент либо остается локальным, либо переносится в переиспользуемый слой.
+5. после отдельного ручного решения элемент либо остается локальным, либо переносится в переиспользуемый слой.
 
 ## Что ИИ должен предлагать сам
 
@@ -112,45 +107,29 @@
 - но новый переиспользуемый модуль обязан быть зафиксирован в реестре;
 - канон меняется только если меняется разрешенная грамматика, рабочий процесс или техническое правило общего уровня.
 
-## Аудит библиотеки после финала проекта
+## Ручной review reusable-кандидатов
 
-После статуса `final-approved` или `final-approved-with-notes` ИИ должен сам пройтись по проекту и проверить:
+После финального статуса проекта можно отдельно и вне production-маршрута проверить:
 
 - какие элементы уже покрываются текущей библиотекой;
-- какие решения повторяют знакомые паттерны, но собраны локально;
-- какие новые элементы реально стоят переноса в библиотеку;
+- какие локальные решения повторяют устойчивые паттерны;
+- какие новые элементы реально стоит перенести в библиотечный слой;
 - какие части лучше оставить `project-local`.
 
-Аудит должен отдельно проходить по категориям:
+Этот review не является обязательной фазой workflow и не должен добавляться в active route проекта.
 
-- `camera preset`
-- `timing preset`
-- `reveal/effect module`
-- `hero/object family`
-- `background / ambient / secondary-life system`
-- `utility / helper`
-
-Важно:
-
-- не в каждой категории обязан появиться кандидат;
-- отсутствие кандидатов в категории — нормальный результат, а не ошибка аудита.
-
-Если кандидат на перенос в библиотеку очевиден, ИИ должен:
+Если кандидат на перенос очевиден, ИИ должен:
 
 - вынести модуль в переиспользуемый слой;
 - обновить этот реестр;
 - обновить связанную документацию;
-- зафиксировать источник переноса в `review-notes` проекта.
-
-Если решение спорное, ИИ должен показать короткий checkpoint до переноса в библиотеку.
-
-Если решение не перенесено, вывод аудита библиотеки все равно должен быть сохранен в `review-notes.md` проекта.
+- зафиксировать источник переноса в `review-notes` проекта, если это полезно для traceability.
 
 Для `camera preset` и `timing preset` допустим более легкий режим promotion:
 
 - если логика уже существует и не требует отдельного library-модуля, ИИ может оформить promotion как registry/contract-level решение;
 - если `camera preset` помечен как `reusePolicy: implementation-locked`, такое promotion означает не только naming-контракт, но и жесткий implementation baseline для следующих проектов;
-- в таком случае все равно нужно обновить реестр, `review-notes` проекта и связанные docs.
+- в таком случае все равно нужно обновить реестр и связанные docs.
 
 ## Шаблон записи
 
@@ -183,7 +162,7 @@
 - `sourceOfTruthFiles`: repo-relative файлы, которые считаются рабочей реализацией preset-пакета
 - `lockedBehavior`: что именно reuse-ится без пересборки
 - `allowedAdaptation`: что можно менять без выхода за пределы preset-характера
-- `forbiddenChanges`: какие отклонения требуют отдельного approve или `greenfield-approved`
+- `forbiddenChanges`: какие отклонения требуют отдельного ручного решения вне обычного production-маршрута
 
 Для implementation-locked записей типа `reveal/effect module`, которые служат reveal-baseline для hero-модуля, дополнительно нужны:
 
@@ -192,7 +171,7 @@
 - `sourceOfTruthFiles`: repo-relative файлы, которые считаются рабочей реализацией reveal-пакета
 - `lockedBehavior`: что именно reuse-ится без пересборки
 - `allowedAdaptation`: что можно менять без выхода за пределы reveal-характера
-- `forbiddenChanges`: какие отклонения требуют отдельного approve или `greenfield-approved`
+- `forbiddenChanges`: какие отклонения требуют отдельного ручного решения вне обычного production-маршрута
 
 ## Текущие записи
 
@@ -545,6 +524,7 @@
 - `contract`: reveal-пакет управляет staged включением голографического dashboard, shell-first входом башни, появлением данных и метрики поверх корпуса и синхронизацией с reveal-окном hero.
 - `sourceOfTruthFiles`:
   - `src/compositions/ranking-towers/components/HologramDashboard.tsx`
+  - `src/lib/ranking-corridor/hero/tower-hologram-monolith.tsx`
   - `src/compositions/ranking-towers/components/Tower.tsx`
 - `lockedBehavior`: shell-first reveal, hologram dashboard choreography, staged data appearance, timing метрики и общий reveal-характер башни reuse-ятся как единый пакет.
 - `allowedAdaptation`: тема, материалы, palette/glow, layout-safe offsets, content slots и scale remap без пересборки базовой reveal-драматургии.
@@ -552,12 +532,30 @@
 - `placement`:
   - registry-level contract
   - текущая reference-реализация: `src/compositions/ranking-towers/components/HologramDashboard.tsx`
-  - shell integration: `src/compositions/ranking-towers/components/Tower.tsx`
+  - library shell integration: `src/lib/ranking-corridor/hero/tower-hologram-monolith.tsx`
+  - current project adapter: `src/compositions/ranking-towers/components/Tower.tsx`
 - `docsUpdated`:
   - `docs/library/ranking-corridor-module-registry.md`
-- `notes`: это implementation-locked reveal-baseline для tower/monolith hero-family; для новых башенных проектов он должен считаться default reveal-пакетом, а не только красивым референсом.
+- `notes`: это implementation-locked reveal-baseline для tower/monolith hero-family; после extraction shell-слоя в `tower-hologram-monolith-v1` project-local остаётся именно hologram/dashboard choreography, а не базовая tower-оболочка.
 
-### 15. `stone-altar-pedestal-v1`
+### 15. `tower-hologram-monolith-v1`
+
+- `moduleId`: `tower-hologram-monolith-v1`
+- `userFacingName`: `Голографическая башня-монолит`
+- `status`: `library-module`
+- `moduleType`: `hero/object family`
+- `sourceProjects`:
+  - `ranking-towers`
+- `promotionReason`: башенный shell пережил многократное использование как reference-hero формата и теперь отделён от конкретного hologram-dashboard reveal: сам монолит, top-cap, projector grammar и flag assembly reusable как hero/object family даже без жесткой привязки к данным сайтов.
+- `contract`: модуль экспортирует `TowerHologramMonolithHero` и `getTowerHologramMonolithFeatureState`, рендеря monolith shell, luminous top-cap, optional projector volume и flag assembly, а dashboard/flag cloth принимает как slots; проект сам задаёт `height`, `position`, `renderMode` и topic-specific dashboard content.
+- `placement`:
+  - `src/lib/ranking-corridor/hero/tower-hologram-monolith.tsx`
+  - `src/lib/ranking-corridor/hero/index.ts`
+- `docsUpdated`:
+  - `docs/library/ranking-corridor-module-registry.md`
+- `notes`: это осознанное legacy-reference исключение, как и для `soft-side-orbit-classic-v1`: у `ranking-towers` нет project-container audit trail, поэтому promotion фиксируется через registry и текущую library-backed integration, а не через `projects/<slug>/review-notes.md`. Reveal baseline `tower-hologram-dashboard-reveal-v1` остаётся отдельным слоем поверх этого hero/object family.
+
+### 16. `stone-altar-pedestal-v1`
 
 - `moduleId`: `stone-altar-pedestal-v1`
 - `userFacingName`: `Каменный алтарь-пьедестал`
@@ -576,7 +574,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: image-first dashboard, layout policy и конкретная hero-подача остаются project-local или policy-layer решением; в библиотеку поднят только shell-art object.
 
-### 16. `steam-train-line-v1`
+### 17. `steam-train-line-v1`
 
 - `moduleId`: `steam-train-line-v1`
 - `userFacingName`: `Паровозная линия`
@@ -605,7 +603,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: конкретные кривые маршрута, количество линий, актовая скорость и visibility-tuning остаются project-local world direction, а не частью library contract.
 
-### 17. `corridor-relief-ground-v1`
+### 18. `corridor-relief-ground-v1`
 
 - `moduleId`: `corridor-relief-ground-v1`
 - `userFacingName`: `Рельефный corridor-ground`
@@ -634,7 +632,7 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `notes`: project-local остаются theme palette, актовая драматургия, lane-specific exclusions и сочетание с другими world layers; библиотечным стал базовый deterministic ground module.
 
-### 18. `portrait-biography-stele-v1`
+### 19. `portrait-biography-stele-v1`
 
 - `moduleId`: `portrait-biography-stele-v1`
 - `userFacingName`: `Портретная биографическая стела`
@@ -654,3 +652,71 @@
   - `docs/library/ranking-corridor-module-registry.md`
 - `2026-04-01 refresh`: widened right biography-card, larger content typography, front-facing shell without tilt and sculpted stone pedestal via embedded `ThreeCanvas` are part of the current approved baseline; reusable status stays unchanged.
 - `notes`: в библиотеку поднят именно hero/object family с его reveal и layout grammar; project-local остаются dataset binding, country-to-flag normalization, wealth-range normalization и composition-level background/camera logic основного corridor-проекта.
+
+### 20. `biography-stele-focus-hold-v1`
+
+- `moduleId`: `biography-stele-focus-hold-v1`
+- `userFacingName`: `Фокус на биографической стеле с hold-паузой`
+- `status`: `library-module`
+- `moduleType`: `camera preset`
+- `presetScope`: `scene-package`
+- `reusePolicy`: `implementation-locked`
+- `timingContract`: `source-compatible-only`
+- `supportedFps`: `60`
+- `timingPolicyId`: `biography-stele-focus-hold-v1/source-compatible-v1`
+- `supportedCountRange`: `20-150`
+- `targetDurationBandSeconds`: `218-1622`
+- `defaultFinaleTailPolicy`: `off`
+- `sourceProjects`:
+  - `2026-03-30-richest-women`
+- `promotionReason`: final-approved biography-проект довел camera/view baseline до устойчивого reusable reference-контракта: мягкий intro push-in, длинный читаемый hold под `moneyFrom`/`fact`, спокойный rail handoff без jitter-эффектов и отдельный framing fit под portrait-biography-stele с правой biography-card; timing при этом остаётся осознанно fixed source-compatible cadence, а не generic adaptive preset.
+- `contract`: read-first biography camera preset с intro push-in, длинным focus hold, monotonic rail handoff и отдельным presentation-fit для portrait-biography-stele; timing policy фиксирует утвержденный source-compatible cadence `108`/`540`/`600`, не использует legacy slowdown и не поддерживает `adaptive-standard` без отдельного v2-пакета.
+- `sourceOfTruthFiles`:
+  - `src/lib/ranking-corridor/scene-presets/biography-stele-focus-hold-v1/package.ts`
+  - `src/lib/ranking-corridor/scene-presets/biography-stele-focus-hold-v1/timing.ts`
+  - `src/lib/ranking-corridor/presentation/biography-stele-focus-presentation-preset.ts`
+  - `src/compositions/2026-03-30-richest-women/scene/scene-logic.ts`
+  - `src/compositions/2026-03-30-richest-women/scene/camera-presentation.ts`
+- `lockedBehavior`: intro push-in, read-first hold cadence, rail handoff speed, biography-card-aware framing offsets и projection activation reuse-ятся как единый motion/view пакет.
+- `allowedAdaptation`: dataset normalization, world-scale remap и безопасные hero-local offsets без переписывания утвержденного cadence.
+- `forbiddenChanges`: не укорачивать hold-поведение до обычного fly-by, не возвращать jitter/glitch handoff, не подменять biography fit на generic framing без отдельного approve.
+- `placement`:
+  - registry-level contract
+  - timing package: `src/lib/ranking-corridor/scene-presets/biography-stele-focus-hold-v1/package.ts`
+  - timing runtime: `src/lib/ranking-corridor/scene-presets/biography-stele-focus-hold-v1/timing.ts`
+  - presentation fit helper: `src/lib/ranking-corridor/presentation/biography-stele-focus-presentation-preset.ts`
+  - current reference integration: `src/compositions/2026-03-30-richest-women/scene/scene-logic.ts`
+  - current camera adapter: `src/compositions/2026-03-30-richest-women/scene/camera-presentation.ts`
+- `docsUpdated`:
+  - `projects/2026-03-30-richest-women/review-notes.md`
+  - `docs/library/ranking-corridor-module-registry.md`
+- `notes`: это library-backed naming и implementation baseline для biography-stele camera/view пакета; timing контракт здесь намеренно честный и узкий: reusable остаются motion/view intent и утвержденный cadence, а для count-adaptive версии нужен отдельный preset, чтобы не обещать generic API раньше времени.
+
+### 21. `birch-backdrop-v1`
+
+- `moduleId`: `birch-backdrop-v1`
+- `userFacingName`: `Березовый backdrop`
+- `status`: `library-module`
+- `moduleType`: `background / ambient / secondary-life system`
+- `worldSlot`: `side-dressing | atmospheric-motion`
+- `environmentFamily`: `nature`
+- `role`: `support`
+- `combineWith`:
+  - `horizon-mountain-ridge-v1`
+  - `highway-ribbon-v1`
+  - `storm-effects-v1`
+  - `corridor-relief-ground-v1`
+- `stageFit`: `scene-1 | scene-2 | scene-3 | scene-4`
+- `costTier`: `medium`
+- `sourceProjects`:
+  - `2026-03-30-richest-women`
+- `promotionReason`: процедурный пояс берез пережил финальный проект и perf-pass, доказал, что может быть самостоятельным nature-layer без привязки к теме richest-women: deterministic раскладка, instanced реализация и отдельный `tail-safe` режим уже дают понятный reusable контракт.
+- `contract`: модуль экспортирует `BirchBackdrop`, принимая `maxX`, `groundY`, `animationFrame` и `detailMode`; он строит seeded ряд берез с легким sway-движением, разделяя far static instances и near animated instances, а `tail-safe` режим отключает dynamic pass ради стабильного slow-tail/perf поведения.
+- `placement`:
+  - `src/lib/ranking-corridor/art/world/birch-backdrop.tsx`
+  - `src/lib/ranking-corridor/art/world/index.ts`
+  - `src/lib/ranking-corridor/art/index.ts`
+- `docsUpdated`:
+  - `projects/2026-03-30-richest-women/review-notes.md`
+  - `docs/library/ranking-corridor-module-registry.md`
+- `notes`: в библиотеку поднят именно world-layer; seasonal palette, sky/fog progression, storm choreography и полная orchestration слоя окружения остаются project-local.

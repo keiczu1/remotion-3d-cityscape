@@ -1,4 +1,4 @@
-# Review Notes
+﻿# Review Notes
 
 ## Проект
 
@@ -28,8 +28,8 @@
 - Решение: `approve with changes`
 - Проверенный охват: hero-модуль, фон, данные, ассеты, scramble, fps
 - Что подтверждено: визуальный язык, производительность, структура данных, корректность ассетов
-- Результат director-pass-проверки: `ok`
-- Director-pass-заметки: эскалация по сценам держится через усиление фона, data streams в средней части и церемониальный payoff у лидеров; вторичная жизнь не требует смены hero-концепта, но должна быть повторно просмотрена после optimization-pass
+- Результат pre-build review-проверки: `ok`
+- Pre-build review-заметки: эскалация по сценам держится через усиление фона, data streams в средней части и церемониальный payoff у лидеров; вторичная жизнь не требует смены hero-концепта, но должна быть повторно просмотрена после optimization-pass
 - Перетягивает ли вторичная жизнь внимание с героя: `no`
 - Результат layout-проверки: `ok`
 - Layout-заметки: data-панель и sizing доменов выдержали re-preview на дальних состояниях, лидерских карточках, финальном cinematic tail и storm-сегменте
@@ -48,7 +48,7 @@
 - Обязательные последующие действия: нет — аудит библиотеки выполнен в этом же pass
 - Блокирующие причины: нет
 
-## Аудит библиотеки
+## Ручной Review Reusable-Кандидатов
 
 - Дата аудита: 2026-03-21
 - Результат аудита: `auto-promotion-applied`
@@ -87,7 +87,7 @@
 - Cinematic-slowdown-sync-fix перевёл `focusedIndex` и detail-window финального tail на `getCameraTimelineFrame(frame)`, чтобы после slowdown камера и карточки оставались в одном и том же участке пролёта и не исчезали из-за рассинхрона таймлайна
 - Cinematic-visibility-tail-fix перевёл финальный flyover с чистого index-window на screen-space visibility fallback: если карточка реально попадает в кадр, стела больше не уходит в `minimal`, даже когда `focusedIndex` смещается дальше по пролёту
 - Storm-rain-instancing-pass перевёл `StormRain` с 600 отдельных прозрачных mesh-капель на один instanced render-path, чтобы снять основной постоянный FPS-hotspot, который начинается вместе со штормом около `2:41.5`; lightning/cloud flashes пока оставлены без изменения как вторичный spike-слой
-- Library-audit-pass поднял в reusable-слой generic projection/presentation gate и зафиксировал rail-focus VIP finale как registry-level preset; тема-специфичные hero/background решения сознательно оставлены `project-local`
+- Manual reusable review-pass поднял в reusable-слой generic projection/presentation gate и зафиксировал rail-focus VIP finale как registry-level preset; тема-специфичные hero/background решения сознательно оставлены `project-local`
 - Library-promotion-pass поднял ещё два code-level модуля: library-level family reveal-анимаций карточек через render-slot API и общий three-instancing helper; сам hero-объект и конкретные particle/world setups всё ещё остаются проектными
 - Art-object-promotion-pass поднял в библиотеку три 3D-примитива, на которые уже были потрачены production-усилия: `MediaSteleShell`, `LowPolyCloud` и `WindTurbine`; проект теперь собирает стелы, облака и ветряки через reusable art-layer
 - World-module-promotion-pass поднял в библиотеку reusable world-слои `ForestBackdrop`, `HorizonMountainRidge`, `HighwayRibbon` и `storm-effects`; сам `BackgroundEnvironment` остался project-local режиссурой, но больше не хранит локальные дубли леса, гор, шоссе и storm-эффектов

@@ -1,16 +1,16 @@
-# Review Notes
+﻿# Review Notes
 
 ## Проект
 
 - Slug проекта: `2026-03-30-richest-women`
 - Человекочитаемое название: Самые богатые женщины
 - Начато: 2026-03-30
-- Обновлено: 2026-04-02
+- Обновлено: 2026-04-04
 
-## Режиссерский план
+## Исторический Pre-build Review
 
 - Цикл review: 1
-- Проверяемый director-pass: `interactive hero-finalization pass`
+- Проверяемый pre-build review: `interactive hero-finalization pass`
 - Решение: `approved`
 - Что подтверждено: выбран один production-baseline hero/object family для длинных биографических описаний: portrait-first stele с правой biography-card, value-driven pedestal и флагом на мачте
 - Что нужно изменить: -
@@ -25,11 +25,11 @@
 - Решение: `approve`
 - Проверенный охват: hero-module, portrait-slot, typography, right biography-card, flag/pole grammar, value-driven pedestal
 - Что подтверждено: фото не кропается по высоте, имя переносится в 2 строки, biography-card адаптируется по контенту, флаг сидит в grammar `most-visited-websites`, визуальный шум убран
-- Обещанные world-slot из `director-pass`: `n/a`
+- Обещанные world-slot из `pre-build review`: `n/a`
 - Реально реализованные world-slot: `n/a`
 - Проверенное покрытие сцен: `scene-1`
-- Результат director-pass-проверки: `warning`
-- Director-pass-заметки: container используется как preview-only hero stage и не претендует на полный 4-scene corridor-pass
+- Результат pre-build review-проверки: `warning`
+- Pre-build review-заметки: container используется как preview-only hero stage и не претендует на полный 4-scene corridor-pass
 - Перетягивает ли вторичная жизнь внимание с героя: `no`
 - Результат layout-проверки: `ok`
 - Layout-заметки: стела, biography-card, мачта и pedestal читаются как один production-like объект без overlap на текстовые зоны
@@ -44,7 +44,7 @@
   - Image-first / media policy: portrait-slot сохраняет высоту фото без кропа
   - Camera / pacing: reveal мягкий и staged, без визуального шума
   - Environment / secondary-life: intentionally omitted в этом preview-only pass
-  - Director-pass match: финальный hero соответствует утвержденному пользователем варианту 1
+  - Pre-build review match: финальный hero соответствует утвержденному пользователем варианту 1
 - Какие изменения обязательны: выполнены в этом же pass
 - Можно ли идти дальше без повторного предпросмотра: yes
 - Нужно ли обязательно повторить предпросмотр: no
@@ -56,22 +56,24 @@
 - Статус: `final-approved-with-notes`
 - Проверенный build: `npm test`, `npm run lint`, `npm run build`
 - Проверенный снимок данных: `public/final_ranking.json`, `projects/2026-03-30-richest-women/asset-manifest.md`
-- Заметки: финально утвержден hero/object family и его Studio-ready preview; полный corridor package, director-pass и scene-build полного ролика остаются отдельным будущим этапом
-- Обязательные последующие действия: library-audit выполнен в этом же pass
+- Заметки: финально утвержден hero/object family и его Studio-ready preview; полный corridor package, pre-build review и scene-build полного ролика остаются отдельным будущим этапом
+- Обязательные последующие действия: manual reusable review выполнен в этом же pass
 - Блокирующие причины: -
 
-## Аудит библиотеки
+## Ручной Review Reusable-Кандидатов
 
-- Дата аудита: 2026-03-31
+- Дата аудита: 2026-04-04
 - Результат аудита: `auto-promotion-applied`
-- Покрытие существующей библиотекой: reusable reveal, scene-preset, art-object и world-layer слои уже существовали; новым зрелым кандидатом стал именно biography-oriented hero/object family
+- Покрытие существующей библиотекой: reusable reveal, scene-preset, art-object и world-layer слои уже существовали; после финального camera/perf pass зрелыми кандидатами стали biography-oriented hero/object family, отдельный biography camera/view preset и процедурный birch world-layer
 - Проверенные категории: `camera preset`, `timing preset`, `reveal/effect module`, `hero/object family`, `background / ambient / secondary-life system`, `utility / helper`
-- Категории без зрелых кандидатов: `camera preset`, `timing preset`, `reveal/effect module`, `background / ambient / secondary-life system`, `utility / helper`
-- Обновления реестра: `portrait-biography-stele-v1`
+- Категории без зрелых кандидатов: `timing preset`, `reveal/effect module`, `utility / helper`
+- Обновления реестра: `portrait-biography-stele-v1`, `biography-stele-focus-hold-v1`, `birch-backdrop-v1`
 
 | candidateId | candidateType | currentStatus | sourceLocation | reusableWhy | proposedDecision | targetPlacement | finalEvidence | docsUpdated | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | portrait-biography-stele-v1 | hero/object family | project-local | `src/lib/ranking-corridor/hero/portrait-biography-stele.tsx` | модуль отделим от темы "богатые женщины": он решает общую corridor-задачу image-first portrait stele с длинной biography-card, pedestal и flag assembly | promote-to-library | `src/lib/ranking-corridor/hero/portrait-biography-stele.tsx`, `src/lib/ranking-corridor/hero/index.ts` | accepted user review, final still, library-backed preview, `npm test`, `npm run lint`, `npm run build` | `projects/2026-03-30-richest-women/launch-card.md`, `projects/2026-03-30-richest-women/asset-manifest.md`, `projects/2026-03-30-richest-women/review-notes.md`, `docs/library/ranking-corridor-module-registry.md` | в библиотеку поднят именно hero/object family; dataset binding, country-to-flag mapping и composition-level wealth normalization остаются project-local |
+| biography-stele-focus-hold-v1 | camera preset | project-local + registry-backed | `src/compositions/2026-03-30-richest-women/scene/scene-logic.ts`, `src/compositions/2026-03-30-richest-women/scene/camera-presentation.ts` | проект довел до стабильного reusable baseline связку движения камеры и framing для biography-stele: мягкий intro push-in, длинный read-first hold, спокойный rail handoff и отдельный camera-fit под правую biography-card | promote-to-library | `src/lib/ranking-corridor/scene-presets/biography-stele-focus-hold-v1/package.ts`, `src/lib/ranking-corridor/scene-presets/biography-stele-focus-hold-v1/timing.ts`, `src/lib/ranking-corridor/presentation/biography-stele-focus-presentation-preset.ts` | accepted user review, main-pass camera verification, `npm run test`, `npm run lint`, `npm run build` | `projects/2026-03-30-richest-women/review-notes.md`, `docs/library/ranking-corridor-module-registry.md` | registry фиксирует reusable camera/view contract и утвержденный source-compatible cadence; scene-specific rail path math и composition binding остаются в проекте как reference implementation, а count-adaptive версия потребует отдельного preset |
+| birch-backdrop-v1 | background / ambient / secondary-life system | project-local -> library-promoted | `src/lib/ranking-corridor/art/world/birch-backdrop.tsx` | процедурный березовый задник уже не зависит от темы richest-women, использует общий instancing-layer, имеет deterministic раскладку и отдельный `tail-safe` режим для production-tail/perf | promote-to-library | `src/lib/ranking-corridor/art/world/birch-backdrop.tsx`, `src/lib/ranking-corridor/art/world/index.ts`, `src/lib/ranking-corridor/art/index.ts` | approved final project pass, perf-safe tail usage, `npm run lint`, `npm run build` | `projects/2026-03-30-richest-women/review-notes.md`, `docs/library/ranking-corridor-module-registry.md` | в библиотеку поднят именно world-layer; палитра окружения, сочетание со storm/cloud/sun и полный environment orchestration остаются project-local |
 
 ## Общие заметки
 

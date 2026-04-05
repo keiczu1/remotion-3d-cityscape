@@ -1,4 +1,4 @@
-# Build Plan
+﻿# Build Plan
 
 ## Проект
 - Slug проекта: 2026-03-25-strongest-pokemon
@@ -9,12 +9,12 @@
 - Текущая фаза: `post-preview-build`
 - Статус плана: `full-complete`
 - Следующий шаг: completed
-- Что заблокировано до `preview-gate`: ничего; `preview-gate`, финальное утверждение и library-audit уже закрыты
+- Что заблокировано до `preview-gate`: ничего; `preview-gate`, финальное утверждение и manual reusable review уже закрыты
 
 ## Короткий контекст
-- На что опирается план: `launch-card.md`, `director-pass.md`, `review-notes.md`
+- На что опирается план: `launch-card.md`, `pre-build review.md`, `review-notes.md`
 - Что уже зафиксировано в `launch-card.md`: `image-first` hero policy, `rail-focus-vip-finale-v1`, reveal-stack и mountain-storm направление.
-- Что уже зафиксировано в `director-pass.md`: 4 сцены, эскалация от леса к грозовой вершине, directed-motion через дальние train-lines и evolving corridor-relief ground.
+- Что уже зафиксировано в `pre-build review.md`: 4 сцены, эскалация от леса к грозовой вершине, directed-motion через дальние train-lines и evolving corridor-relief ground.
 - Что нельзя менять без отдельного пересогласования: Базовый пресет камеры (`rail-focus-vip-finale-v1`) и reveal baseline (`image-pillar-dashboard-reveal-stack-v1`).
 
 ## Preview-build
@@ -210,8 +210,8 @@
 - Готово когда: Композиция плавно проходит от сцены 1 к 4, длинные имена не ломаются, environment escalation и hero policy не конфликтуют.
 - Проверка: Полный pass в Studio, `npm run build`, `npm run lint`.
 - Reference baseline:
-- Reuse mode: `greenfield-approved`
-- Reuse without changes: launch-card и director-pass контракты по hero/camera/environment сохраняются как верхний связующий контракт без пересборки базовых модулей.
+- Reuse mode: `structure-reuse`
+- Reuse without changes: launch-card и pre-build review контракты по hero/camera/environment сохраняются как верхний связующий контракт без пересборки базовых модулей.
 - Allowed adaptation: z-order, light balancing, runtime glue, visibility tuning и cross-module integration offsets под конкретный ролик.
 - Greenfield justification: Сборка камеры, героя, данных и среды воедино остается task-specific интеграцией конкретного проекта, даже если отдельные world-модули уже reusable.
 - Non-negotiables: Отсутствие runtime ошибок Remotion/Three.js и стабильная читаемость на всем маршруте.
@@ -228,7 +228,7 @@
   - Что адаптировано под тему: data binding, tower heights, локальные train/relief/altar решения, mountain-storm pacing и Pokémon-specific world direction.
   - Что еще пока слабое: интеграционный glue по-прежнему project-local и не должен автоматически ехать в библиотеку целиком.
   - Почему это уже не scaffold: композиция прошла полный production route, machine-check и дошла до финального approved состояния.
-- Блокеры или заметки: Пакет для `preview-gate` был принят, после чего проект перешел в финал и library-audit.
+- Блокеры или заметки: Пакет для `preview-gate` был принят, после чего проект перешел в финал и manual reusable review.
 
 ## Post-preview-build
 
@@ -246,10 +246,10 @@
 - Цель: Подтвердить seamless работу всей композиции от 100 до 1 и подготовить проект к final approval.
 - Готово когда: Полный build и Studio pass проходят без runtime проблем.
 - Проверка: `npm run build`, `npm run lint`.
-- Блокеры или заметки: Финальный проект утвержден и использован для library-audit.
+- Блокеры или заметки: Финальный проект утвержден и использован для manual reusable review.
 
 ## История обновлений
 - Дата: 2026-03-25
-  - Что изменилось в плане: Инициализация плана после director-pass.
+  - Что изменилось в плане: Инициализация плана после pre-build review.
 - Дата: 2026-03-26
-  - Что изменилось в плане: План доведен до final-approved состояния, backfilled machine-contract по preview/build и добавлена фиксация library-audit с promotion train / stone altar / corridor relief.
+  - Что изменилось в плане: План доведен до final-approved состояния, backfilled machine-contract по preview/build и добавлена фиксация manual reusable review с promotion train / stone altar / corridor relief.

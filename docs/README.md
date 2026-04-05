@@ -1,87 +1,59 @@
-# Документация
+# Документация Remotion
 
-## Точка входа
+## Назначение
 
-Эта папка хранит активную документацию и рабочие материалы по `ranking corridor`.
+`docs/README.md` — главный вход в актуальную документацию репозитория.
 
-Официальная первая точка входа в репозиторий:
-
-- `AGENTS.md`
-
-Этот файл читается сразу после `AGENTS.md` и работает как карта владельцев документации.
+Если нужно понять, как сейчас должен работать проект, сначала читай именно этот файл, а потом уже переходи к канону, шаблонам и skills.
 
 ## Активный контур
 
-Если нужно быстро войти в актуальный контекст после `AGENTS.md`, читай документы в таком порядке:
+В активный owner-layer входят:
 
-1. `docs/canon/ranking-corridor-format.md`
-2. `docs/canon/ranking-corridor-working-mode.md`
-3. `docs/canon/remotion-project-rules.md`
-4. `projects/README.md`
+1. `AGENTS.md`
+2. `docs/README.md`
+3. `docs/canon/ranking-corridor-format.md`
+4. `docs/canon/ranking-corridor-working-mode.md`
+5. `docs/canon/remotion-project-rules.md`
+6. `projects/README.md`
+7. `docs/templates/`
+8. `docs/library/`
+9. `.agents/skills/`
+10. `scripts/validate-ranking-build-plan.ts`
 
-Именно этот слой считается активным source-of-truth для рабочих решений в репозитории.
+## Что читать по порядку
 
-## Кто чем владеет
+Если нужен рабочий контракт формата `ranking corridor`, используй такой порядок:
 
-- `AGENTS.md` — быстрый session-контракт репозитория, дефолты работы и обязательные repo-local skills.
-- `docs/canon/ranking-corridor-format.md` — канон формата ролика.
-- `docs/canon/ranking-corridor-working-mode.md` — единственный владелец рабочего цикла, статусов и контрактов project-артефактов.
-- `docs/canon/remotion-project-rules.md` — технические правила и инварианты Remotion-проекта.
-- `projects/README.md` — единственный владелец структуры `projects/<project-slug>/`.
+1. `AGENTS.md`
+2. `docs/README.md`
+3. `docs/canon/ranking-corridor-format.md`
+4. `docs/canon/ranking-corridor-working-mode.md`
+5. `docs/canon/remotion-project-rules.md`
+6. `projects/README.md`
+
+## Карта слоев
+
+- `docs/canon/` — owner-level правила формата и workflow.
 - `docs/templates/` — шаблоны project-артефактов.
-- `docs/templates/ranking-corridor-theme-to-concept-pack-template.md` — дефолтный helper-шаблон prompt для первого chat-first `concept-pack` по теме: `4` режима опоры героя, hero-first выбор башни/стелы и `ANSI`-макет с раскладкой данных.
-- `docs/templates/ranking-corridor-theme-to-reverse-prompt-template.md` — более глубокий helper-шаблон для `reverse-style brief` уже после выбора направления, когда нужно развить выбранный hero/layout без перехода к коду.
-- `docs/templates/ranking-corridor-director-pass-template.md` — шаблон короткого режиссерского прохода между `launch-card` и `preview-gate`.
-- `docs/templates/ranking-corridor-build-plan-template.md` — шаблон project-local декомпозиции реализации между `director-pass.md` и `preview-gate`.
-- `docs/templates/ranking-corridor-library-audit-template.md` — шаблон post-final prompt для аудита библиотеки и promotion-кандидатов.
-- `docs/library/ranking-corridor-module-registry.md` — реестр модулей, уже перенесенных в библиотеку.
-- `docs/Examples/` — референсы и примеры, но не источник правил.
-- `docs/plans.md`, `docs/plans/`, `docs/workflow/` — рабочие планы изменений, аудиты и implementation-notes; это не источник правил поверх канона.
+- `docs/library/` — constructor-catalog, template-catalog и registry reusable-слоя.
+- `docs/workflow/` — текущие implementation notes и verification notes; это не source-of-truth.
+- `docs/plans.md` — короткая служебная заметка; это не source-of-truth.
 
-## Порядок источников правды
+## Дефолтный маршрут
 
-Для новых роликов порядок такой:
+Активный workflow только один:
 
-1. `AGENTS.md` как repo-session контракт
-2. этот `docs/README.md` как карта владельцев документации
-3. канон в `docs/canon/`
-4. `projects/README.md` как владелец структуры project-container
-5. templates, registry и examples как вспомогательный слой
+`тема -> constructor / template selector -> launch-card -> build-plan -> preview-build -> preview-gate -> post-preview-build -> final approval`
 
-## Язык новой документации
+Любые старые промежуточные creative-first этапы и дополнительные post-project шаги не входят в активный маршрут.
 
-Правило языка задается в `AGENTS.md`.
+## Правило синхронизации
 
-Короткая версия:
+Если меняется workflow, шаблон артефакта, validator или reusable-layer, обновляй:
 
-- новая активная документация и project-артефакты ведутся на русском языке;
-- технические сущности, которые нельзя безопасно переводить, остаются на английском.
-
-## Рабочий и исторический слой
-
-Не считай автоматическим source-of-truth такие папки и файлы:
-
-- `docs/plans.md`
-- `docs/plans/`
-- `docs/workflow/`
-- `docs/Examples/`
-
-Их роль:
-
-- хранить рабочие планы внедрения, аудиты, change-notes и референсы;
-- помогать понять, почему менялся workflow;
-- не подменять собой канон, skills, шаблоны и validator-контракты.
-
-Если рабочий план уже реализован, итоговые правила должны жить не в нем, а в активном контуре выше.
-
-## Что читать в разных ситуациях
-
-- Если нужно понять сам жанр, открывай `docs/canon/ranking-corridor-format.md`.
-- Если нужно понять, как ИИ должен вести проект, открывай `docs/canon/ranking-corridor-working-mode.md`.
-- Если нужно создать или проверить project-container, открывай `projects/README.md`.
-- Если нужно сначала превратить короткую тему в понятные creative-направления и выбрать shell/layout героя, открывай `docs/templates/ranking-corridor-theme-to-concept-pack-template.md`.
-- Если после выбора направления нужен более глубокий `design-only` brief уже по выбранному hero/layout, открывай `docs/templates/ranking-corridor-theme-to-reverse-prompt-template.md`.
-- Если после `launch-card` нужно усилить сцены, вторичную жизнь и драматургию перед `preview-gate`, открывай `docs/templates/ranking-corridor-director-pass-template.md`.
-- Если после `director-pass.md` нужно разложить реализацию на проверяемые production-задачи и уметь возобновлять проект по файлам, открывай `docs/templates/ranking-corridor-build-plan-template.md`.
-- Если проект уже финально утвержден и нужно провести аудит библиотеки, открывай `docs/templates/ranking-corridor-library-audit-template.md`.
-- Если идет работа над самим workflow, дедупликацией документации или снижением контекста, используй `docs/workflow/` как рабочий слой, но не как замену канону.
+- канон;
+- связанные шаблоны;
+- skills;
+- machine-check слой;
+- эту карту документации.

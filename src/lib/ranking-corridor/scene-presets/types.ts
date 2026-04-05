@@ -72,7 +72,7 @@ export type SharedScenePresetTimingOptions = {
 export type ScenePresetPackageContract = {
     id: string;
     motionContract: "locked";
-    timingContract: "adaptive";
+    timingContract: "adaptive" | "source-compatible-only";
     supportedFps: SupportedFps;
     sourceItemCount: number;
     supportedCountRange: SupportedCountRange;

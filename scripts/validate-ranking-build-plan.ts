@@ -1,6 +1,8 @@
 import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 
+import {CONSTRUCTOR_CATALOG} from '../src/lib/ranking-corridor/catalog/constructor-catalog';
+import {TEMPLATE_CATALOG} from '../src/lib/ranking-corridor/catalog/template-catalog';
 import {validateRankingDataPath} from './validate-ranking-data-core';
 
 type TaskPhase = 'preview-build' | 'post-preview-build';
@@ -17,6 +19,21 @@ type Task = {
 type LaunchCardSelection = {
   exists: boolean;
   path: string;
+  workflowMode: string;
+  selectionMode: string;
+  libraryOnly: string;
+  lockedAfterLaunch: string;
+  sceneCount: string;
+  sceneSequence: string[];
+  sceneWorldConfig: Record<string, Record<string, string>>;
+  cameraPackageId: string;
+  cameraPackageSourceOfTruthFiles: string[];
+  cameraPackageLockedBehavior: string;
+  heroPackageId: string;
+  heroPackageSourceOfTruthFiles: string[];
+  heroPackageLockedBehavior: string;
+  templateBaseId: string;
+  allowedAdaptationScope: string;
   heroSupportModeName: string;
   heroSupportModeId: string;
   heroSupportModeReason: string;
@@ -38,6 +55,15 @@ type LaunchCardSelection = {
   timingId: string;
 };
 
+type ReviewNotesSelection = {
+  exists: boolean;
+  path: string;
+  hasPreviewGateSection: boolean;
+  hasFinalApprovalSection: boolean;
+  previewDecision: string;
+  finalStatus: string;
+};
+
 type RegistryCameraPreset = {
   moduleId: string;
   reusePolicy: string;
@@ -49,14 +75,6 @@ type RegistryCameraPreset = {
   defaultFinaleTailPolicy: string;
   supportedCountRange: [number, number] | null;
   targetDurationBandSeconds: [number, number] | null;
-};
-
-type RegistryRevealModule = {
-  moduleId: string;
-  heroFamilyFit: string[];
-  reusePolicy: string;
-  sourceOfTruthFiles: string[];
-  lockedBehavior: string;
 };
 
 type CliOptions = {
@@ -101,11 +119,22 @@ const allowedPreviewRoles = new Set([
   'environment-preview',
   'integrated-preview',
 ]);
+const allowedWorkflowModes = new Set(['library-only-constructor-v1']);
+const allowedSelectionModes = new Set(['block-constructor', 'template-clone']);
 const allowedNextSteps = new Set([
   'preview-gate',
   'final-approval',
-  'library-audit',
   'completed',
+]);
+const allowedPreviewGateDecisions = new Set([
+  'approve',
+  'approve with changes',
+  'reject',
+]);
+const allowedFinalApprovalStatuses = new Set([
+  'final-approved',
+  'final-approved-with-notes',
+  'not-final',
 ]);
 const allowedVisualChecks = new Set(['pending', 'ok', 'warning', 'fail']);
 const allowedVisualMethods = new Set([
@@ -119,23 +148,17 @@ const allowedMediaLayoutPolicies = new Set(['adaptive-safe', 'fixed', 'compact']
 const allowedLaneCollisionPolicies = new Set(['hard-fit', 'soft-overlap']);
 const allowedProtectedDataZoneValues = new Set(['true', 'false']);
 const allowedRankPlacements = new Set(['above-media', 'on-media', 'integrated']);
-const allowedHeroSupportModes = new Map([
-  ['reuse-exact', 'Точный базовый'],
-  ['adapt-from-base', 'Адаптация базы'],
-  ['new-within-grammar', 'Новый по канону'],
-  ['speculative', 'Новый эксперимент'],
+const allowedAdaptationScopes = new Set([
+  'data-only',
+  'assets-only',
+  'theme-tuning',
+  'scene-world-tuning',
+  'template-fork-required',
 ]);
-const allowedReuseModes = new Set([
-  'preset-reuse',
-  'structure-reuse',
-  'system-reuse',
-  'greenfield-approved',
-]);
-const allowedDirectorPassReviewDecisions = new Set([
-  'pending',
-  'approved',
-  'revise',
-]);
+void allowedWorkflowModes;
+void allowedSelectionModes;
+void allowedAdaptationScopes;
+const allowedReuseModes = new Set(['preset-reuse', 'structure-reuse', 'system-reuse']);
 const allowedWorldSlots = new Set([
   'horizon',
   'side-dressing',
@@ -543,13 +566,90 @@ const parseRepoRelativePaths = (value: string) =>
     ),
   );
 
+const createEmptySceneWorldConfig = (): Record<string, Record<string, string>> => ({
+  'scene-1': {
+    horizon: '',
+    'side-dressing': '',
+    'atmospheric-motion': '',
+    'directed-motion': '',
+    ground: '',
+    'light-weather': '',
+    payoff: '',
+  },
+  'scene-2': {
+    horizon: '',
+    'side-dressing': '',
+    'atmospheric-motion': '',
+    'directed-motion': '',
+    ground: '',
+    'light-weather': '',
+    payoff: '',
+  },
+  'scene-3': {
+    horizon: '',
+    'side-dressing': '',
+    'atmospheric-motion': '',
+    'directed-motion': '',
+    ground: '',
+    'light-weather': '',
+    payoff: '',
+  },
+  'scene-4': {
+    horizon: '',
+    'side-dressing': '',
+    'atmospheric-motion': '',
+    'directed-motion': '',
+    ground: '',
+    'light-weather': '',
+    payoff: '',
+  },
+});
+
+const getRecordByAliases = (
+  source: Map<string, Record<string, string>>,
+  aliases: string[],
+): Record<string, string> => {
+  for (const alias of aliases) {
+    const record = source.get(alias);
+    if (record) {
+      return record;
+    }
+  }
+
+  return {};
+};
+
+const getValueByAliases = (source: Record<string, string>, aliases: string[]) => {
+  for (const alias of aliases) {
+    if (Object.prototype.hasOwnProperty.call(source, alias)) {
+      return cleanValue(source[alias] ?? '');
+    }
+  }
+
+  return '';
+};
+
 const parseLaunchCardSelection = (): LaunchCardSelection => {
   const launchCardPath = path.resolve(buildPlanDir, 'launch-card.md');
-
   if (!existsSync(launchCardPath)) {
     return {
       exists: false,
       path: launchCardPath,
+      workflowMode: '',
+      selectionMode: '',
+      libraryOnly: '',
+      lockedAfterLaunch: '',
+      sceneCount: '',
+      sceneSequence: [],
+      sceneWorldConfig: createEmptySceneWorldConfig(),
+      cameraPackageId: '',
+      cameraPackageSourceOfTruthFiles: [],
+      cameraPackageLockedBehavior: '',
+      heroPackageId: '',
+      heroPackageSourceOfTruthFiles: [],
+      heroPackageLockedBehavior: '',
+      templateBaseId: '',
+      allowedAdaptationScope: '',
       heroSupportModeName: '',
       heroSupportModeId: '',
       heroSupportModeReason: '',
@@ -571,25 +671,106 @@ const parseLaunchCardSelection = (): LaunchCardSelection => {
       timingId: '',
     };
   }
-
   const launchCardText = readFileSync(launchCardPath, 'utf8').replace(/\r\n/g, '\n');
   const launchCardLines = launchCardText.split('\n');
   let currentSection = '';
+  let currentSubsection = '';
   let currentBlock = '';
+  let currentWorldScene = '';
   const blockFields = new Map<string, Record<string, string>>();
-
+  const sectionFields = new Map<string, Record<string, string>>();
+  const sceneSequence: string[] = [];
+  const sceneWorldConfig = createEmptySceneWorldConfig();
   for (const line of launchCardLines) {
     const sectionMatch = line.match(/^##\s+(.+)$/);
     if (sectionMatch) {
       currentSection = sectionMatch[1].trim();
+      currentSubsection = '';
       currentBlock = '';
+      currentWorldScene = '';
+      if (!sectionFields.has(currentSection)) {
+        sectionFields.set(currentSection, {});
+      }
+      continue;
+    }
+    const subsectionMatch = line.match(/^###\s+(.+)$/);
+    if (subsectionMatch) {
+      currentSubsection = subsectionMatch[1].trim();
+      currentBlock = '';
+      currentWorldScene = '';
+      continue;
+    }
+    if (
+      currentSection === 'Camera package' ||
+      currentSection === 'Hero package' ||
+      currentSection === 'Template base'
+    ) {
+      const fieldMatch = line.match(/^- ([^:]+):\s*(.*)$/);
+      if (fieldMatch) {
+        const fields = sectionFields.get(currentSection) ?? {};
+        fields[fieldMatch[1].trim()] = cleanValue(fieldMatch[2]);
+        sectionFields.set(currentSection, fields);
+      }
       continue;
     }
 
-    if (currentSection !== 'Выбор формата') {
+    const projectFieldMatch = line.match(/^- (Workflow mode|Selection mode|Library-only|Locked after launch):\s*(.*)$/);
+    if (projectFieldMatch) {
+      const fields = sectionFields.get('__project__') ?? {};
+      fields[projectFieldMatch[1].trim()] = cleanValue(projectFieldMatch[2]);
+      sectionFields.set('__project__', fields);
       continue;
     }
 
+    if (currentSubsection === 'Scene count') {
+      const fieldMatch = line.match(/^- ([^:]+):\s*(.*)$/);
+      if (fieldMatch) {
+        const fields = sectionFields.get('__constructor__') ?? {};
+        fields[fieldMatch[1].trim()] = cleanValue(fieldMatch[2]);
+        sectionFields.set('__constructor__', fields);
+      }
+      continue;
+    }
+
+    if (currentSubsection === 'Scene sequence') {
+      const fieldMatch = line.match(/^- ([^:]+):\s*(.*)$/);
+      if (fieldMatch) {
+        const fields = sectionFields.get('__constructor__') ?? {};
+        fields[fieldMatch[1].trim()] = cleanValue(fieldMatch[2]);
+        sectionFields.set('__constructor__', fields);
+        const sceneMatch = fieldMatch[1].match(/scene-\d+/i);
+        if (sceneMatch) {
+          sceneSequence.push(sceneMatch[0].toLowerCase());
+        }
+      }
+      continue;
+    }
+
+    if (currentSubsection === 'Scene world config') {
+      const sceneLineMatch = line.match(/^- ([^:]+):\s*(.*)$/);
+      if (sceneLineMatch) {
+        const sceneMatch = sceneLineMatch[1].match(/scene-\d+/i);
+        if (sceneMatch) {
+          currentWorldScene = sceneMatch[0].toLowerCase();
+        }
+        continue;
+      }
+      const slotMatch = line.match(/^\s+- ([^:]+):\s*(.*)$/);
+      if (slotMatch && currentWorldScene) {
+        const slotId = slotMatch[1].trim().replace(/`/g, '').toLowerCase();
+        if (slotId in sceneWorldConfig[currentWorldScene]) {
+          sceneWorldConfig[currentWorldScene][slotId] = cleanValue(slotMatch[2]);
+        }
+      }
+      continue;
+    }
+
+    if (
+      currentSection !== '\u0412\u044b\u0431\u043e\u0440 \u0444\u043e\u0440\u043c\u0430\u0442\u0430' &&
+      currentSection !== '\u0424\u043e\u0440\u043c\u0430\u0442 \u043a\u043e\u043d\u0441\u0442\u0440\u0443\u043a\u0442\u043e\u0440\u0430'
+    ) {
+      continue;
+    }
     const blockMatch = line.match(/^- ([^:]+):\s*(.*)$/);
     if (blockMatch) {
       currentBlock = blockMatch[1].trim();
@@ -598,57 +779,103 @@ const parseLaunchCardSelection = (): LaunchCardSelection => {
       }
       continue;
     }
-
     const fieldMatch = line.match(/^\s+- ([^:]+):\s*(.*)$/);
     if (!fieldMatch || !currentBlock) {
       continue;
     }
-
     const fields = blockFields.get(currentBlock) ?? {};
     fields[fieldMatch[1].trim()] = cleanValue(fieldMatch[2]);
     blockFields.set(currentBlock, fields);
   }
-
-  const scenePresetFields = blockFields.get('Пакет сцены и камеры') ?? {};
-  const heroRevealFields = blockFields.get('Пакет появления hero-модуля') ?? {};
-  const heroSupportModeFields = blockFields.get('Режим опоры героя') ?? {};
-  const objectFields = blockFields.get('Тип главного объекта') ?? {};
-  const cameraFields = blockFields.get('Тип главной камеры') ?? {};
-  const timingFields = blockFields.get('Тип ритма') ?? {};
-
+  const scenePresetFields = getRecordByAliases(blockFields, [
+    '\u041f\u0430\u043a\u0435\u0442 \u0441\u0446\u0435\u043d\u044b \u0438 \u043a\u0430\u043c\u0435\u0440\u044b',
+    '\u0422\u0438\u043f \u0444\u043e\u043d\u0430',
+  ]);
+  const heroRevealFields = getRecordByAliases(blockFields, [
+    '\u041f\u0430\u043a\u0435\u0442 \u043f\u043e\u044f\u0432\u043b\u0435\u043d\u0438\u044f hero-\u043c\u043e\u0434\u0443\u043b\u044f',
+  ]);
+  const heroSupportModeFields = getRecordByAliases(blockFields, [
+    '\u0420\u0435\u0436\u0438\u043c \u043e\u043f\u043e\u0440\u044b \u0433\u0435\u0440\u043e\u044f',
+    '\u0420\u0435\u0436\u0438\u043c \u043f\u0440\u0435\u0434\u0441\u0442\u0430\u0432\u043b\u0435\u043d\u0438\u044f \u043a\u043e\u043d\u0442\u0435\u043d\u0442\u0430',
+  ]);
+  const objectFields = getRecordByAliases(blockFields, [
+    '\u0422\u0438\u043f \u0433\u043b\u0430\u0432\u043d\u043e\u0433\u043e \u043e\u0431\u044a\u0435\u043a\u0442\u0430',
+  ]);
+  const cameraFields = getRecordByAliases(blockFields, [
+    '\u0422\u0438\u043f \u0433\u043b\u0430\u0432\u043d\u043e\u0439 \u043a\u0430\u043c\u0435\u0440\u044b',
+  ]);
+  const timingFields = getRecordByAliases(blockFields, ['\u0422\u0438\u043f \u0440\u0438\u0442\u043c\u0430']);
+  const projectFields = sectionFields.get('__project__') ?? {};
+  const constructorFields = sectionFields.get('__constructor__') ?? {};
+  const cameraPackageFields = sectionFields.get('Camera package') ?? {};
+  const heroPackageFields = sectionFields.get('Hero package') ?? {};
+  const templateBaseFields = sectionFields.get('Template base') ?? {};
   return {
     exists: true,
     path: launchCardPath,
-    heroSupportModeName: cleanValue(heroSupportModeFields['название'] ?? ''),
+    workflowMode: cleanValue(projectFields['Workflow mode'] ?? ''),
+    selectionMode: cleanValue(projectFields['Selection mode'] ?? ''),
+    libraryOnly: cleanValue(projectFields['Library-only'] ?? ''),
+    lockedAfterLaunch: cleanValue(projectFields['Locked after launch'] ?? ''),
+    sceneCount: cleanValue(constructorFields['Scene count'] ?? ''),
+    sceneSequence: Array.from(new Set(sceneSequence)),
+    sceneWorldConfig,
+    cameraPackageId: cleanValue(cameraPackageFields['Package id'] ?? ''),
+    cameraPackageSourceOfTruthFiles: parseRepoRelativePaths(
+      cleanValue(cameraPackageFields['Source-of-truth files'] ?? ''),
+    ),
+    cameraPackageLockedBehavior: getValueByAliases(cameraPackageFields, [
+      '\u0427\u0442\u043e \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044f locked baseline',
+      '\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435 \u0437\u0430\u0444\u0438\u043a\u0441\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u043e\u0433\u043e locked baseline',
+    ]),
+    heroPackageId: cleanValue(heroPackageFields['Package id'] ?? ''),
+    heroPackageSourceOfTruthFiles: parseRepoRelativePaths(
+      cleanValue(heroPackageFields['Source-of-truth files'] ?? ''),
+    ),
+    heroPackageLockedBehavior: getValueByAliases(heroPackageFields, [
+      '\u0427\u0442\u043e \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044f locked baseline',
+      '\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435 \u0437\u0430\u0444\u0438\u043a\u0441\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u043e\u0433\u043e locked baseline',
+    ]),
+    templateBaseId: cleanValue(templateBaseFields['Template base id'] ?? ''),
+    allowedAdaptationScope: cleanValue(templateBaseFields['Allowed adaptation scope'] ?? ''),
+    heroSupportModeName: getValueByAliases(heroSupportModeFields, ['\u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435']),
     heroSupportModeId: cleanValue(heroSupportModeFields['id'] ?? ''),
-    heroSupportModeReason: cleanValue(heroSupportModeFields['краткая причина выбора'] ?? ''),
+    heroSupportModeReason: getValueByAliases(heroSupportModeFields, [
+      '\u043a\u0440\u0430\u0442\u043a\u0430\u044f \u043b\u043e\u0433\u0438\u043a\u0430 \u0432\u044b\u0431\u043e\u0440\u0430 \u0440\u0435\u0436\u0438\u043c\u0430',
+      '\u043a\u0440\u0430\u0442\u043a\u0430\u044f \u043b\u043e\u0433\u0438\u043a\u0430 \u0443\u043a\u043b\u0430\u0434\u043a\u0438 \u0434\u0430\u043d\u043d\u044b\u0445',
+      '\u043a\u0440\u0430\u0442\u043a\u043e\u0435 \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u0435 \u043b\u043e\u0433\u0438\u043a\u0438',
+      '\u043e\u043f\u0438\u0441\u0430\u043d\u0438\u0435',
+    ]),
     objectFamilyId: cleanValue(objectFields['id'] ?? ''),
-    heroPriority: cleanValue(objectFields['приоритет героя'] ?? ''),
-    mediaLayoutPolicy: cleanValue(objectFields['политика media-layout'] ?? ''),
-    laneCollisionPolicy: cleanValue(objectFields['политика соседних границ'] ?? ''),
-    protectedDataZone: cleanValue(objectFields['защищенная data-zone'] ?? ''),
-    rankPlacement: cleanValue(objectFields['размещение ранга'] ?? ''),
+    heroPriority: getValueByAliases(objectFields, ['\u043f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442 \u0433\u0435\u0440\u043e\u044f']),
+    mediaLayoutPolicy: getValueByAliases(objectFields, ['\u043f\u043e\u043b\u0438\u0442\u0438\u043a\u0430 media-layout']),
+    laneCollisionPolicy: getValueByAliases(objectFields, [
+      '\u043f\u043e\u043b\u0438\u0442\u0438\u043a\u0430 \u0441\u043e\u0441\u0435\u0434\u043d\u0438\u0445 \u0433\u0440\u0430\u043d\u0438\u0446',
+    ]),
+    protectedDataZone: getValueByAliases(objectFields, [
+      '\u0437\u0430\u0449\u0438\u0449\u0435\u043d\u043d\u0430\u044f data-zone',
+    ]),
+    rankPlacement: getValueByAliases(objectFields, ['\u0440\u0430\u0437\u043c\u0435\u0449\u0435\u043d\u0438\u0435 \u0440\u0430\u043d\u0433\u0430']),
     scenePresetPackageId: cleanValue(scenePresetFields['id'] ?? ''),
-    scenePresetReusePolicy: cleanValue(scenePresetFields['политика reuse'] ?? ''),
+    scenePresetReusePolicy: getValueByAliases(scenePresetFields, ['\u043f\u043e\u043b\u0438\u0442\u0438\u043a\u0430 reuse']),
     scenePresetSourceOfTruthFiles: parseRepoRelativePaths(
       cleanValue(scenePresetFields['source-of-truth files'] ?? ''),
     ),
-    scenePresetLockedBehavior: cleanValue(
-      scenePresetFields['что считается зафиксированным без пересборки'] ?? '',
-    ),
+    scenePresetLockedBehavior: getValueByAliases(scenePresetFields, [
+      '\u0447\u0442\u043e \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044f \u0437\u0430\u0444\u0438\u043a\u0441\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u043c \u0431\u0435\u0437 \u043f\u0435\u0440\u0435\u0441\u0431\u043e\u0440\u043a\u0438',
+    ]),
     heroRevealPackageId: cleanValue(heroRevealFields['id'] ?? ''),
-    heroRevealReusePolicy: cleanValue(heroRevealFields['политика reuse'] ?? ''),
+    heroRevealReusePolicy: getValueByAliases(heroRevealFields, ['\u043f\u043e\u043b\u0438\u0442\u0438\u043a\u0430 reuse']),
     heroRevealSourceOfTruthFiles: parseRepoRelativePaths(
       cleanValue(heroRevealFields['source-of-truth files'] ?? ''),
     ),
-    heroRevealLockedBehavior: cleanValue(
-      heroRevealFields['что считается зафиксированным без пересборки'] ?? '',
-    ),
+    heroRevealLockedBehavior: getValueByAliases(heroRevealFields, [
+      '\u0447\u0442\u043e \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044f \u0437\u0430\u0444\u0438\u043a\u0441\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u043c \u0431\u0435\u0437 \u043f\u0435\u0440\u0435\u0441\u0431\u043e\u0440\u043a\u0438',
+    ]),
     mainCameraId: cleanValue(cameraFields['id'] ?? ''),
     timingId: cleanValue(timingFields['id'] ?? ''),
   };
 };
-
 const parseRegistryCameraPresets = () => {
   const registryPath = path.resolve(
     process.cwd(),
@@ -680,6 +907,20 @@ const parseRegistryCameraPresets = () => {
   let currentTargetDurationBandSeconds: [number, number] | null = null;
   let currentListField = '';
 
+  const resetCurrentPreset = () => {
+    currentModuleType = '';
+    currentReusePolicy = '';
+    currentSourceOfTruthFiles = [];
+    currentLockedBehavior = '';
+    currentTimingContract = '';
+    currentSupportedFps = null;
+    currentTimingPolicyId = '';
+    currentDefaultFinaleTailPolicy = '';
+    currentSupportedCountRange = null;
+    currentTargetDurationBandSeconds = null;
+    currentListField = '';
+  };
+
   const pushCurrentPreset = () => {
     if (!currentModuleId || currentModuleType !== 'camera preset') {
       return;
@@ -700,81 +941,67 @@ const parseRegistryCameraPresets = () => {
   };
 
   for (const line of registryLines) {
-    const moduleMatch = line.match(/^###\s+\d+\.\s+`([^`]+)`/);
-    if (moduleMatch) {
+    const sectionMatch = line.match(/^###\s+\d+\.\s+`([^`]+)`/);
+    if (sectionMatch) {
       pushCurrentPreset();
-      currentModuleId = moduleMatch[1];
-      currentModuleType = '';
-      currentReusePolicy = '';
-      currentSourceOfTruthFiles = [];
-      currentLockedBehavior = '';
-      currentTimingContract = '';
-      currentSupportedFps = null;
-      currentTimingPolicyId = '';
-      currentDefaultFinaleTailPolicy = '';
-      currentSupportedCountRange = null;
-      currentTargetDurationBandSeconds = null;
-      currentListField = '';
+      currentModuleId = sectionMatch[1].trim();
+      resetCurrentPreset();
       continue;
     }
 
-    const fieldMatch = line.match(/^- `([^`]+)`:\s*(.*)$/);
+    const fieldMatch = line.match(/^- `([^`]+)`:?\s*(.*)$/);
     if (fieldMatch) {
-      const key = fieldMatch[1];
+      const key = fieldMatch[1].trim();
       const value = cleanValue(fieldMatch[2]);
       currentListField = '';
 
-      if (key === 'moduleType') {
-        currentModuleType = value;
-      }
-
-      if (key === 'reusePolicy') {
-        currentReusePolicy = value;
-      }
-
-      if (key === 'sourceOfTruthFiles') {
-        currentListField = key;
-        if (value) {
-          currentSourceOfTruthFiles = parseRepoRelativePaths(value);
-        }
-      }
-
-      if (key === 'lockedBehavior') {
-        currentLockedBehavior = value;
-      }
-
-      if (key === 'timingContract') {
-        currentTimingContract = value;
-      }
-
-      if (key === 'supportedFps') {
-        currentSupportedFps = parseSupportedFps(value);
-      }
-
-      if (key === 'timingPolicyId') {
-        currentTimingPolicyId = value;
-      }
-
-      if (key === 'defaultFinaleTailPolicy') {
-        currentDefaultFinaleTailPolicy = value;
-      }
-
-      if (key === 'supportedCountRange') {
-        currentSupportedCountRange = parseSupportedCountRange(value);
-      }
-
-      if (key === 'targetDurationBandSeconds') {
-        currentTargetDurationBandSeconds = parseTargetDurationBandSeconds(value);
+      switch (key) {
+        case 'moduleType':
+          currentModuleType = value.toLowerCase();
+          break;
+        case 'reusePolicy':
+          currentReusePolicy = value;
+          break;
+        case 'sourceOfTruthFiles':
+          currentListField = 'sourceOfTruthFiles';
+          currentSourceOfTruthFiles = value ? parseRepoRelativePaths(value) : [];
+          break;
+        case 'lockedBehavior':
+          currentLockedBehavior = value;
+          break;
+        case 'timingContract':
+          currentTimingContract = value;
+          break;
+        case 'supportedFps':
+          currentSupportedFps = parseSupportedFps(value);
+          break;
+        case 'timingPolicyId':
+          currentTimingPolicyId = value;
+          break;
+        case 'defaultFinaleTailPolicy':
+          currentDefaultFinaleTailPolicy = value;
+          break;
+        case 'supportedCountRange':
+          currentSupportedCountRange = parseSupportedCountRange(value);
+          break;
+        case 'targetDurationBandSeconds':
+          currentTargetDurationBandSeconds = parseTargetDurationBandSeconds(value);
+          break;
+        default:
+          break;
       }
 
       continue;
     }
 
-    if (currentListField === 'sourceOfTruthFiles') {
-      const listItemMatch = line.match(/^\s+-\s+`?([^`]+?)`?\s*$/);
-      if (listItemMatch) {
-        currentSourceOfTruthFiles.push(cleanValue(listItemMatch[1]));
-      }
+    const listItemMatch = line.match(/^\s+-\s+(.*)$/);
+    if (!listItemMatch || currentListField !== 'sourceOfTruthFiles') {
+      continue;
+    }
+
+    const normalizedItem = cleanValue(listItemMatch[1]);
+    if (normalizedItem) {
+      currentSourceOfTruthFiles.push(normalizedItem);
     }
   }
 
@@ -787,163 +1014,71 @@ const parseRegistryCameraPresets = () => {
   };
 };
 
-const parseRegistryRevealModules = () => {
-  const registryPath = path.resolve(
-    process.cwd(),
-    'docs/library/ranking-corridor-module-registry.md',
-  );
-
-  if (!existsSync(registryPath)) {
-    return {
-      exists: false,
-      path: registryPath,
-      modules: new Map<string, RegistryRevealModule>(),
-    };
-  }
-
-  const registryText = readFileSync(registryPath, 'utf8').replace(/\r\n/g, '\n');
-  const registryLines = registryText.split('\n');
-  const modules = new Map<string, RegistryRevealModule>();
-
-  let currentModuleId = '';
-  let currentModuleType = '';
-  let currentHeroFamilyFit: string[] = [];
-  let currentReusePolicy = '';
-  let currentSourceOfTruthFiles: string[] = [];
-  let currentLockedBehavior = '';
-  let currentListField = '';
-
-  const pushCurrentModule = () => {
-    if (!currentModuleId || currentModuleType !== 'reveal/effect module' || !currentReusePolicy) {
-      return;
-    }
-
-    modules.set(currentModuleId, {
-      moduleId: currentModuleId,
-      heroFamilyFit: currentHeroFamilyFit,
-      reusePolicy: currentReusePolicy,
-      sourceOfTruthFiles: currentSourceOfTruthFiles,
-      lockedBehavior: currentLockedBehavior,
-    });
-  };
-
-  for (const line of registryLines) {
-    const moduleMatch = line.match(/^###\s+\d+\.\s+`([^`]+)`/);
-    if (moduleMatch) {
-      pushCurrentModule();
-      currentModuleId = moduleMatch[1];
-      currentModuleType = '';
-      currentHeroFamilyFit = [];
-      currentReusePolicy = '';
-      currentSourceOfTruthFiles = [];
-      currentLockedBehavior = '';
-      currentListField = '';
-      continue;
-    }
-
-    const fieldMatch = line.match(/^- `([^`]+)`:\s*(.*)$/);
-    if (fieldMatch) {
-      const key = fieldMatch[1];
-      const value = cleanValue(fieldMatch[2]);
-      currentListField = '';
-
-      if (key === 'moduleType') {
-        currentModuleType = value;
-      }
-
-      if (key === 'reusePolicy') {
-        currentReusePolicy = value;
-      }
-
-      if (key === 'heroFamilyFit') {
-        currentHeroFamilyFit = value
-          .split('|')
-          .map((part) => cleanValue(part))
-          .filter(Boolean);
-      }
-
-      if (key === 'sourceOfTruthFiles') {
-        currentListField = key;
-        if (value) {
-          currentSourceOfTruthFiles = parseRepoRelativePaths(value);
-        }
-      }
-
-      if (key === 'lockedBehavior') {
-        currentLockedBehavior = value;
-      }
-
-      continue;
-    }
-
-    if (currentListField === 'sourceOfTruthFiles') {
-      const listItemMatch = line.match(/^\s+-\s+`?([^`]+?)`?\s*$/);
-      if (listItemMatch) {
-        currentSourceOfTruthFiles.push(cleanValue(listItemMatch[1]));
-      }
-    }
-  }
-
-  pushCurrentModule();
-
-  return {
-    exists: true,
-    path: registryPath,
-    modules,
-  };
-};
-
-const parseDirectorPassReview = () => {
+const parseReviewNotesSelection = (): ReviewNotesSelection => {
   const reviewNotesPath = path.resolve(buildPlanDir, 'review-notes.md');
-
   if (!existsSync(reviewNotesPath)) {
     return {
       exists: false,
       path: reviewNotesPath,
-      decision: '',
-      canProceed: '',
+      hasPreviewGateSection: false,
+      hasFinalApprovalSection: false,
+      previewDecision: '',
+      finalStatus: '',
     };
   }
-
   const reviewText = readFileSync(reviewNotesPath, 'utf8').replace(/\r\n/g, '\n');
   const reviewLines = reviewText.split('\n');
   let currentSection = '';
-  let decision = '';
-  let canProceed = '';
-
+  let previewDecision = '';
+  let finalStatus = '';
+  let hasPreviewGateSection = false;
+  let hasFinalApprovalSection = false;
   for (const line of reviewLines) {
     const sectionMatch = line.match(/^##\s+(.+)$/);
     if (sectionMatch) {
       currentSection = sectionMatch[1].trim();
+      if (
+        currentSection === 'Preview gate' ||
+        currentSection === '\u041f\u0440\u0435\u0434\u043f\u0440\u043e\u0441\u043c\u043e\u0442\u0440'
+      ) {
+        hasPreviewGateSection = true;
+      }
+      if (
+        currentSection === 'Final approval' ||
+        currentSection === '\u0424\u0438\u043d\u0430\u043b\u044c\u043d\u043e\u0435 \u0443\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u0435'
+      ) {
+        hasFinalApprovalSection = true;
+      }
       continue;
     }
-
-    if (currentSection !== 'Режиссерский план') {
-      continue;
-    }
-
     const fieldMatch = line.match(/^- ([^:]+):\s*(.*)$/);
     if (!fieldMatch) {
       continue;
     }
-
     const key = fieldMatch[1].trim();
     const value = cleanValue(fieldMatch[2]);
-
-    if (key === 'Решение') {
-      decision = value;
+    if (
+      (currentSection === 'Preview gate' ||
+        currentSection === '\u041f\u0440\u0435\u0434\u043f\u0440\u043e\u0441\u043c\u043e\u0442\u0440') &&
+      key === '\u0420\u0435\u0448\u0435\u043d\u0438\u0435'
+    ) {
+      previewDecision = value;
     }
-
-    if (key === 'Можно ли переходить к build-plan') {
-      canProceed = value.toLowerCase();
+    if (
+      (currentSection === 'Final approval' ||
+        currentSection === '\u0424\u0438\u043d\u0430\u043b\u044c\u043d\u043e\u0435 \u0443\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u0435') &&
+      key === '\u0421\u0442\u0430\u0442\u0443\u0441'
+    ) {
+      finalStatus = value;
     }
   }
-
   return {
     exists: true,
     path: reviewNotesPath,
-    decision,
-    canProceed,
+    hasPreviewGateSection,
+    hasFinalApprovalSection,
+    previewDecision,
+    finalStatus,
   };
 };
 
@@ -1039,10 +1174,34 @@ if (!nextStep) {
   errors.push('Top-level поле `Следующий шаг` обязательно.');
 }
 
-const directorPassReview = parseDirectorPassReview();
+const reviewNotesSelection = parseReviewNotesSelection();
 const launchCardSelection = parseLaunchCardSelection();
 const registryCameraPresets = parseRegistryCameraPresets();
-const registryRevealModules = parseRegistryRevealModules();
+const catalogCameraPackages = new Map<string, (typeof CONSTRUCTOR_CATALOG.cameraPackages)[number]>(
+  CONSTRUCTOR_CATALOG.cameraPackages.map((entry) => [entry.id, entry]),
+);
+const catalogHeroPackages = new Map<string, (typeof CONSTRUCTOR_CATALOG.heroPackages)[number]>(
+  CONSTRUCTOR_CATALOG.heroPackages.map((entry) => [entry.id, entry]),
+);
+const catalogWorldOptions = new Map<string, (typeof CONSTRUCTOR_CATALOG.worldOptions)[number]>(
+  CONSTRUCTOR_CATALOG.worldOptions.map((entry) => [entry.id, entry]),
+);
+const templateCatalogEntries = new Map<string, (typeof TEMPLATE_CATALOG)[number]>(
+  TEMPLATE_CATALOG.map((entry) => [entry.id, entry]),
+);
+const resolvedWorkflowMode = launchCardSelection.workflowMode;
+
+if (launchCardSelection.exists && !resolvedWorkflowMode) {
+  errors.push('Launch-card обязан явно содержать `Workflow mode: library-only-constructor-v1`.');
+}
+
+if (resolvedWorkflowMode && !allowedWorkflowModes.has(resolvedWorkflowMode)) {
+  errors.push(
+    `Поле \`Workflow mode\` содержит неизвестное значение: \`${resolvedWorkflowMode}\`. Используй только \`library-only-constructor-v1\`.`,
+  );
+}
+
+const isConstructorMode = resolvedWorkflowMode === 'library-only-constructor-v1';
 
 if (!launchCardSelection.exists) {
   errors.push(
@@ -1056,345 +1215,193 @@ if (!registryCameraPresets.exists) {
   );
 }
 
-if (!registryRevealModules.exists) {
-  errors.push(
-    `Не найден registry reveal module: ${path.relative(process.cwd(), registryRevealModules.path)}`,
-  );
-}
+let lockedScenePreset: RegistryCameraPreset | null = null;
 
-if (launchCardSelection.exists && isPlaceholder(launchCardSelection.objectFamilyId)) {
-  errors.push(
-    'В launch-card поле `Тип главного объекта -> id` обязательно и не может быть пустым: без него validator не может проверить `objectFamily` и совместимость `heroRevealPackage`.',
-  );
-}
+if (launchCardSelection.exists && isConstructorMode) {
+  if (!launchCardSelection.selectionMode) {
+    errors.push('В launch-card для `library-only-constructor-v1` поле `Selection mode` обязательно.');
+  } else if (!allowedSelectionModes.has(launchCardSelection.selectionMode)) {
+    errors.push(
+      'В launch-card поле `Selection mode` должно быть одним из `block-constructor | template-clone`.',
+    );
+  }
 
-if (launchCardSelection.exists) {
-  const hasHeroSupportModeData =
-    !isPlaceholder(launchCardSelection.heroSupportModeName) ||
-    !isPlaceholder(launchCardSelection.heroSupportModeId) ||
-    !isPlaceholder(launchCardSelection.heroSupportModeReason);
+  if (launchCardSelection.libraryOnly !== 'true') {
+    errors.push('В режиме `library-only-constructor-v1` поле `Library-only` должно быть `true`.');
+  }
 
-  if (!hasHeroSupportModeData) {
-    warnings.push(
-      'В launch-card пока отсутствует блок `Режим опоры героя`. Для legacy-карточек это временно допустимо, но новые launch-card должны фиксировать `reuse-exact | adapt-from-base | new-within-grammar | speculative` отдельным блоком.',
+  if (launchCardSelection.lockedAfterLaunch !== 'true') {
+    errors.push('В режиме `library-only-constructor-v1` поле `Locked after launch` должно быть `true`.');
+  }
+
+  if (launchCardSelection.sceneCount !== '4') {
+    errors.push('Для `library-only-constructor-v1` поле `Scene count` должно быть `4`.');
+  }
+
+  const requiredScenes = ['scene-1', 'scene-2', 'scene-3', 'scene-4'];
+  const normalizedSequence = Array.from(new Set(launchCardSelection.sceneSequence));
+  if (
+    normalizedSequence.length !== requiredScenes.length ||
+    requiredScenes.some((sceneId) => !normalizedSequence.includes(sceneId))
+  ) {
+    errors.push(
+      'В launch-card блок `Scene sequence` обязан явно содержать `scene-1, scene-2, scene-3, scene-4`.',
+    );
+  }
+
+  for (const sceneId of requiredScenes) {
+    const sceneConfig = launchCardSelection.sceneWorldConfig[sceneId];
+    for (const slotId of requiredEnvironmentSlots) {
+      if (isPlaceholder(sceneConfig?.[slotId])) {
+        errors.push(
+          `В launch-card блок \`Scene world config\` должен заполнять \`${slotId}\` для \`${sceneId}\`.`,
+        );
+      } else if (!catalogWorldOptions.has(sceneConfig[slotId])) {
+        errors.push(
+          `В launch-card scene world slot \`${sceneId} -> ${slotId}\` ссылается на неизвестный catalog option: \`${sceneConfig[slotId]}\`.`,
+        );
+      }
+    }
+
+    const payoffId = sceneConfig?.payoff ?? '';
+    if (!isPlaceholder(payoffId) && !catalogWorldOptions.has(payoffId)) {
+      errors.push(
+        `В launch-card scene world slot \`${sceneId} -> payoff\` ссылается на неизвестный catalog option: \`${payoffId}\`.`,
+      );
+    }
+  }
+
+  const cameraPackage = catalogCameraPackages.get(launchCardSelection.cameraPackageId);
+  if (!cameraPackage) {
+    errors.push(
+      `В launch-card поле \`Camera package -> Package id\` должно ссылаться на существующий catalog id, а не на \`${launchCardSelection.cameraPackageId || '—'}\`.`,
     );
   } else {
-    if (isPlaceholder(launchCardSelection.heroSupportModeId)) {
+    const expectedCameraPaths = cameraPackage.references.map((reference) => reference.path);
+    const missingCameraPaths = expectedCameraPaths.filter(
+      (filePath) => !launchCardSelection.cameraPackageSourceOfTruthFiles.includes(filePath),
+    );
+    if (missingCameraPaths.length > 0) {
       errors.push(
-        'В launch-card блок `Режим опоры героя -> id` не может быть пустым, если сам блок уже используется.',
-      );
-    } else if (!allowedHeroSupportModes.has(launchCardSelection.heroSupportModeId)) {
-      errors.push(
-        'В launch-card поле `Режим опоры героя -> id` должно быть одним из `reuse-exact | adapt-from-base | new-within-grammar | speculative`.',
+        `В launch-card блок \`Camera package\` должен включать все source-of-truth paths из catalog entry \`${cameraPackage.id}\`: ${missingCameraPaths.join(', ')}.`,
       );
     }
 
-    const expectedHeroSupportModeName = allowedHeroSupportModes.get(
-      launchCardSelection.heroSupportModeId,
+    const scenePresetReference = cameraPackage.references.find(
+      (reference) => reference.kind === 'scene-preset-package',
     );
-
-    if (isPlaceholder(launchCardSelection.heroSupportModeName)) {
-      warnings.push(
-        'В launch-card для блока `Режим опоры героя` желательно явно заполнять человеческое название рядом с техническим `id`.',
-      );
-    } else if (
-      expectedHeroSupportModeName &&
-      normalizeContractText(launchCardSelection.heroSupportModeName) !==
-        normalizeContractText(expectedHeroSupportModeName)
-    ) {
-      warnings.push(
-        `В launch-card поле \`Режим опоры героя -> название\` желательно держать согласованным с \`${launchCardSelection.heroSupportModeId}\`: ожидается \`${expectedHeroSupportModeName}\`.`,
-      );
-    }
-
-    if (isPlaceholder(launchCardSelection.heroSupportModeReason)) {
-      warnings.push(
-        'В launch-card для блока `Режим опоры героя` желательно кратко фиксировать причину выбора, чтобы не терялась логика reuse.',
-      );
+    if (scenePresetReference) {
+      const registryPreset = registryCameraPresets.presets.get(scenePresetReference.id);
+      if (!registryPreset) {
+        errors.push(
+          `Catalog camera package \`${cameraPackage.id}\` ссылается на неизвестный registry preset \`${scenePresetReference.id}\`.`,
+        );
+      } else {
+        lockedScenePreset = registryPreset;
+      }
     }
   }
 
-  if (isPlaceholder(launchCardSelection.heroPriority)) {
+  const heroPackage = catalogHeroPackages.get(launchCardSelection.heroPackageId);
+  if (!heroPackage) {
     errors.push(
-      'В launch-card поле `Тип главного объекта -> приоритет героя` обязательно и не может быть пустым.',
+      `В launch-card поле \`Hero package -> Package id\` должно ссылаться на существующий catalog id, а не на \`${launchCardSelection.heroPackageId || '—'}\`.`,
     );
-  } else if (!allowedHeroPriorities.has(launchCardSelection.heroPriority)) {
-    errors.push(
-      'В launch-card поле `Тип главного объекта -> приоритет героя` должно быть одним из `image-first | balanced | data-first`.',
+  } else {
+    const expectedHeroPaths = heroPackage.references.map((reference) => reference.path);
+    const missingHeroPaths = expectedHeroPaths.filter(
+      (filePath) => !launchCardSelection.heroPackageSourceOfTruthFiles.includes(filePath),
     );
-  }
-
-  if (isPlaceholder(launchCardSelection.mediaLayoutPolicy)) {
-    errors.push(
-      'В launch-card поле `Тип главного объекта -> политика media-layout` обязательно и не может быть пустым.',
-    );
-  } else if (!allowedMediaLayoutPolicies.has(launchCardSelection.mediaLayoutPolicy)) {
-    errors.push(
-      'В launch-card поле `Тип главного объекта -> политика media-layout` должно быть одним из `adaptive-safe | fixed | compact`.',
-    );
-  }
-
-  if (isPlaceholder(launchCardSelection.laneCollisionPolicy)) {
-    errors.push(
-      'В launch-card поле `Тип главного объекта -> политика соседних границ` обязательно и не может быть пустым.',
-    );
-  } else if (!allowedLaneCollisionPolicies.has(launchCardSelection.laneCollisionPolicy)) {
-    errors.push(
-      'В launch-card поле `Тип главного объекта -> политика соседних границ` должно быть одним из `hard-fit | soft-overlap`.',
-    );
-  }
-
-  if (isPlaceholder(launchCardSelection.protectedDataZone)) {
-    errors.push(
-      'В launch-card поле `Тип главного объекта -> защищенная data-zone` обязательно и не может быть пустым.',
-    );
-  } else if (!allowedProtectedDataZoneValues.has(launchCardSelection.protectedDataZone)) {
-    errors.push(
-      'В launch-card поле `Тип главного объекта -> защищенная data-zone` должно быть `true` или `false`.',
-    );
-  }
-
-  if (isPlaceholder(launchCardSelection.rankPlacement)) {
-    errors.push(
-      'В launch-card поле `Тип главного объекта -> размещение ранга` обязательно и не может быть пустым.',
-    );
-  } else if (!allowedRankPlacements.has(launchCardSelection.rankPlacement)) {
-    errors.push(
-      'В launch-card поле `Тип главного объекта -> размещение ранга` должно быть одним из `above-media | on-media | integrated`.',
-    );
-  }
-
-  if (launchCardSelection.heroPriority === 'image-first') {
-    if (launchCardSelection.mediaLayoutPolicy !== 'adaptive-safe') {
+    if (missingHeroPaths.length > 0) {
       errors.push(
-        'В launch-card для `heroPriority = image-first` поле `политика media-layout` должно быть `adaptive-safe`.',
-      );
-    }
-
-    if (launchCardSelection.laneCollisionPolicy !== 'hard-fit') {
-      errors.push(
-        'В launch-card для `heroPriority = image-first` поле `политика соседних границ` должно быть `hard-fit`.',
-      );
-    }
-
-    if (launchCardSelection.protectedDataZone !== 'true') {
-      errors.push(
-        'В launch-card для `heroPriority = image-first` поле `защищенная data-zone` должно быть `true`.',
-      );
-    }
-
-    if (launchCardSelection.rankPlacement !== 'above-media') {
-      errors.push(
-        'В launch-card для `heroPriority = image-first` поле `размещение ранга` должно быть `above-media`.',
+        `В launch-card блок \`Hero package\` должен включать все source-of-truth paths из catalog entry \`${heroPackage.id}\`: ${missingHeroPaths.join(', ')}.`,
       );
     }
   }
-}
 
-let lockedScenePreset: RegistryCameraPreset | null = null;
-let lockedHeroRevealPackage: RegistryRevealModule | null = null;
-
-if (launchCardSelection.exists && registryCameraPresets.exists) {
-  const explicitScenePackageId = launchCardSelection.scenePresetPackageId;
-  const explicitScenePackage = explicitScenePackageId
-    ? registryCameraPresets.presets.get(explicitScenePackageId)
-    : null;
-
-  if (explicitScenePackageId && !explicitScenePackage) {
-    errors.push(
-      `В launch-card выбран неизвестный \`Пакет сцены и камеры\`: \`${explicitScenePackageId}\`. Его нет в registry camera preset.`,
-    );
-  }
-
-  if (explicitScenePackage?.reusePolicy === 'implementation-locked') {
-    if (isPlaceholder(launchCardSelection.scenePresetReusePolicy)) {
+  if (launchCardSelection.selectionMode === 'template-clone') {
+    const templateEntry = templateCatalogEntries.get(launchCardSelection.templateBaseId);
+    if (!templateEntry) {
       errors.push(
-        `В launch-card для implementation-locked пакета \`${explicitScenePackage.moduleId}\` поле \`политика reuse\` обязательно и не может быть пустым.`,
-      );
-    } else if (launchCardSelection.scenePresetReusePolicy !== explicitScenePackage.reusePolicy) {
-      errors.push(
-        `В launch-card поле \`политика reuse\` для пакета \`${explicitScenePackage.moduleId}\` должно совпадать с registry и быть \`${explicitScenePackage.reusePolicy}\`, а не \`${launchCardSelection.scenePresetReusePolicy}\`.`,
-      );
-    }
-
-    if (launchCardSelection.scenePresetSourceOfTruthFiles.length === 0) {
-      errors.push(
-        `В launch-card для implementation-locked пакета \`${explicitScenePackage.moduleId}\` поле \`source-of-truth files\` обязательно и должно дублировать registry \`sourceOfTruthFiles\`.`,
+        `В launch-card поле \`Template base id\` должно ссылаться на существующий template id, а не на \`${launchCardSelection.templateBaseId || '—'}\`.`,
       );
     } else {
-      const missingLaunchCardPaths = explicitScenePackage.sourceOfTruthFiles.filter(
-        (filePath) => !launchCardSelection.scenePresetSourceOfTruthFiles.includes(filePath),
-      );
-      if (missingLaunchCardPaths.length > 0) {
+      if (launchCardSelection.allowedAdaptationScope !== templateEntry.allowedAdaptationScope) {
         errors.push(
-          `В launch-card поле \`source-of-truth files\` для пакета \`${explicitScenePackage.moduleId}\` должно включать все registry paths: ${missingLaunchCardPaths.join(', ')}.`,
+          `В launch-card поле \`Allowed adaptation scope\` должно совпадать с template catalog для \`${templateEntry.id}\`: \`${templateEntry.allowedAdaptationScope}\`.`,
+        );
+      }
+
+      if (launchCardSelection.cameraPackageId !== templateEntry.cameraPackageId) {
+        errors.push(
+          `В launch-card для template \`${templateEntry.id}\` camera package должен оставаться \`${templateEntry.cameraPackageId}\`.`,
+        );
+      }
+
+      if (launchCardSelection.heroPackageId !== templateEntry.heroPackageId) {
+        errors.push(
+          `В launch-card для template \`${templateEntry.id}\` hero package должен оставаться \`${templateEntry.heroPackageId}\`.`,
         );
       }
     }
-
-    if (isPlaceholder(launchCardSelection.scenePresetLockedBehavior)) {
-      errors.push(
-        `В launch-card для implementation-locked пакета \`${explicitScenePackage.moduleId}\` поле \`что считается зафиксированным без пересборки\` обязательно и должно дублировать registry \`lockedBehavior\`.`,
-      );
-    } else if (
-      normalizeContractText(launchCardSelection.scenePresetLockedBehavior) !==
-      normalizeContractText(explicitScenePackage.lockedBehavior)
-    ) {
-      errors.push(
-        `В launch-card поле \`что считается зафиксированным без пересборки\` для пакета \`${explicitScenePackage.moduleId}\` должно совпадать с registry \`lockedBehavior\`.`,
-      );
-    }
-
-    if (
-      launchCardSelection.mainCameraId &&
-      launchCardSelection.mainCameraId !== explicitScenePackage.moduleId
-    ) {
-      errors.push(
-        `В launch-card при implementation-locked пакете \`${explicitScenePackage.moduleId}\` поле \`Тип главной камеры -> id\` не должно указывать на другой preset: \`${launchCardSelection.mainCameraId}\`.`,
-      );
-    }
-
-    if (
-      launchCardSelection.timingId &&
-      launchCardSelection.timingId !== explicitScenePackage.moduleId
-    ) {
-      errors.push(
-        `В launch-card при implementation-locked пакете \`${explicitScenePackage.moduleId}\` \`Тип ритма\` не является отдельным выбором и не должен ссылаться на другой preset: \`${launchCardSelection.timingId}\`.`,
-      );
-    }
-
-    lockedScenePreset = explicitScenePackage;
-  } else if (
-    !explicitScenePackageId &&
-    launchCardSelection.mainCameraId &&
-    registryCameraPresets.presets.get(launchCardSelection.mainCameraId)?.reusePolicy ===
-      'implementation-locked'
-  ) {
-    const inferredPreset = registryCameraPresets.presets.get(launchCardSelection.mainCameraId)!;
-    errors.push(
-      `В launch-card implementation-locked preset \`${inferredPreset.moduleId}\` должен быть оформлен через явный блок \`Пакет сцены и камеры\`, а не через отдельный \`Тип главной камеры\`${launchCardSelection.timingId ? ' / `Тип ритма`' : ''}.`,
-    );
   }
 }
 
-if (launchCardSelection.exists && registryRevealModules.exists) {
-  const explicitHeroRevealId = launchCardSelection.heroRevealPackageId;
-  const explicitHeroReveal = explicitHeroRevealId
-    ? registryRevealModules.modules.get(explicitHeroRevealId)
-    : null;
-  const matchingHeroRevealPackages = Array.from(registryRevealModules.modules.values()).filter(
-    (module) =>
-      module.reusePolicy === 'implementation-locked' &&
-      (module.heroFamilyFit.includes(launchCardSelection.objectFamilyId) ||
-        module.heroFamilyFit.includes('universal')),
-  );
-
-  if (explicitHeroRevealId && !explicitHeroReveal) {
-    errors.push(
-      `В launch-card выбран неизвестный \`Пакет появления hero-модуля\`: \`${explicitHeroRevealId}\`. Его нет в registry reveal modules.`,
-    );
-  }
-
-  if (
-    explicitHeroReveal &&
-    launchCardSelection.objectFamilyId &&
-    !explicitHeroReveal.heroFamilyFit.includes(launchCardSelection.objectFamilyId) &&
-    !explicitHeroReveal.heroFamilyFit.includes('universal')
-  ) {
-    errors.push(
-      `В launch-card reveal-пакет \`${explicitHeroReveal.moduleId}\` несовместим с object family \`${launchCardSelection.objectFamilyId}\`: \`heroFamilyFit\` в registry = \`${explicitHeroReveal.heroFamilyFit.join(' | ')}\`.`,
-    );
-  }
-
-  if (
-    !explicitHeroRevealId &&
-    launchCardSelection.objectFamilyId &&
-    matchingHeroRevealPackages.length === 1
-  ) {
-    errors.push(
-      `В launch-card для object family \`${launchCardSelection.objectFamilyId}\` должен быть явно оформлен блок \`Пакет появления hero-модуля\`: подходит implementation-locked reveal baseline \`${matchingHeroRevealPackages[0].moduleId}\`.`,
-    );
-  }
-
-  if (explicitHeroReveal?.reusePolicy === 'implementation-locked') {
-    if (isPlaceholder(launchCardSelection.heroRevealReusePolicy)) {
-      errors.push(
-        `В launch-card для implementation-locked reveal-пакета \`${explicitHeroReveal.moduleId}\` поле \`политика reuse\` обязательно и не может быть пустым.`,
-      );
-    } else if (launchCardSelection.heroRevealReusePolicy !== explicitHeroReveal.reusePolicy) {
-      errors.push(
-        `В launch-card поле \`политика reuse\` для reveal-пакета \`${explicitHeroReveal.moduleId}\` должно совпадать с registry и быть \`${explicitHeroReveal.reusePolicy}\`, а не \`${launchCardSelection.heroRevealReusePolicy}\`.`,
-      );
-    }
-
-    if (launchCardSelection.heroRevealSourceOfTruthFiles.length === 0) {
-      errors.push(
-        `В launch-card для implementation-locked reveal-пакета \`${explicitHeroReveal.moduleId}\` поле \`source-of-truth files\` обязательно и должно дублировать registry \`sourceOfTruthFiles\`.`,
-      );
-    } else {
-      const missingLaunchCardPaths = explicitHeroReveal.sourceOfTruthFiles.filter(
-        (filePath) => !launchCardSelection.heroRevealSourceOfTruthFiles.includes(filePath),
-      );
-      if (missingLaunchCardPaths.length > 0) {
-        errors.push(
-          `В launch-card поле \`source-of-truth files\` для reveal-пакета \`${explicitHeroReveal.moduleId}\` должно включать все registry paths: ${missingLaunchCardPaths.join(', ')}.`,
-        );
-      }
-    }
-
-    if (isPlaceholder(launchCardSelection.heroRevealLockedBehavior)) {
-      errors.push(
-        `В launch-card для implementation-locked reveal-пакета \`${explicitHeroReveal.moduleId}\` поле \`что считается зафиксированным без пересборки\` обязательно и должно дублировать registry \`lockedBehavior\`.`,
-      );
-    } else if (
-      normalizeContractText(launchCardSelection.heroRevealLockedBehavior) !==
-      normalizeContractText(explicitHeroReveal.lockedBehavior)
-    ) {
-      errors.push(
-        `В launch-card поле \`что считается зафиксированным без пересборки\` для reveal-пакета \`${explicitHeroReveal.moduleId}\` должно совпадать с registry \`lockedBehavior\`.`,
-      );
-    }
-
-    lockedHeroRevealPackage = explicitHeroReveal;
-  }
-}
-
-if (!directorPassReview.exists) {
+if (!reviewNotesSelection.exists) {
   errors.push(
-    `Рядом с build-plan должен существовать review-notes.md с секцией \`Режиссерский план\`: ${path.relative(process.cwd(), directorPassReview.path)}`,
+    `Рядом с build-plan должен существовать review-notes.md: ${path.relative(process.cwd(), reviewNotesSelection.path)}`,
   );
-} else {
-  if (!allowedDirectorPassReviewDecisions.has(directorPassReview.decision)) {
+} else if (isConstructorMode) {
+  if (!reviewNotesSelection.hasPreviewGateSection) {
+    errors.push('Для `library-only-constructor-v1` review-notes.md обязан содержать секцию `Preview gate`.');
+  }
+
+  if (!reviewNotesSelection.hasFinalApprovalSection) {
+    errors.push('Для `library-only-constructor-v1` review-notes.md обязан содержать секцию `Final approval`.');
+  }
+
+  if (
+    reviewNotesSelection.previewDecision &&
+    !allowedPreviewGateDecisions.has(reviewNotesSelection.previewDecision)
+  ) {
     errors.push(
-      'В секции `Режиссерский план` файла `review-notes.md` поле `Решение` должно быть одним из `pending | approved | revise`.',
+      'В секции `Preview gate` поле `Решение` должно быть одним из `approve | approve with changes | reject`.',
     );
   }
 
-  if (!directorPassReview.canProceed) {
+  if (
+    reviewNotesSelection.finalStatus &&
+    !allowedFinalApprovalStatuses.has(reviewNotesSelection.finalStatus)
+  ) {
     errors.push(
-      'В секции `Режиссерский план` файла `review-notes.md` поле `Можно ли переходить к build-plan` обязательно и должно быть `yes` или `no`.',
-    );
-  } else if (directorPassReview.canProceed !== 'yes' && directorPassReview.canProceed !== 'no') {
-    errors.push(
-      'В секции `Режиссерский план` файла `review-notes.md` поле `Можно ли переходить к build-plan` должно быть `yes` или `no`.',
-    );
-  }
-
-  if (directorPassReview.decision !== 'approved') {
-    errors.push(
-      'Build-plan невалиден, пока в `review-notes.md` секция `Режиссерский план` не имеет `Решение: approved`.',
+      'В секции `Final approval` поле `Статус` должно быть одним из `final-approved | final-approved-with-notes | not-final`.',
     );
   }
 
-  if (directorPassReview.decision === 'approved' && directorPassReview.canProceed === 'no') {
+  const previewGateUnlocked =
+    reviewNotesSelection.previewDecision === 'approve' ||
+    reviewNotesSelection.previewDecision === 'approve with changes';
+
+  if (
+    (currentPlanPhase === 'post-preview-build' ||
+      planStatus === 'preview-complete' ||
+      planStatus === 'full-complete' ||
+      nextStep === 'final-approval' ||
+      nextStep === 'completed') &&
+    !previewGateUnlocked
+  ) {
     errors.push(
-      'В `review-notes.md` режиссерский план уже `approved`, поэтому поле `Можно ли переходить к build-plan` не может оставаться `no`.',
+      'Переход в `post-preview-build`, `final-approval` или `completed` невозможен, пока `Preview gate` не имеет решения `approve` или `approve with changes`.',
     );
   }
 
-  if (directorPassReview.decision !== 'approved' && directorPassReview.canProceed === 'yes') {
+  if (
+    (planStatus === 'full-complete' || nextStep === 'completed') &&
+    reviewNotesSelection.finalStatus !== 'final-approved' &&
+    reviewNotesSelection.finalStatus !== 'final-approved-with-notes'
+  ) {
     errors.push(
-      'В `review-notes.md` нельзя разрешать переход к build-plan (`yes`), пока режиссерский план не имеет `Решение: approved`.',
+      'Финальное завершение проекта возможно только если секция `Final approval` имеет статус `final-approved` или `final-approved-with-notes`.',
     );
   }
 }
@@ -1404,7 +1411,7 @@ const taskById = new Map(tasks.map((task) => [task.id, task]));
 
 if (nextStep && !allowedNextSteps.has(nextStep) && !taskIds.has(nextStep)) {
   errors.push(
-    `Поле \`Следующий шаг\` содержит неизвестное значение: \`${nextStep}\`. Используй существующий task id или один из системных шагов: preview-gate, final-approval, library-audit, completed.`,
+    `Поле \`Следующий шаг\` содержит неизвестное значение: \`${nextStep}\`. Используй существующий task id или один из системных шагов: preview-gate, final-approval, completed.`,
   );
 }
 
@@ -1487,7 +1494,6 @@ for (const task of tasks) {
     const timingPolicy = fieldValue(task, 'Timing policy');
     const targetDurationBand = fieldValue(task, 'Target duration band');
     const finaleTailPolicy = fieldValue(task, 'Finale tail policy');
-    const greenfieldJustification = fieldValue(task, 'Greenfield justification');
     const heroPriority = fieldValue(task, 'Hero priority');
     const mediaLayoutPolicy = fieldValue(task, 'Media layout policy');
     const laneCollisionPolicy = fieldValue(task, 'Lane collision policy');
@@ -1672,57 +1678,6 @@ for (const task of tasks) {
       }
     }
 
-    if (previewRole === 'hero-preview' && lockedHeroRevealPackage && status !== 'todo') {
-      if (reuseMode !== 'preset-reuse') {
-        errors.push(
-          `Задача ${task.id}: при выбранном implementation-locked hero reveal package \`${lockedHeroRevealPackage.moduleId}\` поле \`Reuse mode\` обязано быть \`preset-reuse\`.`,
-        );
-      }
-
-      const missingBaselinePaths = lockedHeroRevealPackage.sourceOfTruthFiles.filter(
-        (filePath) => !referenceBaselinePaths.includes(filePath),
-      );
-      if (missingBaselinePaths.length > 0) {
-        errors.push(
-          `Задача ${task.id}: \`Reference baseline\` должна включать exact \`sourceOfTruthFiles\` выбранного hero reveal package \`${lockedHeroRevealPackage.moduleId}\`: ${missingBaselinePaths.join(', ')}.`,
-        );
-      }
-
-      const reuseRequirements = [
-        ['activation', 'gate', 'presentation'],
-        ['reveal', 'staging', 'choreograph', 'появлен'],
-        ['shell', 'корпус', 'оболоч'],
-        ['data', 'card', 'dashboard', 'panel', 'hologram', 'карточ', 'панел', 'голограм'],
-        ['metric', 'badge', 'rank', 'метрик', 'бейдж', 'ранг'],
-      ];
-
-      const missingReuseMarkers = reuseRequirements.filter(
-        (markers) => !hasAnyMarker(reuseWithoutChanges, markers),
-      );
-      if (missingReuseMarkers.length > 0) {
-        errors.push(
-          `Задача ${task.id}: для implementation-locked hero reveal package \`${lockedHeroRevealPackage.moduleId}\` поле \`Reuse without changes\` должно явно перечислять activation / presentation gate, reveal staging order, shell-to-data choreography, timing метрики и effect family, а не только общий текст.`,
-        );
-      }
-
-      const adaptationRequirements = [
-        ['theme', 'тема'],
-        ['material', 'материал'],
-        ['layout', 'slot', 'слот', 'уклад'],
-        ['offset'],
-        ['content', 'контент'],
-      ];
-
-      const missingAdaptationMarkers = adaptationRequirements.filter(
-        (markers) => !hasAnyMarker(allowedAdaptation, markers),
-      );
-      if (missingAdaptationMarkers.length > 0) {
-        errors.push(
-          `Задача ${task.id}: для implementation-locked hero reveal package \`${lockedHeroRevealPackage.moduleId}\` поле \`Allowed adaptation\` должно явно ограничиваться темой, материалами, layout-safe offsets, content slots и topic-specific поверхностью.`,
-        );
-      }
-    }
-
     if (previewRole === 'hero-preview') {
       if (heroPriority && !allowedHeroPriorities.has(heroPriority)) {
         errors.push(
@@ -1874,14 +1829,72 @@ for (const task of tasks) {
 
     if (isQualityCheckpoint && !allowedReuseModes.has(reuseMode)) {
       errors.push(
-        `Задача ${task.id}: поле \`Reuse mode\` должно быть одним из preset-reuse | structure-reuse | system-reuse | greenfield-approved, а не свободным описанием.`,
+        `Задача ${task.id}: поле \`Reuse mode\` должно быть одним из preset-reuse | structure-reuse | system-reuse, а не свободным описанием.`,
       );
     }
 
     if (isQualityCheckpoint && status !== 'todo') {
-      if (reuseMode !== 'greenfield-approved' && isPlaceholder(referenceBaseline)) {
+      if (
+        isConstructorMode &&
+        previewRole === 'camera-preview' &&
+        launchCardSelection.cameraPackageSourceOfTruthFiles.length > 0
+      ) {
+        const missingCameraBaselinePaths = launchCardSelection.cameraPackageSourceOfTruthFiles.filter(
+          (filePath) => !referenceBaselinePaths.includes(filePath),
+        );
+        if (missingCameraBaselinePaths.length > 0) {
+          errors.push(
+            `Задача ${task.id}: \`Reference baseline\` должна включать все source-of-truth files из launch-card camera package: ${missingCameraBaselinePaths.join(', ')}.`,
+          );
+        }
+      }
+
+      if (
+        isConstructorMode &&
+        previewRole === 'hero-preview' &&
+        launchCardSelection.heroPackageSourceOfTruthFiles.length > 0
+      ) {
+        const missingHeroBaselinePaths = launchCardSelection.heroPackageSourceOfTruthFiles.filter(
+          (filePath) => !referenceBaselinePaths.includes(filePath),
+        );
+        if (missingHeroBaselinePaths.length > 0) {
+          errors.push(
+            `Задача ${task.id}: \`Reference baseline\` должна включать все source-of-truth files из launch-card hero package: ${missingHeroBaselinePaths.join(', ')}.`,
+          );
+        }
+      }
+      if (
+        isConstructorMode &&
+        previewRole === 'camera-preview' &&
+        launchCardSelection.cameraPackageSourceOfTruthFiles.length > 0
+      ) {
+        const missingCameraBaselinePaths = launchCardSelection.cameraPackageSourceOfTruthFiles.filter(
+          (filePath) => !referenceBaselinePaths.includes(filePath),
+        );
+        if (missingCameraBaselinePaths.length > 0) {
+          errors.push(
+            `Задача ${task.id}: \`Reference baseline\` должна включать все source-of-truth files из launch-card camera package: ${missingCameraBaselinePaths.join(', ')}.`,
+          );
+        }
+      }
+
+      if (
+        isConstructorMode &&
+        previewRole === 'hero-preview' &&
+        launchCardSelection.heroPackageSourceOfTruthFiles.length > 0
+      ) {
+        const missingHeroBaselinePaths = launchCardSelection.heroPackageSourceOfTruthFiles.filter(
+          (filePath) => !referenceBaselinePaths.includes(filePath),
+        );
+        if (missingHeroBaselinePaths.length > 0) {
+          errors.push(
+            `Задача ${task.id}: \`Reference baseline\` должна включать все source-of-truth files из launch-card hero package: ${missingHeroBaselinePaths.join(', ')}.`,
+          );
+        }
+      }
+      if (isPlaceholder(referenceBaseline)) {
         errors.push(
-          `Задача ${task.id}: для key preview task со статусом \`${status}\` поле \`Reference baseline\` обязательно, если \`Reuse mode\` не равен \`greenfield-approved\`.`,
+          `Задача ${task.id}: для key preview task со статусом \`${status}\` поле \`Reference baseline\` обязательно.`,
         );
       }
 
@@ -1894,12 +1907,6 @@ for (const task of tasks) {
       if (isPlaceholder(allowedAdaptation)) {
         errors.push(
           `Задача ${task.id}: для key preview task со статусом \`${status}\` поле \`Allowed adaptation\` должно быть заполнено.`,
-        );
-      }
-
-      if (reuseMode === 'greenfield-approved' && isPlaceholder(greenfieldJustification)) {
-        errors.push(
-          `Задача ${task.id}: \`greenfield-approved\` требует непустое поле \`Greenfield justification\` с источником решения.`,
         );
       }
 
@@ -1997,15 +2004,9 @@ for (const task of tasks) {
         }
       }
 
-      if (reuseMode !== 'greenfield-approved' && isPlaceholder(task.fields['Reference baseline'])) {
+      if (isPlaceholder(task.fields['Reference baseline'])) {
         errors.push(
-          `Задача ${task.id}: completed quality-checkpoint обязан иметь непустое \`Reference baseline\`, если \`Reuse mode\` не равен \`greenfield-approved\`.`,
-        );
-      }
-
-      if (reuseMode === 'greenfield-approved' && isPlaceholder(task.fields['Greenfield justification'])) {
-        errors.push(
-          `Задача ${task.id}: completed quality-checkpoint с \`greenfield-approved\` обязан иметь непустое \`Greenfield justification\`.`,
+          `Задача ${task.id}: completed quality-checkpoint обязан иметь непустое \`Reference baseline\`.`,
         );
       }
 

@@ -34,6 +34,8 @@
     "test": "tsx --test",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
+    "scaffold:template": "tsx scripts/scaffold-ranking-project-from-template.ts",
+    "validate:catalog": "tsx scripts/validate-ranking-catalog.ts",
     "validate:build-plan": "tsx scripts/validate-ranking-build-plan.ts",
     "validate:data": "tsx scripts/validate-ranking-data.ts"
   },

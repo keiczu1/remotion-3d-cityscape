@@ -105,9 +105,11 @@
 
 - эти оси остаются внутренней моделью канона и production-контракта;
 - `heroSupportMode` не является новой осью формата: это launch-facing способ описать, насколько новый герой reuse-ит библиотеку, baseline или текущую грамматику формы;
-- но на launch-этапе при наличии verified implementation-locked `scenePresetPackage` пользовательский выбор по умолчанию идет не по отдельным `mainCameraFamily + timingFamily`, а по готовым scene-preset package;
+- но на launch-этапе для нового режима пользовательский выбор по умолчанию идет через `constructor / template selector`, а не через открытый creative-first разбор;
+- при наличии verified implementation-locked `scenePresetPackage` пользовательский выбор по умолчанию идет не по отдельным `mainCameraFamily + timingFamily`, а по готовым scene-preset package;
 - отдельный пользовательский блок `камера + ритм` в этом случае считается старым артефактом осевой модели и по умолчанию не показывается;
-- детальный фон и `secondary-life system` на launch-этапе не утверждаются как отдельный мир: там допускается только предварительный `theme-default`, а полная world-assembly делается позже в `director-pass`.
+- `scene world config` и baseline secondary-life теперь должны фиксироваться уже на launch-этапе либо через library-backed constructor block, либо через выбранный `template-clone`;
+- `scene world config` фиксируется уже на launch-этапе через constructor/template selector.
 
 На launch-этапе пользовательский разговор теперь может сначала идти не по сырым внутренним осям, а по четырем human-facing режимам опоры героя:
 
@@ -279,9 +281,9 @@ Hero-модуль включает:
 
 Полезные референсы:
 
-- `docs/Examples/Ranking-towers-reverse-prompt.md`
-- `docs/Examples/Military.md`
-- текущая реализация `src/compositions/ranking-towers/`
+- текущие композиции и project-container внутри репозитория;
+- constructor/template catalog;
+- библиотечный registry.
 
 Практический смысл:
 
