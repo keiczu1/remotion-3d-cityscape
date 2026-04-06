@@ -35,6 +35,8 @@
 - launch и production skills синхронизированы с новым маршрутом;
 - validator очищен от старых workflow-веток и проверяет один режим;
 - constructor/template catalog и scaffold layer оставлены как machine-readable основа нового запуска;
+- scaffold `template-clone` теперь materialize-ит не только composition/assets, но и template project-container без копирования legacy project-файлов и без порчи бинарных ассетов;
+- validator и owner-docs синхронизированы по `Template base source project`, machine-step контракту `Следующий шаг` и active scripts-map;
 - active docs и machine-layer больше не ссылаются на старый процесс.
 - исторические project-container тоже очищены от retired workflow-файлов и прямых ссылок на старые фазы.
 

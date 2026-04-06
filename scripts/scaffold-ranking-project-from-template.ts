@@ -24,6 +24,23 @@ const sourceSlug = template.sourceProjectSlug;
 const targetProjectPath = path.join(rootDir, "projects", projectSlug);
 const targetCompositionPath = path.join(rootDir, "src", "compositions", projectSlug);
 const targetPublicAssetsPath = path.join(rootDir, "public", "ranking-corridor", projectSlug);
+const allowedExistingProjectFiles = new Set(["launch-card.md", "review-notes.md"]);
+const textFileExtensions = new Set([
+    ".css",
+    ".html",
+    ".js",
+    ".json",
+    ".jsx",
+    ".md",
+    ".mjs",
+    ".scss",
+    ".svg",
+    ".ts",
+    ".tsx",
+    ".txt",
+    ".yml",
+    ".yaml",
+]);
 
 const toPascalCase = (value: string) =>
     value
@@ -37,8 +54,12 @@ const renderTemplate = (value: string) =>
         .split("{{projectSlug}}").join(projectSlug)
         .split("{{projectSlugPascal}}").join(toPascalCase(projectSlug));
 
+const normalizeRepoRelativePath = (value: string) => value.replace(/\\/g, "/");
+const renderPolicyPath = (value: string) => normalizeRepoRelativePath(value).split("<source-slug>").join(sourceSlug);
+const renderedCopyExcludes = template.copyPolicy.exclude.map(renderPolicyPath);
 const operations: string[] = [];
 const shouldCopyPublicAssets = Boolean(template.publicAssetsPath);
+const shouldCopyProjectContainer = Boolean(template.projectContainerPath);
 
 const ensureTargetDoesNotExist = (targetPath: string) => {
     if (fs.existsSync(targetPath)) {
@@ -46,28 +67,37 @@ const ensureTargetDoesNotExist = (targetPath: string) => {
     }
 };
 
-ensureTargetDoesNotExist(targetProjectPath);
 ensureTargetDoesNotExist(targetCompositionPath);
 if (shouldCopyPublicAssets) {
     ensureTargetDoesNotExist(targetPublicAssetsPath);
 }
 
-const replaceInDirectory = (directoryPath: string) => {
-    const entries = fs.readdirSync(directoryPath, { withFileTypes: true });
-
-    for (const entry of entries) {
-        const absolutePath = path.join(directoryPath, entry.name);
-        if (entry.isDirectory()) {
-            replaceInDirectory(absolutePath);
-            continue;
-        }
-
-        const currentContent = fs.readFileSync(absolutePath, "utf8");
-        const nextContent = currentContent.split(sourceSlug).join(projectSlug);
-        if (nextContent !== currentContent) {
-            fs.writeFileSync(absolutePath, nextContent, "utf8");
-        }
+const ensureProjectTargetIsReady = () => {
+    if (!fs.existsSync(targetProjectPath)) {
+        return;
     }
+
+    const disallowedEntries = fs
+        .readdirSync(targetProjectPath, { withFileTypes: true })
+        .filter((entry) => !allowedExistingProjectFiles.has(entry.name))
+        .map((entry) => entry.name);
+
+    if (disallowedEntries.length > 0) {
+        throw new Error(
+            `Project dir already contains materialized files: projects/${projectSlug}/${disallowedEntries.join(", ")}`,
+        );
+    }
+};
+
+const isPathCoveredByRules = (repoRelativePath: string, rules: readonly string[]) =>
+    rules.some((rule) => repoRelativePath === rule || repoRelativePath.startsWith(`${rule}/`));
+
+const shouldCopyRepoRelativePath = (repoRelativePath: string) => {
+    if (isPathCoveredByRules(repoRelativePath, renderedCopyExcludes)) {
+        return false;
+    }
+
+    return true;
 };
 
 const updateRootRegistration = () => {
@@ -105,7 +135,59 @@ const updateRootRegistration = () => {
     operations.push(`update root registration: ${template.rootRegistrationTarget}`);
 };
 
-operations.push(`create project dir: projects/${projectSlug}`);
+const rewriteTextFileIfNeeded = (targetPath: string) => {
+    if (!template.placeholderReplacementPolicy.replaceSourceSlug) {
+        return;
+    }
+
+    const extension = path.extname(targetPath).toLowerCase();
+    if (!textFileExtensions.has(extension)) {
+        return;
+    }
+
+    const currentContent = fs.readFileSync(targetPath, "utf8");
+    const nextContent = currentContent.split(sourceSlug).join(projectSlug);
+    if (nextContent !== currentContent) {
+        fs.writeFileSync(targetPath, nextContent, "utf8");
+    }
+};
+
+const copyDirectoryWithPolicy = (sourceRelativePath: string, targetPath: string) => {
+    const sourcePath = path.join(rootDir, sourceRelativePath);
+
+    const copyRecursively = (currentSourcePath: string, currentTargetPath: string) => {
+        const repoRelativePath = normalizeRepoRelativePath(path.relative(rootDir, currentSourcePath));
+        if (!shouldCopyRepoRelativePath(repoRelativePath)) {
+            return;
+        }
+
+        const stats = fs.statSync(currentSourcePath);
+        if (stats.isDirectory()) {
+            fs.mkdirSync(currentTargetPath, { recursive: true });
+            const entries = fs.readdirSync(currentSourcePath, { withFileTypes: true });
+            for (const entry of entries) {
+                copyRecursively(
+                    path.join(currentSourcePath, entry.name),
+                    path.join(currentTargetPath, entry.name),
+                );
+            }
+            return;
+        }
+
+        fs.mkdirSync(path.dirname(currentTargetPath), { recursive: true });
+        fs.copyFileSync(currentSourcePath, currentTargetPath);
+        rewriteTextFileIfNeeded(currentTargetPath);
+    };
+
+    copyRecursively(sourcePath, targetPath);
+};
+
+ensureProjectTargetIsReady();
+
+operations.push(`create or reuse project dir: projects/${projectSlug}`);
+if (shouldCopyProjectContainer && template.projectContainerPath) {
+    operations.push(`copy project container: ${template.projectContainerPath} -> projects/${projectSlug}`);
+}
 operations.push(`copy composition: ${template.compositionPath} -> src/compositions/${projectSlug}`);
 if (shouldCopyPublicAssets) {
     operations.push(`copy public assets: ${template.publicAssetsPath} -> public/ranking-corridor/${projectSlug}`);
@@ -121,12 +203,13 @@ if (isDryRun) {
 }
 
 fs.mkdirSync(targetProjectPath, { recursive: true });
-fs.cpSync(path.join(rootDir, template.compositionPath), targetCompositionPath, { recursive: true });
-replaceInDirectory(targetCompositionPath);
+if (shouldCopyProjectContainer && template.projectContainerPath) {
+    copyDirectoryWithPolicy(template.projectContainerPath, targetProjectPath);
+}
+copyDirectoryWithPolicy(template.compositionPath, targetCompositionPath);
 
 if (shouldCopyPublicAssets && template.publicAssetsPath) {
-    fs.cpSync(path.join(rootDir, template.publicAssetsPath), targetPublicAssetsPath, { recursive: true });
-    replaceInDirectory(targetPublicAssetsPath);
+    copyDirectoryWithPolicy(template.publicAssetsPath, targetPublicAssetsPath);
 }
 
 updateRootRegistration();

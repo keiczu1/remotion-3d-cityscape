@@ -33,6 +33,7 @@ type LaunchCardSelection = {
   heroPackageSourceOfTruthFiles: string[];
   heroPackageLockedBehavior: string;
   templateBaseId: string;
+  templateBaseSourceProject: string;
   allowedAdaptationScope: string;
   heroSupportModeName: string;
   heroSupportModeId: string;
@@ -649,6 +650,7 @@ const parseLaunchCardSelection = (): LaunchCardSelection => {
       heroPackageSourceOfTruthFiles: [],
       heroPackageLockedBehavior: '',
       templateBaseId: '',
+      templateBaseSourceProject: '',
       allowedAdaptationScope: '',
       heroSupportModeName: '',
       heroSupportModeId: '',
@@ -837,6 +839,7 @@ const parseLaunchCardSelection = (): LaunchCardSelection => {
       '\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435 \u0437\u0430\u0444\u0438\u043a\u0441\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u043e\u0433\u043e locked baseline',
     ]),
     templateBaseId: cleanValue(templateBaseFields['Template base id'] ?? ''),
+    templateBaseSourceProject: cleanValue(templateBaseFields['Template base source project'] ?? ''),
     allowedAdaptationScope: cleanValue(templateBaseFields['Allowed adaptation scope'] ?? ''),
     heroSupportModeName: getValueByAliases(heroSupportModeFields, ['\u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435']),
     heroSupportModeId: cleanValue(heroSupportModeFields['id'] ?? ''),
@@ -1326,6 +1329,14 @@ if (launchCardSelection.exists && isConstructorMode) {
         `В launch-card поле \`Template base id\` должно ссылаться на существующий template id, а не на \`${launchCardSelection.templateBaseId || '—'}\`.`,
       );
     } else {
+      if (!launchCardSelection.templateBaseSourceProject) {
+        errors.push('В launch-card для `template-clone` поле `Template base source project` обязательно.');
+      } else if (launchCardSelection.templateBaseSourceProject !== templateEntry.sourceProjectSlug) {
+        errors.push(
+          `В launch-card поле \`Template base source project\` должно совпадать с template catalog для \`${templateEntry.id}\`: \`${templateEntry.sourceProjectSlug}\`.`,
+        );
+      }
+
       if (launchCardSelection.allowedAdaptationScope !== templateEntry.allowedAdaptationScope) {
         errors.push(
           `В launch-card поле \`Allowed adaptation scope\` должно совпадать с template catalog для \`${templateEntry.id}\`: \`${templateEntry.allowedAdaptationScope}\`.`,

@@ -97,6 +97,7 @@
 
 Machine-step значения:
 
+- `task id` текущей активной задачи, пока внутри фазы еще есть незавершенная работа
 - `preview-gate`
 - `final-approval`
 - `completed`

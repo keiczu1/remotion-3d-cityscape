@@ -12,6 +12,9 @@
   - результат: `pass`
 - `npm run validate:catalog`
   - результат: `pass`
+- `npm run scaffold:template -- nature-altar-corridor-template-v1 tmp-template-materialization-check`
+  - результат: `pass`
+  - смысл: scaffold копирует template project-container и binary-heavy public assets без повреждения `.png/.jpg`, после проверки временные артефакты удалены
 - active contour sweep
   - результат: `pass`
   - смысл: `AGENTS.md`, `docs/README.md`, `docs/canon/`, `docs/templates/`, `docs/library/`, `.agents/skills/`, `projects/README.md`, `scripts/validate-ranking-build-plan.ts` не тянут старый workflow как рабочий маршрут

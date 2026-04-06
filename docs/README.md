@@ -20,6 +20,8 @@
 8. `docs/library/`
 9. `.agents/skills/`
 10. `scripts/validate-ranking-build-plan.ts`
+11. `scripts/validate-ranking-catalog.ts`
+12. `scripts/scaffold-ranking-project-from-template.ts`
 
 ## Что читать по порядку
 
@@ -37,6 +39,8 @@
 - `docs/canon/` — owner-level правила формата и workflow.
 - `docs/templates/` — шаблоны project-артефактов.
 - `docs/library/` — constructor-catalog, template-catalog и registry reusable-слоя.
+- `scripts/validate-ranking-build-plan.ts` и `scripts/validate-ranking-catalog.ts` — machine-check слой active workflow.
+- `scripts/scaffold-ranking-project-from-template.ts` — materialization layer для `template-clone`.
 - `docs/workflow/` — текущие implementation notes и verification notes; это не source-of-truth.
 - `docs/plans.md` — короткая служебная заметка; это не source-of-truth.
 

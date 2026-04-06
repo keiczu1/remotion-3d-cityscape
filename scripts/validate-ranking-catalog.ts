@@ -74,6 +74,17 @@ for (const cameraPackage of CONSTRUCTOR_CATALOG.cameraPackages) {
 }
 
 for (const template of TEMPLATE_CATALOG) {
+    const sourceKind = template.sourceKind as "project-container" | "composition-only";
+    const projectContainerPath = template.projectContainerPath as string | null;
+
+    if (sourceKind === "project-container" && !projectContainerPath) {
+        errors.push(`template \`${template.id}\` with sourceKind \`project-container\` must define projectContainerPath.`);
+    }
+
+    if (sourceKind === "composition-only" && projectContainerPath) {
+        errors.push(`template \`${template.id}\` with sourceKind \`composition-only\` must not define projectContainerPath.`);
+    }
+
     if (!cameraPackageIds.has(template.cameraPackageId)) {
         errors.push(`template \`${template.id}\` references unknown cameraPackageId \`${template.cameraPackageId}\`.`);
     }

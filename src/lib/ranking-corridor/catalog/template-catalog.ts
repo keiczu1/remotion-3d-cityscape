@@ -1,7 +1,11 @@
 import type { TemplateCatalog } from "./types";
 
 const defaultCopyPolicy = {
-    include: ["src/compositions/<source-slug>/", "public/ranking-corridor/<source-slug>/"],
+    include: [
+        "projects/<source-slug>/",
+        "src/compositions/<source-slug>/",
+        "public/ranking-corridor/<source-slug>/",
+    ],
     exclude: [
         "projects/<source-slug>/launch-card.md",
         "projects/<source-slug>/build-plan.md",

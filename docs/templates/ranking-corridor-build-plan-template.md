@@ -13,6 +13,7 @@
 - `build-plan` живет только внутри `projects/<project-slug>/`.
 - `build-plan` создается сразу после утверждения `launch-card.md`.
 - В каждый момент времени только одна задача может быть в статусе `in_progress`.
+- Top-level поле `Следующий шаг` хранит либо `task id` текущей активной задачи, либо системный шаг `preview-gate | final-approval | completed`.
 - Секция `post-preview-build` остается заблокированной, пока в `review-notes.md` нет допустимого решения по `Preview gate`.
 - Для key preview task обязательны machine-readable поля `Reuse mode`, `Reference baseline`, `Reuse without changes`, `Allowed adaptation`, `Non-negotiables`.
 - `Reuse mode` для key preview task должен быть одним из: `preset-reuse | structure-reuse | system-reuse`.
@@ -33,7 +34,7 @@
 - Обновлено:
 - Текущая фаза: `preview-build | post-preview-build`
 - Статус плана: `draft | active | preview-complete | full-complete`
-- Следующий шаг:
+- Следующий шаг: `<task id | preview-gate | final-approval | completed>`
 - Что заблокировано до `preview-gate`:
 
 ## Короткий контекст
