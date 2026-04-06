@@ -31,7 +31,7 @@ Source-of-truth для автоматизации живет в:
 - Человеческое имя: `Nature Altar Corridor`
 - База: `2026-03-25-strongest-pokemon`
 - Режим: `project-container`
-- Камера: `camera-soft-side-orbit-classic-v1`
+- Камера: `camera-rail-focus-vip-finale-v1`
 - Герой: `hero-stone-altar-pedestal-v1`
 - Допустимая адаптация: `scene-world-tuning`
 
@@ -51,8 +51,16 @@ Source-of-truth для автоматизации живет в:
 
 Текущий v1-поток materialize-ит:
 
+- `projects/<project-slug>/`, если у template есть `projectContainerPath`
 - `src/compositions/<project-slug>/`
 - `public/ranking-corridor/<project-slug>/`, если у template есть локальные public assets
 - регистрацию новой композиции в `src/Root.tsx`
 
-Project-local `launch-card.md`, `build-plan.md`, `review-notes.md` и legacy review-artifacts не копируются из source project и должны создаваться заново под новый проект.
+Scaffold допускает уже созданные `launch-card.md` и `review-notes.md` в новом `projects/<project-slug>/`, но не копирует из source project project-local execution-артефакты:
+
+- `build-plan.md`
+- `asset-manifest.md`
+- `review-artifacts/`
+- `exports/`
+
+Эти файлы должны materialize-иться заново уже под новый проект и его собственный production-цикл.

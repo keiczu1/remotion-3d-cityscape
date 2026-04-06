@@ -9,6 +9,7 @@
 - Тема: Исторический рейтинг самых богатых женщин с portrait-first hero-модулем и длинными биографическими описаниями
 - Создано: 2026-03-30
 - Обновлено: 2026-03-31
+- Workflow mode: `library-only-constructor-v1`
 - Статус запуска: `draft`
 - Источник утверждения core-направления: `explicit-user-text`
 
@@ -33,7 +34,7 @@
 - Пакет сцены и камеры:
   - название: Hero preview stage
   - id: `hero-preview-stage`
-  - политика reuse: `none`
+  - политика reuse: `structure-reuse`
   - source-of-truth files: `src/lib/ranking-corridor/hero/portrait-biography-stele.tsx`, `src/compositions/2026-03-30-richest-women/scene/Scene.tsx`
   - что считается зафиксированным без пересборки: grammar одиночного hero/object preview зафиксирован в library-backed hero-модуле; отдельная variant-composition позже выведена из Studio как больше не нужная
 - Пакет появления hero-модуля:
@@ -46,10 +47,10 @@
 - Тип фона:
   - название: Dark premium preview field
   - id: `hero-preview-field`
-  - источник выбора: `ai-custom`
+  - источник выбора: `nearest-library-backed`
   - предварительная роль в шоу: убрать визуальный шум и оставить только премиальный фон для чтения hero-модуля
 - Стратегия длительности: короткий Studio-preview для проверки и финализации одного hero/object family
-- Система появления: `approved-custom`
+- Система появления: `registry-first-default`
 
 ## Дополнительный контекст по теме
 

@@ -76,7 +76,7 @@ export const TEMPLATE_CATALOG = [
         publicAssetsPath: "public/ranking-corridor/2026-03-25-strongest-pokemon",
         compositionIdTemplate: "{{projectSlugPascal}}Corridor",
         rootRegistrationTarget: "src/Root.tsx",
-        cameraPackageId: "camera-soft-side-orbit-classic-v1",
+        cameraPackageId: "camera-rail-focus-vip-finale-v1",
         heroPackageId: "hero-stone-altar-pedestal-v1",
         sceneWorldBaseline: [
             "horizon-mountain-ridge-v1",

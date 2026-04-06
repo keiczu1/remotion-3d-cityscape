@@ -4,10 +4,11 @@
 
 - Slug проекта: `2026-03-20-most-visited-websites`
 - Человеческое название: Самые посещаемые сайты в мире
+- Workflow mode: `library-only-constructor-v1`
 - Начато: 2026-03-20
 - Обновлено: 2026-03-21
 
-## Предпросмотр
+## Preview gate
 
 - Цикл review: 2
 - Пакет предпросмотра:
@@ -28,8 +29,8 @@
 - Решение: `approve with changes`
 - Проверенный охват: hero-модуль, фон, данные, ассеты, scramble, fps
 - Что подтверждено: визуальный язык, производительность, структура данных, корректность ассетов
-- Результат pre-build review-проверки: `ok`
-- Pre-build review-заметки: эскалация по сценам держится через усиление фона, data streams в средней части и церемониальный payoff у лидеров; вторичная жизнь не требует смены hero-концепта, но должна быть повторно просмотрена после optimization-pass
+- Результат сверки с launch-заметками: `ok`
+- Launch-note-заметки: эскалация по сценам держится через усиление фона, data streams в средней части и церемониальный payoff у лидеров; вторичная жизнь не требует смены hero-концепта, но должна быть повторно просмотрена после optimization-pass
 - Перетягивает ли вторичная жизнь внимание с героя: `no`
 - Результат layout-проверки: `ok`
 - Layout-заметки: data-панель и sizing доменов выдержали re-preview на дальних состояниях, лидерских карточках, финальном cinematic tail и storm-сегменте
@@ -38,17 +39,17 @@
 - Нужно ли обязательно повторить предпросмотр: нет
 - Верификация или подтверждающие материалы: `npm test`, `npm run lint`, `npm run build`, локальная серия Studio-preview/re-preview и финальное подтверждение пользователя без отдельного preview-export в project-container
 
-## Финальное утверждение
+## Final approval
 
 - Цикл финального review: 1
 - Статус: `final-approved`
 - Проверенный build: `npm test`, `npm run lint`, `npm run build`
 - Проверенный снимок данных: `src/compositions/most-visited-websites/model/data.ts`, `projects/2026-03-20-most-visited-websites/asset-manifest.md` со статусом `final-ready`
 - Заметки: финальное утверждение получено после полного production-pass и серии пользовательских re-preview на leader-zone, final flyover и storm/FPS-hotspots; финальный media export не выполнялся, потому что он не запрашивался
-- Обязательные последующие действия: нет — аудит библиотеки выполнен в этом же pass
+- Обязательные последующие действия: нет — historical reusable review выполнен в этом же pass
 - Блокирующие причины: нет
 
-## Ручной Review Reusable-Кандидатов
+## Исторический reusable review
 
 - Дата аудита: 2026-03-21
 - Результат аудита: `auto-promotion-applied`

@@ -9,6 +9,10 @@
 - Обновлено:
 - Статус манифеста: `draft | preview-ready | final-ready`
 
+## Когда materialize-ить
+
+`asset-manifest.md` не обязателен на launch-этапе и на самом старте production-фазы, но обязан существовать к первому `preview-gate`.
+
 ## Снимок данных
 
 - Режим источника данных:

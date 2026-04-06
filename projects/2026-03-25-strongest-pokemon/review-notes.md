@@ -6,31 +6,32 @@
 
 - Slug проекта: 2026-03-25-strongest-pokemon
 - Человеческое название: Самые сильные покемоны всех времен
+- Workflow mode: `library-only-constructor-v1`
 - Начато: 2026-03-25
 - Обновлено: 2026-03-26
 
-## Исторический Pre-build Review
+## Исторические заметки запуска
 
 - Цикл review: 1
-- Проверяемый pre-build review: `v1` (Эволюция от леса к грозовой вершине)
+- Проверяемая launch-note: `v1` (Эволюция от леса к грозовой вершине)
 - Решение: `approved`
 - Что подтверждено: Общая режиссерская задумка, 4-актная эскалация, world-slot каркас и theme-driven mountain-storm направление.
 - Что нужно изменить: -
 - Можно ли переходить к build-plan: `yes`
 - Подтверждающие комментарии: Пользователь подтвердил режиссерское направление, после чего проект был доведен до готового ролика.
 
-## Предпросмотр
+## Preview gate
 
 - Цикл review: 2
 - Пакет предпросмотра: `preview-build final pass`
 - Решение: `approve`
 - Проверенный охват: Главные checkpoint-задачи `BP-02 ... BP-08`, полный маршрут от ранних рангов к финалу и целостность image-first hero policy.
 - Что подтверждено: Камера, hero reveal, mountain-storm environment, directed-motion train-lines, corridor-relief ground и финальный storm payoff работают совместно.
-- Обещанные world-slot из `pre-build review`: `horizon, side-dressing, atmospheric-motion, directed-motion, ground, light-weather, payoff`
+- Обещанные world-slot из launch-заметок: `horizon, side-dressing, atmospheric-motion, directed-motion, ground, light-weather, payoff`
 - Реально реализованные world-slot: `horizon, side-dressing, atmospheric-motion, directed-motion, ground, light-weather, payoff`
 - Проверенное покрытие сцен: `scene-1, scene-2, scene-3, scene-4`
-- Результат pre-build review-проверки: `ok`
-- Pre-build review-заметки: Эскалация держится от спокойного леса к грозовой вершине; поезд и relief дают живую среду, но остаются вторичным world-layer.
+- Результат сверки с launch-заметками: `ok`
+- Launch-note-заметки: Эскалация держится от спокойного леса к грозовой вершине; поезд и relief дают живую среду, но остаются вторичным world-layer.
 - Перетягивает ли вторичная жизнь внимание с героя: `no`
 - Результат layout-проверки: `ok`
 - Layout-заметки: Имя и ранг сохраняют доминирование; active lane и podium separation удержаны после осветления ground.
@@ -46,23 +47,23 @@
   - Ground / podium separation: Основание башен отделяется от пола; dark-lane дефект не доминирует.
   - Camera / pacing: Rail-focus preset держит непрерывный проход и финальное замедление без дерганья.
   - Environment / secondary-life: Relief, поезда, лес, гроза и clouds живые, но не перетягивают внимание.
-  - Pre-build review match: Финальный мир соответствует direction от леса к storm-plateau.
+  - Launch-note match: Финальный мир соответствует direction от леса к storm-plateau.
 - Какие изменения обязательны: -
 - Можно ли идти дальше без повторного предпросмотра: yes
 - Нужно ли обязательно повторить предпросмотр: no
 - Верификация или подтверждающие материалы: `projects/2026-03-25-strongest-pokemon/review-artifacts/final/post-promotion-frame-3000.png`, `projects/2026-03-25-strongest-pokemon/review-artifacts/final/post-promotion-frame-8000.png`, `projects/2026-03-25-strongest-pokemon/review-artifacts/final/post-promotion-frame-13000.png`, `projects/2026-03-25-strongest-pokemon/review-artifacts/final/post-promotion-frame-18000.png`, `projects/2026-03-25-strongest-pokemon/review-artifacts/final/post-promotion-frame-22000.png`, `npm run build`, `npm run lint`.
 
-## Финальное утверждение
+## Final approval
 
 - Цикл финального review: 1
 - Статус: `final-approved-with-notes`
 - Проверенный build: `npm run build`, `npm run lint`
 - Проверенный снимок данных: `public/ranking-corridor/2026-03-25-strongest-pokemon/data.json`, `npm run validate:data -- 2026-03-25-strongest-pokemon`
-- Заметки: Финальный accepted проект использован как основа для manual reusable review; после самого promotion-pass сделаны свежие machine-check и новый still-set уже на library-backed версии сцены.
-- Обязательные последующие действия: manual reusable review выполнен; reusable world/art modules вынесены в `src/lib/ranking-corridor`.
+- Заметки: Финальный accepted проект использован как основа для historical reusable review; после самого promotion-pass сделаны свежие machine-check и новый still-set уже на library-backed версии сцены.
+- Обязательные последующие действия: historical reusable review выполнен; reusable world/art modules вынесены в `src/lib/ranking-corridor`.
 - Блокирующие причины: -
 
-## Ручной Review Reusable-Кандидатов
+## Исторический reusable review
 
 - Дата аудита: 2026-03-26
 - Результат аудита: `auto-promotion-applied`

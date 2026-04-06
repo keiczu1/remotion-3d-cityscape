@@ -41,8 +41,8 @@
 
 - `projects/<project-slug>/review-notes.md`
 
-Обязательный минимум для production-цикла к моменту первого `preview-gate`
-production-цикл наследует launch-only минимум и к первому `preview-gate` дополнительно требует:
+Обязательный минимум для production-цикла к моменту первого `preview-gate`.
+Production-цикл наследует launch-only минимум и к первому `preview-gate` дополнительно требует:
 
 - `projects/<project-slug>/build-plan.md`
 - `projects/<project-slug>/asset-manifest.md`
@@ -62,7 +62,8 @@ production-цикл наследует launch-only минимум и к перв
 
 - при первом materialize production-container можно создать стартовый минимум без `build-plan.md`;
 - для нового режима `build-plan.md` materialize-ится сразу после утверждения `launch-card.md`;
-`build-plan.md` materialize-ится сразу после `launch-card.md`. `asset-manifest.md`, `data/` и `exports/` не нужно материализовать заранее на launch-этапе: они становятся обязательной частью production-контейнера к первому `preview-gate`. `review-notes.md` materialize-ится как skeleton уже вместе с `launch-card.md`.
+- `asset-manifest.md`, `data/` и `exports/` не нужно materialize-ить заранее на launch-этапе: они становятся обязательной частью production-контейнера к первому `preview-gate`;
+- `review-notes.md` materialize-ится как skeleton уже вместе с `launch-card.md`.
 
 ## Роль файлов
 

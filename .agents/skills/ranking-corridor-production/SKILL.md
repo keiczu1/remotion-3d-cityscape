@@ -25,7 +25,7 @@ description: "Веди `ranking corridor` проект после `launch-card` 
 - `projects/README.md`
 - `projects/<project-slug>/launch-card.md`
 - `projects/<project-slug>/build-plan.md`
-- `projects/<project-slug>/asset-manifest.md`
+- `projects/<project-slug>/asset-manifest.md`, если он уже materialize-нут
 - `projects/<project-slug>/review-notes.md`
 - `src/lib/ranking-corridor/catalog/template-catalog.ts`
 - `docs/templates/ranking-corridor-build-plan-template.md`
@@ -50,9 +50,8 @@ description: "Веди `ranking corridor` проект после `launch-card` 
 
 - `projects/<project-slug>/launch-card.md`
 - `projects/<project-slug>/review-notes.md`
-- `projects/<project-slug>/asset-manifest.md`
-- `projects/<project-slug>/data/`
-- `projects/<project-slug>/exports/`
+
+`asset-manifest.md`, `data/` и `exports/` не обязательны на самом старте production-фазы, но обязаны существовать к первому `preview-gate`.
 
 ### Для `template-clone`
 

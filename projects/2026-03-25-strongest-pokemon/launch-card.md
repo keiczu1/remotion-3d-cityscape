@@ -9,7 +9,11 @@
 - Тема: Топ-100 покемонов по сумме характеристик
 - Создано: 2026-03-25
 - Обновлено: 2026-03-26
+- Workflow mode: `library-only-constructor-v1`
+- Selection mode: `block-constructor`
 - Статус запуска: `draft`
+- Library-only: `true`
+- Locked after launch: `true`
 - Источник утверждения core-направления: `explicit-user-text`
 
 ## Базовый контракт
@@ -19,6 +23,65 @@
 - Режим источника данных: `user-dataset`
 - Режим фактологичности рейтинга: `creative-ranking`
 - Языковой режим: Данные на английском (адаптация)
+
+## Выбор конструктора
+
+### Scene count
+- Scene count: `4`
+
+### Scene sequence
+- `scene-1`: forest ascent
+- `scene-2`: cold ridge transition
+- `scene-3`: storm dusk escalation
+- `scene-4`: summit payoff
+
+### Scene world config
+- `scene-1`:
+  - `horizon`: `forest-backdrop-v1`
+  - `side-dressing`: `wind-turbine-v1`
+  - `atmospheric-motion`: `low-poly-cloud-v1`
+  - `directed-motion`: `steam-train-line-v1`
+  - `ground`: `corridor-relief-ground-v1`
+  - `light-weather`: `storm-effects-v1`
+  - `payoff`:
+- `scene-2`:
+  - `horizon`: `horizon-mountain-ridge-v1`
+  - `side-dressing`: `wind-turbine-v1`
+  - `atmospheric-motion`: `low-poly-cloud-v1`
+  - `directed-motion`: `steam-train-line-v1`
+  - `ground`: `corridor-relief-ground-v1`
+  - `light-weather`: `storm-effects-v1`
+  - `payoff`:
+- `scene-3`:
+  - `horizon`: `horizon-mountain-ridge-v1`
+  - `side-dressing`: `wind-turbine-v1`
+  - `atmospheric-motion`: `low-poly-cloud-v1`
+  - `directed-motion`: `steam-train-line-v1`
+  - `ground`: `corridor-relief-ground-v1`
+  - `light-weather`: `storm-effects-v1`
+  - `payoff`:
+- `scene-4`:
+  - `horizon`: `horizon-mountain-ridge-v1`
+  - `side-dressing`: `wind-turbine-v1`
+  - `atmospheric-motion`: `low-poly-cloud-v1`
+  - `directed-motion`: `steam-train-line-v1`
+  - `ground`: `corridor-relief-ground-v1`
+  - `light-weather`: `storm-effects-v1`
+  - `payoff`: `storm-effects-v1`
+
+## Camera package
+- Название: Прямой рельсовый фокус
+- Package id: `camera-rail-focus-vip-finale-v1`
+- Source projects: `2026-03-20-most-visited-websites`, `2026-03-25-strongest-pokemon`
+- Source-of-truth files: `src/lib/ranking-corridor/scene-presets/rail-focus-vip-finale-v1/package.ts`
+- Что считается locked baseline: linear rail-focus проход, VIP-focus, scene progression geometry и finale framing остаются фиксированным camera baseline
+
+## Hero package
+- Название: Каменный altar-пьедестал
+- Package id: `hero-stone-altar-pedestal-v1`
+- Source projects: `2026-03-25-strongest-pokemon`
+- Source-of-truth files: `src/lib/ranking-corridor/art/objects/stone-altar-pedestal.tsx`
+- Что считается locked baseline: altar shell, pedestal silhouette и общая stone-family grammar остаются фиксированным hero baseline
 
 ## Выбор формата
 

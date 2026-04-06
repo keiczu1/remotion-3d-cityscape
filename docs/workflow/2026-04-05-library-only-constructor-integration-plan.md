@@ -39,6 +39,13 @@
 - validator и owner-docs синхронизированы по `Template base source project`, machine-step контракту `Следующий шаг` и active scripts-map;
 - active docs и machine-layer больше не ссылаются на старый процесс.
 - исторические project-container тоже очищены от retired workflow-файлов и прямых ссылок на старые фазы.
+- human-readable template-catalog синхронизирован с реальным scaffold-контрактом, а `nature-altar-corridor-template-v1` снова смотрит на фактический camera baseline своего source-project;
+- active production-skill, `projects/README.md` и канон снова согласованы по тому, что `asset-manifest.md`, `data/` и `exports/` обязательны к первому `preview-gate`, а не на старте materialization;
+- `2026-03-30-richest-women` очищен от битых ссылок на удаленные historical stills и от retired launch-markers старого creative-first режима;
+- historical template-base projects `2026-03-20-most-visited-websites`, `2026-03-25-strongest-pokemon` и `2026-03-30-richest-women` приведены к одному owner-языку `Preview gate / Final approval / historical reusable review`;
+- `2026-03-25-strongest-pokemon` backfill-нут до валидного machine-contract baseline: launch-card дополнен constructor-полями, build-plan больше не падает на validator.
+- machine-readable `template-catalog.ts` синхронизирован с human-readable template-catalog по camera package для `classic-tower-template-v1` и `nature-altar-corridor-template-v1`;
+- удалена битая historical ссылка на несуществующий `docs/Examples/Ranking-towers-reverse-prompt.md`, а `asset-manifest` contract теперь одинаково описан в template, skills и owner-docs.
 
 ## Cleanup
 

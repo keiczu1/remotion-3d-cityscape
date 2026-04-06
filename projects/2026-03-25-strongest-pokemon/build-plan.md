@@ -9,12 +9,12 @@
 - Текущая фаза: `post-preview-build`
 - Статус плана: `full-complete`
 - Следующий шаг: completed
-- Что заблокировано до `preview-gate`: ничего; `preview-gate`, финальное утверждение и manual reusable review уже закрыты
+- Что заблокировано до `preview-gate`: ничего; `preview-gate`, final approval и historical reusable review уже закрыты
 
 ## Короткий контекст
-- На что опирается план: `launch-card.md`, `pre-build review.md`, `review-notes.md`
+- На что опирается план: `launch-card.md`, `review-notes.md`
 - Что уже зафиксировано в `launch-card.md`: `image-first` hero policy, `rail-focus-vip-finale-v1`, reveal-stack и mountain-storm направление.
-- Что уже зафиксировано в `pre-build review.md`: 4 сцены, эскалация от леса к грозовой вершине, directed-motion через дальние train-lines и evolving corridor-relief ground.
+- Что уже зафиксировано на launch-этапе: 4 сцены, эскалация от леса к грозовой вершине, directed-motion через дальние train-lines и evolving corridor-relief ground.
 - Что нельзя менять без отдельного пересогласования: Базовый пресет камеры (`rail-focus-vip-finale-v1`) и reveal baseline (`image-pillar-dashboard-reveal-stack-v1`).
 
 ## Preview-build
@@ -38,7 +38,7 @@
 - Цель: Подключить `rail-focus-vip-finale-v1` и собрать count-aware camera/runtime math для 100 объектов.
 - Готово когда: Сцена имеет milestone-логику для 100 объектов, камера идет по рельсам без дерганья и сохраняет finale slowdown contract.
 - Проверка: Проверка движения камеры и handoff в Studio, плюс машинный build-pass.
-- Reference baseline: `src/compositions/most-visited-websites/scene/scene-logic.ts`, `src/compositions/most-visited-websites/scene/camera-presentation.ts`
+- Reference baseline: `src/lib/ranking-corridor/scene-presets/rail-focus-vip-finale-v1/package.ts`, `src/compositions/most-visited-websites/scene/scene-logic.ts`, `src/compositions/most-visited-websites/scene/camera-presentation.ts`
 - Reuse mode: `preset-reuse`
 - Reuse without changes: camera path math, VIP-focus, scene progression geometry, intro/main handoff и orbit/VIP/tower behavior reuse-ятся как единый motion-пакет без пересборки базовой логики.
 - Allowed adaptation: data normalization, safe offsets, дистанция камеры, topic-specific framing и count-aware retiming без смены preset contract.
@@ -67,7 +67,7 @@
 - Цель: Собрать image-first hero-module с адаптивным media-frame, крупным именем, рангом и вторичным data-panel.
 - Готово когда: Один покемон корректно рендерится с reveal-анимацией, image-dominant hierarchy держится, data-zone защищена, ранг остается над media.
 - Проверка: Preview в Studio и машинный build-pass на полной композиции.
-- Reference baseline: `src/compositions/most-visited-websites/components/SteleDashboard.tsx`, `src/lib/ranking-corridor/presentation/projection-gate.ts`, `src/lib/ranking-corridor/presentation/card-reveal-effects.tsx`
+- Reference baseline: `src/lib/ranking-corridor/art/objects/stone-altar-pedestal.tsx`, `src/compositions/most-visited-websites/components/SteleDashboard.tsx`, `src/lib/ranking-corridor/presentation/projection-gate.ts`, `src/lib/ranking-corridor/presentation/card-reveal-effects.tsx`
 - Reuse mode: `preset-reuse`
 - Reuse without changes: activation / presentation gate, reveal staging order, shell-to-data choreography, timing метрики и effect family reuse-ятся как единый пакет; image-dominant hierarchy, protected data-zone и safe-gap между media и нижним data-block сохранены.
 - Allowed adaptation: тема, материалы, aspect-aware media frame, typography, layout-safe offsets, content slots и topic-specific surface.
@@ -209,9 +209,9 @@
 - Цель: Связать героя, камеру и все 4 сцены воедино, проверить layout и runtime на полном маршруте.
 - Готово когда: Композиция плавно проходит от сцены 1 к 4, длинные имена не ломаются, environment escalation и hero policy не конфликтуют.
 - Проверка: Полный pass в Studio, `npm run build`, `npm run lint`.
-- Reference baseline:
+- Reference baseline: `src/lib/ranking-corridor/scene-presets/rail-focus-vip-finale-v1/package.ts`, `src/lib/ranking-corridor/art/objects/stone-altar-pedestal.tsx`
 - Reuse mode: `structure-reuse`
-- Reuse without changes: launch-card и pre-build review контракты по hero/camera/environment сохраняются как верхний связующий контракт без пересборки базовых модулей.
+- Reuse without changes: launch-card и launch-note контракты по hero/camera/environment сохраняются как верхний связующий контракт без пересборки базовых модулей.
 - Allowed adaptation: z-order, light balancing, runtime glue, visibility tuning и cross-module integration offsets под конкретный ролик.
 - Greenfield justification: Сборка камеры, героя, данных и среды воедино остается task-specific интеграцией конкретного проекта, даже если отдельные world-модули уже reusable.
 - Non-negotiables: Отсутствие runtime ошибок Remotion/Three.js и стабильная читаемость на всем маршруте.
@@ -228,7 +228,7 @@
   - Что адаптировано под тему: data binding, tower heights, локальные train/relief/altar решения, mountain-storm pacing и Pokémon-specific world direction.
   - Что еще пока слабое: интеграционный glue по-прежнему project-local и не должен автоматически ехать в библиотеку целиком.
   - Почему это уже не scaffold: композиция прошла полный production route, machine-check и дошла до финального approved состояния.
-- Блокеры или заметки: Пакет для `preview-gate` был принят, после чего проект перешел в финал и manual reusable review.
+- Блокеры или заметки: Пакет для `preview-gate` был принят, после чего проект перешел в final approval и historical reusable review.
 
 ## Post-preview-build
 
@@ -246,10 +246,10 @@
 - Цель: Подтвердить seamless работу всей композиции от 100 до 1 и подготовить проект к final approval.
 - Готово когда: Полный build и Studio pass проходят без runtime проблем.
 - Проверка: `npm run build`, `npm run lint`.
-- Блокеры или заметки: Финальный проект утвержден и использован для manual reusable review.
+- Блокеры или заметки: Финальный проект утвержден и использован для historical reusable review.
 
 ## История обновлений
 - Дата: 2026-03-25
-  - Что изменилось в плане: Инициализация плана после pre-build review.
+  - Что изменилось в плане: Инициализация плана после launch-note review.
 - Дата: 2026-03-26
-  - Что изменилось в плане: План доведен до final-approved состояния, backfilled machine-contract по preview/build и добавлена фиксация manual reusable review с promotion train / stone altar / corridor relief.
+  - Что изменилось в плане: План доведен до final-approved состояния, backfilled machine-contract по preview/build и добавлена фиксация historical reusable review с promotion train / stone altar / corridor relief.
