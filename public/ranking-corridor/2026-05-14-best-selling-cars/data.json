@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-05-14T08:01:51.066Z",
+  "generated_at": "2026-05-14T08:30:10.701Z",
   "project_slug": "2026-05-14-best-selling-cars",
   "display_metric": "Sales",
   "language": "ru",
   "methodology": {
     "mode": "creative-ranking",
     "fact_check_status": "creative",
-    "scope": "Top 60 Best Selling Cars",
+    "scope": "Top 100 Best Selling Cars",
     "ranking_basis": "Lifetime Sales",
-    "sort_direction": "Highest to lowest (ranks 1-60)."
+    "sort_direction": "Highest to lowest (ranks 1-100)."
   },
-  "total_entries": 60,
+  "total_entries": 100,
   "entries": [
     {
       "rank": 1,
@@ -731,6 +731,486 @@
       "image_file": "060-chevrolet-cruze.png",
       "video_label": "#60 Chevrolet Cruze",
       "video_subtitle": "4 млн | United States"
+    },
+    {
+      "rank": 61,
+      "model_id": "hindustan_ambassador",
+      "display_name": "Hindustan Ambassador",
+      "sales_value": 4000000,
+      "types": [
+        "India"
+      ],
+      "image_file": "061-hindustan-ambassador.png",
+      "video_label": "#61 Hindustan Ambassador",
+      "video_subtitle": "4 млн | India"
+    },
+    {
+      "rank": 62,
+      "model_id": "mazda_3",
+      "display_name": "Mazda 3",
+      "sales_value": 4000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "062-mazda-3.png",
+      "video_label": "#62 Mazda 3",
+      "video_subtitle": "4 млн | Japan"
+    },
+    {
+      "rank": 63,
+      "model_id": "mercedes_benz_s_class",
+      "display_name": "Mercedes-Benz S-Class",
+      "sales_value": 4000000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "063-mercedes-benz-s-class.png",
+      "video_label": "#63 Mercedes-Benz S-Class",
+      "video_subtitle": "4 млн | Germany"
+    },
+    {
+      "rank": 64,
+      "model_id": "pontiac_grand_am",
+      "display_name": "Pontiac Grand Am",
+      "sales_value": 4000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "064-pontiac-grand-am.png",
+      "video_label": "#64 Pontiac Grand Am",
+      "video_subtitle": "4 млн | United States"
+    },
+    {
+      "rank": 65,
+      "model_id": "_koda_octavia",
+      "display_name": "Škoda Octavia",
+      "sales_value": 4000000,
+      "types": [
+        "Czech Republic"
+      ],
+      "image_file": "065-koda-octavia.png",
+      "video_label": "#65 Škoda Octavia",
+      "video_subtitle": "4 млн | Czech Republic"
+    },
+    {
+      "rank": 66,
+      "model_id": "suzuki_swift",
+      "display_name": "Suzuki Swift",
+      "sales_value": 4000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "066-suzuki-swift.png",
+      "video_label": "#66 Suzuki Swift",
+      "video_subtitle": "4 млн | Japan"
+    },
+    {
+      "rank": 67,
+      "model_id": "seat_ibiza",
+      "display_name": "SEAT Ibiza",
+      "sales_value": 3949597,
+      "types": [
+        "Spain"
+      ],
+      "image_file": "067-seat-ibiza.png",
+      "video_label": "#67 SEAT Ibiza",
+      "video_subtitle": "3.9 млн | Spain"
+    },
+    {
+      "rank": 68,
+      "model_id": "buick_special",
+      "display_name": "Buick Special",
+      "sales_value": 3890000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "068-buick-special.png",
+      "video_label": "#68 Buick Special",
+      "video_subtitle": "3.9 млн | United States"
+    },
+    {
+      "rank": 69,
+      "model_id": "citro_n_2cv",
+      "display_name": "Citroën 2CV",
+      "sales_value": 3872583,
+      "types": [
+        "France"
+      ],
+      "image_file": "069-citro-n-2cv.png",
+      "video_label": "#69 Citroën 2CV",
+      "video_subtitle": "3.9 млн | France"
+    },
+    {
+      "rank": 70,
+      "model_id": "cadillac_de_ville",
+      "display_name": "Cadillac De Ville",
+      "sales_value": 3870000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "070-cadillac-de-ville.png",
+      "video_label": "#70 Cadillac De Ville",
+      "video_subtitle": "3.9 млн | United States"
+    },
+    {
+      "rank": 71,
+      "model_id": "fiat_127",
+      "display_name": "Fiat 127",
+      "sales_value": 3730000,
+      "types": [
+        "Italy"
+      ],
+      "image_file": "071-fiat-127.png",
+      "video_label": "#71 Fiat 127",
+      "video_subtitle": "3.7 млн | Italy"
+    },
+    {
+      "rank": 72,
+      "model_id": "plymouth_fury",
+      "display_name": "Plymouth Fury",
+      "sales_value": 3680000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "072-plymouth-fury.png",
+      "video_label": "#72 Plymouth Fury",
+      "video_subtitle": "3.7 млн | United States"
+    },
+    {
+      "rank": 73,
+      "model_id": "honda_fit",
+      "display_name": "Honda Fit",
+      "sales_value": 3500000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "073-honda-fit.png",
+      "video_label": "#73 Honda Fit",
+      "video_subtitle": "3.5 млн | Japan"
+    },
+    {
+      "rank": 74,
+      "model_id": "pontiac_bonneville",
+      "display_name": "Pontiac Bonneville",
+      "sales_value": 3460000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "074-pontiac-bonneville.png",
+      "video_label": "#74 Pontiac Bonneville",
+      "video_subtitle": "3.5 млн | United States"
+    },
+    {
+      "rank": 75,
+      "model_id": "buick_electra",
+      "display_name": "Buick Electra",
+      "sales_value": 3170000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "075-buick-electra.png",
+      "video_label": "#75 Buick Electra",
+      "video_subtitle": "3.2 млн | United States"
+    },
+    {
+      "rank": 76,
+      "model_id": "nissan_qashqai_rogue_sport",
+      "display_name": "Nissan Qashqai/Rogue Sport",
+      "sales_value": 3155000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "076-nissan-qashqai-rogue-sport.png",
+      "video_label": "#76 Nissan Qashqai/Rogue Sport",
+      "video_subtitle": "3.2 млн | Japan"
+    },
+    {
+      "rank": 77,
+      "model_id": "ford_falcon",
+      "display_name": "Ford Falcon",
+      "sales_value": 3000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "077-ford-falcon.png",
+      "video_label": "#77 Ford Falcon",
+      "video_subtitle": "3 млн | United States"
+    },
+    {
+      "rank": 78,
+      "model_id": "mazda_6",
+      "display_name": "Mazda 6",
+      "sales_value": 3000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "078-mazda-6.png",
+      "video_label": "#78 Mazda 6",
+      "video_subtitle": "3 млн | Japan"
+    },
+    {
+      "rank": 79,
+      "model_id": "peugeot_504",
+      "display_name": "Peugeot 504",
+      "sales_value": 3000000,
+      "types": [
+        "France"
+      ],
+      "image_file": "079-peugeot-504.png",
+      "video_label": "#79 Peugeot 504",
+      "video_subtitle": "3 млн | France"
+    },
+    {
+      "rank": 80,
+      "model_id": "subaru_legacy",
+      "display_name": "Subaru Legacy",
+      "sales_value": 3000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "080-subaru-legacy.png",
+      "video_label": "#80 Subaru Legacy",
+      "video_subtitle": "3 млн | Japan"
+    },
+    {
+      "rank": 81,
+      "model_id": "suzuki_jimny",
+      "display_name": "Suzuki Jimny",
+      "sales_value": 3000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "081-suzuki-jimny.png",
+      "video_label": "#81 Suzuki Jimny",
+      "video_subtitle": "3 млн | Japan"
+    },
+    {
+      "rank": 82,
+      "model_id": "trabant",
+      "display_name": "Trabant",
+      "sales_value": 3000000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "082-trabant.png",
+      "video_label": "#82 Trabant",
+      "video_subtitle": "3 млн | Germany"
+    },
+    {
+      "rank": 83,
+      "model_id": "mercury_cougar",
+      "display_name": "Mercury Cougar",
+      "sales_value": 2972784,
+      "types": [
+        "United States"
+      ],
+      "image_file": "083-mercury-cougar.png",
+      "video_label": "#83 Mercury Cougar",
+      "video_subtitle": "3 млн | United States"
+    },
+    {
+      "rank": 84,
+      "model_id": "jeep_cherokee_xj_",
+      "display_name": "Jeep Cherokee (XJ)",
+      "sales_value": 2884172,
+      "types": [
+        "United States"
+      ],
+      "image_file": "084-jeep-cherokee-xj.png",
+      "video_label": "#84 Jeep Cherokee (XJ)",
+      "video_subtitle": "2.9 млн | United States"
+    },
+    {
+      "rank": 85,
+      "model_id": "volvo_200_series",
+      "display_name": "Volvo 200 series",
+      "sales_value": 2862573,
+      "types": [
+        "Sweden"
+      ],
+      "image_file": "085-volvo-200-series.png",
+      "video_label": "#85 Volvo 200 series",
+      "video_subtitle": "2.9 млн | Sweden"
+    },
+    {
+      "rank": 86,
+      "model_id": "mitsubishi_l200",
+      "display_name": "Mitsubishi L200",
+      "sales_value": 2800000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "086-mitsubishi-l200.png",
+      "video_label": "#86 Mitsubishi L200",
+      "video_subtitle": "2.8 млн | Japan"
+    },
+    {
+      "rank": 87,
+      "model_id": "jeep_wrangler",
+      "display_name": "Jeep Wrangler",
+      "sales_value": 2700000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "087-jeep-wrangler.png",
+      "video_label": "#87 Jeep Wrangler",
+      "video_subtitle": "2.7 млн | United States"
+    },
+    {
+      "rank": 88,
+      "model_id": "mercedes_benz_w123",
+      "display_name": "Mercedes-Benz W123",
+      "sales_value": 2696915,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "088-mercedes-benz-w123.png",
+      "video_label": "#88 Mercedes-Benz W123",
+      "video_subtitle": "2.7 млн | Germany"
+    },
+    {
+      "rank": 89,
+      "model_id": "holden_commodore",
+      "display_name": "Holden Commodore",
+      "sales_value": 2500000,
+      "types": [
+        "Australia"
+      ],
+      "image_file": "089-holden-commodore.png",
+      "video_label": "#89 Holden Commodore",
+      "video_subtitle": "2.5 млн | Australia"
+    },
+    {
+      "rank": 90,
+      "model_id": "honda_cr_v",
+      "display_name": "Honda CR-V",
+      "sales_value": 2500000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "090-honda-cr-v.png",
+      "video_label": "#90 Honda CR-V",
+      "video_subtitle": "2.5 млн | Japan"
+    },
+    {
+      "rank": 91,
+      "model_id": "mitsubishi_pajero",
+      "display_name": "Mitsubishi Pajero",
+      "sales_value": 2500000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "091-mitsubishi-pajero.png",
+      "video_label": "#91 Mitsubishi Pajero",
+      "video_subtitle": "2.5 млн | Japan"
+    },
+    {
+      "rank": 92,
+      "model_id": "pontiac_firebird",
+      "display_name": "Pontiac Firebird",
+      "sales_value": 2500000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "092-pontiac-firebird.png",
+      "video_label": "#92 Pontiac Firebird",
+      "video_subtitle": "2.5 млн | United States"
+    },
+    {
+      "rank": 93,
+      "model_id": "mercury_grand_marquis",
+      "display_name": "Mercury Grand Marquis",
+      "sales_value": 2430000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "093-mercury-grand-marquis.png",
+      "video_label": "#93 Mercury Grand Marquis",
+      "video_subtitle": "2.4 млн | United States"
+    },
+    {
+      "rank": 94,
+      "model_id": "maruti_800",
+      "display_name": "Maruti 800",
+      "sales_value": 2400000,
+      "types": [
+        "India"
+      ],
+      "image_file": "094-maruti-800.png",
+      "video_label": "#94 Maruti 800",
+      "video_subtitle": "2.4 млн | India"
+    },
+    {
+      "rank": 95,
+      "model_id": "renault_twingo",
+      "display_name": "Renault Twingo",
+      "sales_value": 2400000,
+      "types": [
+        "France"
+      ],
+      "image_file": "095-renault-twingo.png",
+      "video_label": "#95 Renault Twingo",
+      "video_subtitle": "2.4 млн | France"
+    },
+    {
+      "rank": 96,
+      "model_id": "nissan_micra",
+      "display_name": "Nissan Micra",
+      "sales_value": 2368704,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "096-nissan-micra.png",
+      "video_label": "#96 Nissan Micra",
+      "video_subtitle": "2.4 млн | Japan"
+    },
+    {
+      "rank": 97,
+      "model_id": "plymouth_voyager",
+      "display_name": "Plymouth Voyager",
+      "sales_value": 2280000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "097-plymouth-voyager.png",
+      "video_label": "#97 Plymouth Voyager",
+      "video_subtitle": "2.3 млн | United States"
+    },
+    {
+      "rank": 98,
+      "model_id": "saturn_s_series",
+      "display_name": "Saturn S-Series",
+      "sales_value": 2210000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "098-saturn-s-series.png",
+      "video_label": "#98 Saturn S-Series",
+      "video_subtitle": "2.2 млн | United States"
+    },
+    {
+      "rank": 99,
+      "model_id": "bmc_ado16",
+      "display_name": "BMC ADO16",
+      "sales_value": 2167783,
+      "types": [
+        "United Kingdom"
+      ],
+      "image_file": "099-bmc-ado16.png",
+      "video_label": "#99 BMC ADO16",
+      "video_subtitle": "2.2 млн | United Kingdom"
+    },
+    {
+      "rank": 100,
+      "model_id": "renault_dauphine",
+      "display_name": "Renault Dauphine",
+      "sales_value": 2150738,
+      "types": [
+        "France"
+      ],
+      "image_file": "100-renault-dauphine.png",
+      "video_label": "#100 Renault Dauphine",
+      "video_subtitle": "2.2 млн | France"
     }
   ]
 }

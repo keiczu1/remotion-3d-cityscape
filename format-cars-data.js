@@ -2,8 +2,8 @@ const fs = require('fs');
 
 const rawData = JSON.parse(fs.readFileSync('public/Самые продаваемые автомобили в мире/data/best_selling_cars_100.json', 'utf-8'));
 
-// Take top 60 (or all) entries
-const entries = rawData.slice(0, 60).map(item => {
+// Take all entries
+const entries = rawData.map(item => {
     // Generate an ID
     const model_id = item.model.toLowerCase().replace(/[^a-z0-9]+/g, '_');
     
@@ -34,9 +34,9 @@ const output = {
     methodology: {
         mode: "creative-ranking",
         fact_check_status: "creative",
-        scope: "Top 60 Best Selling Cars",
+        scope: "Top 100 Best Selling Cars",
         ranking_basis: "Lifetime Sales",
-        sort_direction: "Highest to lowest (ranks 1-60)."
+        sort_direction: "Highest to lowest (ranks 1-100)."
     },
     total_entries: entries.length,
     entries
