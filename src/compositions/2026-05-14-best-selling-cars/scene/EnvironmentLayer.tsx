@@ -9,6 +9,7 @@ import {
     HighwayRibbon,
     StormLightningBursts,
     StormRainLayer,
+    BackgroundAirTraffic,
 } from "../../../lib/ranking-corridor/art";
 import { LocalCorridorReliefGround, localGetCorridorReliefHeight } from "./LocalCorridorReliefGround";
 import { LocalCitySkyline, LocalHorizonMountainRidge } from "./LocalBackdrops";
@@ -415,6 +416,8 @@ export const EnvironmentLayer = () => {
                     groundY={GROUND_Y}
                 />
             ) : null}
+
+            <BackgroundAirTraffic />
 
             {env.act === 4 ? <Fireworks frame={frame} /> : null}
         </>
