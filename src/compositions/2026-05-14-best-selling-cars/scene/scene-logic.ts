@@ -58,17 +58,17 @@ const cinematicVisibilityViewVector = new THREE.Vector3();
 const cinematicVisibilityUpAxis = new THREE.Vector3(0, 1, 0);
 
 export const getSteleHeight = (relHeight: number) => {
-    // 1-я башня (60-е место, relHeight = 0)
+    // 1-я башня (последнее место, relHeight = 0)
     const minHeight = 5.5; 
     
     // По запросу: "каждую следующую увеличивать на полбашни от 1 башни"
     const stepHeight = minHeight * 0.5; // полбашни от первой башни (2.75)
     
-    // relHeight идет от 0 (60-е место) до 1 (1-е место). 
-    // Всего у нас 60 башен, то есть 59 шагов прироста
-    const totalSteps = 59; 
+    // relHeight идет от 0 (последнее место) до 1 (1-е место). 
+    // Всего у нас reversedData.length башен
+    const totalSteps = reversedData.length > 1 ? reversedData.length - 1 : 1; 
     
-    // Формула: базовая высота + количество пройденных шагов * размер шага
+    // Формула: базовая высота + рост пропорциональный продажам
     return minHeight + (relHeight * totalSteps) * stepHeight;
 };
 
