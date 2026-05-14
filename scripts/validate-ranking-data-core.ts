@@ -64,15 +64,6 @@ const asTrimmedString = (value: unknown) =>
 const isPositiveInteger = (value: unknown) =>
   typeof value === 'number' && Number.isInteger(value) && value > 0;
 
-const parseLaunchCardFactualityMode = (launchCardText: string) => {
-  const match = launchCardText.match(
-    /^- Режим фактологичности рейтинга:\s*`?([^`\r\n]+?)`?\s*$/m,
-  );
-  return match?.[1]?.trim() ?? '';
-};
-
-const hasLaunchCardFactNote = (launchCardText: string) =>
-  /^- Фактологическая оговорка:\s*(.+)$/m.test(launchCardText);
 
 export const resolveRankingDataPath = (arg: string, cwd = process.cwd()) => {
   const trimmedArg = arg.trim();
@@ -218,12 +209,7 @@ export const validateRankingDataPath = (
     };
   }
 
-  const launchCardPath = path.resolve(
-    cwd,
-    'projects',
-    slugFromPath,
-    'launch-card.md',
-  );
+
   const imageDir = path.resolve(
     cwd,
     'public',
@@ -357,32 +343,7 @@ export const validateRankingDataPath = (
     }
   }
 
-  if (!existsSync(launchCardPath)) {
-    errors.push(`Не найден launch-card проекта: ${launchCardPath}`);
-  } else {
-    const launchCardText = readFileSync(launchCardPath, 'utf8');
-    const launchCardFactualityMode =
-      parseLaunchCardFactualityMode(launchCardText);
 
-    if (!launchCardFactualityMode) {
-      errors.push(
-        `В launch-card отсутствует поле \`Режим фактологичности рейтинга\`: ${launchCardPath}`,
-      );
-    } else if (launchCardFactualityMode !== factualityMode) {
-      errors.push(
-        `Режим фактологичности должен совпадать между launch-card и data.json. Сейчас launch-card = \`${launchCardFactualityMode}\`, data.json = \`${factualityMode}\`.`,
-      );
-    }
-
-    if (
-      factualityMode !== 'official-only' &&
-      !hasLaunchCardFactNote(launchCardText)
-    ) {
-      warnings.push(
-        'Для non-official ranking режима в launch-card желательно явно держать `Фактологическая оговорка` в заметках по данным.',
-      );
-    }
-  }
 
   return {
     dataPath,

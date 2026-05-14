@@ -7,10 +7,6 @@ const defaultCopyPolicy = {
         "public/ranking-corridor/<source-slug>/",
     ],
     exclude: [
-        "projects/<source-slug>/launch-card.md",
-        "projects/<source-slug>/build-plan.md",
-        "projects/<source-slug>/review-notes.md",
-        "projects/<source-slug>/asset-manifest.md",
         "projects/<source-slug>/review-artifacts/",
         "projects/<source-slug>/exports/",
     ],

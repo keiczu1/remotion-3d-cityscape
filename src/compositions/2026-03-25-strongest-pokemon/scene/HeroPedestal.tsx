@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import { RoundedBox, Text, useTexture } from "@react-three/drei";
 import { interpolate, useCurrentFrame, useVideoConfig, staticFile } from "remotion";
+import * as THREE from "three";
 import type { Texture } from "three";
 
 import {
@@ -122,6 +123,13 @@ const getTextureAspect = (texture: Texture) => {
     }
 
     return image.width / image.height;
+};
+
+const preparePokemonTexture = (texture: Texture) => {
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.premultiplyAlpha = false;
+    texture.needsUpdate = true;
+    return texture;
 };
 
 const getMediaLayout = (aspectRatio: number): MediaLayout => {
@@ -318,7 +326,15 @@ const PokemonImage = ({
     return (
         <mesh position={[0, yPos, zPos]}>
             <planeGeometry args={[width, height]} />
-            <meshBasicMaterial map={texture} transparent opacity={opacity * 0.95} color="#ffffff" depthWrite={false} />
+            <meshBasicMaterial
+                map={texture}
+                transparent
+                opacity={opacity}
+                color="#ffffff"
+                depthWrite={false}
+                alphaTest={0.02}
+                toneMapped={false}
+            />
         </mesh>
     );
 };
@@ -349,7 +365,7 @@ const FullCard = memo(({
             texture={texture}
             yPos={mediaLayout.imageY}
             zPos={POKEMON_IMAGE_Z}
-            opacity={opacity * 0.95}
+            opacity={opacity}
             width={mediaLayout.imageWidth}
             height={mediaLayout.imageHeight}
         />
@@ -374,7 +390,8 @@ export const HeroPedestal = ({
 }) => {
     const frame = useCurrentFrame();
     const { fps, width, height } = useVideoConfig();
-    const texture = useTexture(staticFile(`/ranking-corridor/2026-03-25-strongest-pokemon/images/${item.image_file}`));
+    const rawTexture = useTexture(staticFile(`/ranking-corridor/2026-03-25-strongest-pokemon/images/${item.image_file}`));
+    const texture = useMemo(() => preparePokemonTexture(rawTexture), [rawTexture]);
     const mediaLayout = useMemo(() => getMediaLayout(getTextureAspect(texture)), [texture]);
     const formattedName = formatDisplayName(item.display_name);
     const nameFontSize = Math.min(

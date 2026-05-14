@@ -4,7 +4,7 @@
 
 `docs/README.md` — главный вход в актуальную документацию репозитория.
 
-Если нужно понять, как сейчас должен работать проект, сначала читай именно этот файл, а потом уже переходи к канону, шаблонам и skills.
+Если нужно понять, как сейчас должен работать проект, сначала читай именно этот файл, а потом уже переходи к канону и библиотеке.
 
 ## Активный контур
 
@@ -13,51 +13,37 @@
 1. `AGENTS.md`
 2. `docs/README.md`
 3. `docs/canon/ranking-corridor-format.md`
-4. `docs/canon/ranking-corridor-working-mode.md`
-5. `docs/canon/remotion-project-rules.md`
-6. `projects/README.md`
-7. `docs/templates/`
-8. `docs/library/`
-9. `.agents/skills/`
-10. `scripts/validate-ranking-build-plan.ts`
-11. `scripts/validate-ranking-catalog.ts`
-12. `scripts/scaffold-ranking-project-from-template.ts`
+4. `docs/canon/remotion-project-rules.md`
+5. `projects/README.md`
+6. `docs/library/`
+7. `.agents/skills/`
+8. `scripts/scaffold-ranking-project-from-template.ts`
 
 ## Что читать по порядку
-
-Если нужен рабочий контракт формата `ranking corridor`, используй такой порядок:
 
 1. `AGENTS.md`
 2. `docs/README.md`
 3. `docs/canon/ranking-corridor-format.md`
-4. `docs/canon/ranking-corridor-working-mode.md`
-5. `docs/canon/remotion-project-rules.md`
-6. `projects/README.md`
+4. `docs/canon/remotion-project-rules.md`
+5. `projects/README.md`
 
 ## Карта слоев
 
-- `docs/canon/` — owner-level правила формата и workflow.
-- `docs/templates/` — шаблоны project-артефактов.
+- `docs/canon/` — owner-level правила формата.
 - `docs/library/` — constructor-catalog, template-catalog и registry reusable-слоя.
-- `scripts/validate-ranking-build-plan.ts` и `scripts/validate-ranking-catalog.ts` — machine-check слой active workflow.
-- `scripts/scaffold-ranking-project-from-template.ts` — materialization layer для `template-clone`.
-- `docs/workflow/` — текущие implementation notes и verification notes; это не source-of-truth.
-- `docs/plans.md` — короткая служебная заметка; это не source-of-truth.
+- `scripts/scaffold-ranking-project-from-template.ts` — клонирование шаблона в новый проект.
+- `scripts/validate-ranking-catalog.ts` — валидация каталога.
+- `scripts/validate-ranking-data.ts` — валидация данных проекта.
 
 ## Дефолтный маршрут
 
-Активный workflow только один:
-
-`тема -> constructor / template selector -> launch-card -> build-plan -> preview-build -> preview-gate -> post-preview-build -> final approval`
-
-Любые старые промежуточные creative-first этапы и дополнительные post-project шаги не входят в активный маршрут.
+`тема -> выбор шаблона -> scaffold -> замена данных -> адаптация -> проверка в Studio`
 
 ## Правило синхронизации
 
-Если меняется workflow, шаблон артефакта, validator или reusable-layer, обновляй:
+Если меняется шаблон, каталог или reusable-layer, обновляй:
 
 - канон;
-- связанные шаблоны;
+- связанные каталоги;
 - skills;
-- machine-check слой;
 - эту карту документации.

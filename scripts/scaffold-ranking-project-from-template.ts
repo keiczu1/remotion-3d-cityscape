@@ -24,7 +24,7 @@ const sourceSlug = template.sourceProjectSlug;
 const targetProjectPath = path.join(rootDir, "projects", projectSlug);
 const targetCompositionPath = path.join(rootDir, "src", "compositions", projectSlug);
 const targetPublicAssetsPath = path.join(rootDir, "public", "ranking-corridor", projectSlug);
-const allowedExistingProjectFiles = new Set(["launch-card.md", "review-notes.md"]);
+const allowedExistingProjectFiles = new Set(["README.md"]);
 const textFileExtensions = new Set([
     ".css",
     ".html",

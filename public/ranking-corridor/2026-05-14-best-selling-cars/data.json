@@ -1,0 +1,736 @@
+{
+  "generated_at": "2026-05-14T08:01:51.066Z",
+  "project_slug": "2026-05-14-best-selling-cars",
+  "display_metric": "Sales",
+  "language": "ru",
+  "methodology": {
+    "mode": "creative-ranking",
+    "fact_check_status": "creative",
+    "scope": "Top 60 Best Selling Cars",
+    "ranking_basis": "Lifetime Sales",
+    "sort_direction": "Highest to lowest (ranks 1-60)."
+  },
+  "total_entries": 60,
+  "entries": [
+    {
+      "rank": 1,
+      "model_id": "toyota_corolla",
+      "display_name": "Toyota Corolla",
+      "sales_value": 50000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "001-toyota-corolla.png",
+      "video_label": "#1 Toyota Corolla",
+      "video_subtitle": "50 млн | Japan"
+    },
+    {
+      "rank": 2,
+      "model_id": "ford_f_series",
+      "display_name": "Ford F-Series",
+      "sales_value": 43000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "002-ford-f-series.png",
+      "video_label": "#2 Ford F-Series",
+      "video_subtitle": "43 млн | United States"
+    },
+    {
+      "rank": 3,
+      "model_id": "volkswagen_golf",
+      "display_name": "Volkswagen Golf",
+      "sales_value": 37000000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "003-volkswagen-golf.png",
+      "video_label": "#3 Volkswagen Golf",
+      "video_subtitle": "37 млн | Germany"
+    },
+    {
+      "rank": 4,
+      "model_id": "volkswagen_passat",
+      "display_name": "Volkswagen Passat",
+      "sales_value": 34000000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "004-volkswagen-passat.png",
+      "video_label": "#4 Volkswagen Passat",
+      "video_subtitle": "34 млн | Germany"
+    },
+    {
+      "rank": 5,
+      "model_id": "volkswagen_beetle",
+      "display_name": "Volkswagen Beetle",
+      "sales_value": 21529464,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "005-volkswagen-beetle.png",
+      "video_label": "#5 Volkswagen Beetle",
+      "video_subtitle": "21.5 млн | Germany"
+    },
+    {
+      "rank": 6,
+      "model_id": "toyota_camry",
+      "display_name": "Toyota Camry",
+      "sales_value": 21000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "006-toyota-camry.png",
+      "video_label": "#6 Toyota Camry",
+      "video_subtitle": "21 млн | Japan"
+    },
+    {
+      "rank": 7,
+      "model_id": "fiat_124",
+      "display_name": "Fiat 124",
+      "sales_value": 20000000,
+      "types": [
+        "Italy"
+      ],
+      "image_file": "007-fiat-124.png",
+      "video_label": "#7 Fiat 124",
+      "video_subtitle": "20 млн | Italy"
+    },
+    {
+      "rank": 8,
+      "model_id": "ford_escort_north_america_",
+      "display_name": "Ford Escort / (North America)",
+      "sales_value": 20000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "008-ford-escort-north-america.png",
+      "video_label": "#8 Ford Escort / (North America)",
+      "video_subtitle": "20 млн | United States"
+    },
+    {
+      "rank": 9,
+      "model_id": "lada_riva",
+      "display_name": "Lada Riva",
+      "sales_value": 20000000,
+      "types": [
+        "Russia"
+      ],
+      "image_file": "009-lada-riva.png",
+      "video_label": "#9 Lada Riva",
+      "video_subtitle": "20 млн | Russia"
+    },
+    {
+      "rank": 10,
+      "model_id": "opel_corsa",
+      "display_name": "Opel Corsa",
+      "sales_value": 18000000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "010-opel-corsa.png",
+      "video_label": "#10 Opel Corsa",
+      "video_subtitle": "18 млн | Germany"
+    },
+    {
+      "rank": 11,
+      "model_id": "honda_civic",
+      "display_name": "Honda Civic",
+      "sales_value": 16500000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "011-honda-civic.png",
+      "video_label": "#11 Honda Civic",
+      "video_subtitle": "16.5 млн | Japan"
+    },
+    {
+      "rank": 12,
+      "model_id": "toyota_hilux",
+      "display_name": "Toyota Hilux",
+      "sales_value": 16000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "012-toyota-hilux.png",
+      "video_label": "#12 Toyota Hilux",
+      "video_subtitle": "16 млн | Japan"
+    },
+    {
+      "rank": 13,
+      "model_id": "nissan_sunny_sentra_pulsar_almera",
+      "display_name": "Nissan Sunny / Sentra / Pulsar / Almera",
+      "sales_value": 15900000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "013-nissan-sunny-sentra-pulsar-almera.png",
+      "video_label": "#13 Nissan Sunny / Sentra / Pulsar / Almera",
+      "video_subtitle": "15.9 млн | Japan"
+    },
+    {
+      "rank": 14,
+      "model_id": "ford_fiesta",
+      "display_name": "Ford Fiesta",
+      "sales_value": 15000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "014-ford-fiesta.png",
+      "video_label": "#14 Ford Fiesta",
+      "video_subtitle": "15 млн | United States"
+    },
+    {
+      "rank": 15,
+      "model_id": "volkswagen_polo",
+      "display_name": "Volkswagen Polo",
+      "sales_value": 14000000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "015-volkswagen-polo.png",
+      "video_label": "#15 Volkswagen Polo",
+      "video_subtitle": "14 млн | Germany"
+    },
+    {
+      "rank": 16,
+      "model_id": "chevrolet_impala",
+      "display_name": "Chevrolet Impala",
+      "sales_value": 13000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "016-chevrolet-impala.png",
+      "video_label": "#16 Chevrolet Impala",
+      "video_subtitle": "13 млн | United States"
+    },
+    {
+      "rank": 17,
+      "model_id": "oldsmobile_cutlass",
+      "display_name": "Oldsmobile Cutlass",
+      "sales_value": 11900000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "017-oldsmobile-cutlass.png",
+      "video_label": "#17 Oldsmobile Cutlass",
+      "video_subtitle": "11.9 млн | United States"
+    },
+    {
+      "rank": 18,
+      "model_id": "chrysler_minivans",
+      "display_name": "Chrysler minivans",
+      "sales_value": 11000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "018-chrysler-minivans.png",
+      "video_label": "#18 Chrysler minivans",
+      "video_subtitle": "11 млн | United States"
+    },
+    {
+      "rank": 19,
+      "model_id": "chevrolet_malibu",
+      "display_name": "Chevrolet Malibu",
+      "sales_value": 10000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "019-chevrolet-malibu.png",
+      "video_label": "#19 Chevrolet Malibu",
+      "video_subtitle": "10 млн | United States"
+    },
+    {
+      "rank": 20,
+      "model_id": "hyundai_elantra",
+      "display_name": "Hyundai Elantra",
+      "sales_value": 10000000,
+      "types": [
+        "South Korea"
+      ],
+      "image_file": "020-hyundai-elantra.png",
+      "video_label": "#20 Hyundai Elantra",
+      "video_subtitle": "10 млн | South Korea"
+    },
+    {
+      "rank": 21,
+      "model_id": "mazda_familia",
+      "display_name": "Mazda Familia",
+      "sales_value": 10000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "021-mazda-familia.png",
+      "video_label": "#21 Mazda Familia",
+      "video_subtitle": "10 млн | Japan"
+    },
+    {
+      "rank": 22,
+      "model_id": "opel_astra",
+      "display_name": "Opel Astra",
+      "sales_value": 10000000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "022-opel-astra.png",
+      "video_label": "#22 Opel Astra",
+      "video_subtitle": "10 млн | Germany"
+    },
+    {
+      "rank": 23,
+      "model_id": "peugeot_206",
+      "display_name": "Peugeot 206",
+      "sales_value": 10000000,
+      "types": [
+        "France"
+      ],
+      "image_file": "023-peugeot-206.png",
+      "video_label": "#23 Peugeot 206",
+      "video_subtitle": "10 млн | France"
+    },
+    {
+      "rank": 24,
+      "model_id": "bmw_3_series",
+      "display_name": "BMW 3 Series",
+      "sales_value": 9500000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "024-bmw-3-series.png",
+      "video_label": "#24 BMW 3 Series",
+      "video_subtitle": "9.5 млн | Germany"
+    },
+    {
+      "rank": 25,
+      "model_id": "fiat_uno",
+      "display_name": "Fiat Uno",
+      "sales_value": 8800000,
+      "types": [
+        "Italy"
+      ],
+      "image_file": "025-fiat-uno.png",
+      "video_label": "#25 Fiat Uno",
+      "video_subtitle": "8.8 млн | Italy"
+    },
+    {
+      "rank": 26,
+      "model_id": "oldsmobile_88",
+      "display_name": "Oldsmobile 88",
+      "sales_value": 8800000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "026-oldsmobile-88.png",
+      "video_label": "#26 Oldsmobile 88",
+      "video_subtitle": "8.8 млн | United States"
+    },
+    {
+      "rank": 27,
+      "model_id": "renault_clio",
+      "display_name": "Renault Clio",
+      "sales_value": 8535280,
+      "types": [
+        "France"
+      ],
+      "image_file": "027-renault-clio.png",
+      "video_label": "#27 Renault Clio",
+      "video_subtitle": "8.5 млн | France"
+    },
+    {
+      "rank": 28,
+      "model_id": "fiat_punto",
+      "display_name": "Fiat Punto",
+      "sales_value": 8500000,
+      "types": [
+        "Italy"
+      ],
+      "image_file": "028-fiat-punto.png",
+      "video_label": "#28 Fiat Punto",
+      "video_subtitle": "8.5 млн | Italy"
+    },
+    {
+      "rank": 29,
+      "model_id": "ford_explorer",
+      "display_name": "Ford Explorer",
+      "sales_value": 8226911,
+      "types": [
+        "United States"
+      ],
+      "image_file": "029-ford-explorer.png",
+      "video_label": "#29 Ford Explorer",
+      "video_subtitle": "8.2 млн | United States"
+    },
+    {
+      "rank": 30,
+      "model_id": "honda_accord",
+      "display_name": "Honda Accord",
+      "sales_value": 8000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "030-honda-accord.png",
+      "video_label": "#30 Honda Accord",
+      "video_subtitle": "8 млн | Japan"
+    },
+    {
+      "rank": 31,
+      "model_id": "renault_4",
+      "display_name": "Renault 4",
+      "sales_value": 8000000,
+      "types": [
+        "France"
+      ],
+      "image_file": "031-renault-4.png",
+      "video_label": "#31 Renault 4",
+      "video_subtitle": "8 млн | France"
+    },
+    {
+      "rank": 32,
+      "model_id": "volkswagen_gol",
+      "display_name": "Volkswagen Gol",
+      "sales_value": 8000000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "032-volkswagen-gol.png",
+      "video_label": "#32 Volkswagen Gol",
+      "video_subtitle": "8 млн | Germany"
+    },
+    {
+      "rank": 33,
+      "model_id": "ford_ranger",
+      "display_name": "Ford Ranger",
+      "sales_value": 7000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "033-ford-ranger.png",
+      "video_label": "#33 Ford Ranger",
+      "video_subtitle": "7 млн | United States"
+    },
+    {
+      "rank": 34,
+      "model_id": "mercedes_benz_c_class",
+      "display_name": "Mercedes-Benz C-Class",
+      "sales_value": 6900000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "034-mercedes-benz-c-class.png",
+      "video_label": "#34 Mercedes-Benz C-Class",
+      "video_subtitle": "6.9 млн | Germany"
+    },
+    {
+      "rank": 35,
+      "model_id": "volkswagen_jetta",
+      "display_name": "Volkswagen Jetta",
+      "sales_value": 6600000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "035-volkswagen-jetta.png",
+      "video_label": "#35 Volkswagen Jetta",
+      "video_subtitle": "6.6 млн | Germany"
+    },
+    {
+      "rank": 36,
+      "model_id": "fiat_panda",
+      "display_name": "Fiat Panda",
+      "sales_value": 6500000,
+      "types": [
+        "Italy"
+      ],
+      "image_file": "036-fiat-panda.png",
+      "video_label": "#36 Fiat Panda",
+      "video_subtitle": "6.5 млн | Italy"
+    },
+    {
+      "rank": 37,
+      "model_id": "buick_lesabre",
+      "display_name": "Buick LeSabre",
+      "sales_value": 6000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "037-buick-lesabre.png",
+      "video_label": "#37 Buick LeSabre",
+      "video_subtitle": "6 млн | United States"
+    },
+    {
+      "rank": 38,
+      "model_id": "chevrolet_cavalier",
+      "display_name": "Chevrolet Cavalier",
+      "sales_value": 6000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "038-chevrolet-cavalier.png",
+      "video_label": "#38 Chevrolet Cavalier",
+      "video_subtitle": "6 млн | United States"
+    },
+    {
+      "rank": 39,
+      "model_id": "mitsubishi_lancer",
+      "display_name": "Mitsubishi Lancer",
+      "sales_value": 6000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "039-mitsubishi-lancer.png",
+      "video_label": "#39 Mitsubishi Lancer",
+      "video_subtitle": "6 млн | Japan"
+    },
+    {
+      "rank": 40,
+      "model_id": "toyota_prius",
+      "display_name": "Toyota Prius",
+      "sales_value": 6000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "040-toyota-prius.png",
+      "video_label": "#40 Toyota Prius",
+      "video_subtitle": "6 млн | Japan"
+    },
+    {
+      "rank": 41,
+      "model_id": "mini",
+      "display_name": "Mini",
+      "sales_value": 5505874,
+      "types": [
+        "United Kingdom"
+      ],
+      "image_file": "041-mini.png",
+      "video_label": "#41 Mini",
+      "video_subtitle": "5.5 млн | United Kingdom"
+    },
+    {
+      "rank": 42,
+      "model_id": "renault_5",
+      "display_name": "Renault 5",
+      "sales_value": 5471709,
+      "types": [
+        "France"
+      ],
+      "image_file": "042-renault-5.png",
+      "video_label": "#42 Renault 5",
+      "video_subtitle": "5.5 млн | France"
+    },
+    {
+      "rank": 43,
+      "model_id": "peugeot_205",
+      "display_name": "Peugeot 205",
+      "sales_value": 5278050,
+      "types": [
+        "France"
+      ],
+      "image_file": "043-peugeot-205.png",
+      "video_label": "#43 Peugeot 205",
+      "video_subtitle": "5.3 млн | France"
+    },
+    {
+      "rank": 44,
+      "model_id": "bmw_5_series",
+      "display_name": "BMW 5 Series",
+      "sales_value": 5000000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "044-bmw-5-series.png",
+      "video_label": "#44 BMW 5 Series",
+      "video_subtitle": "5 млн | Germany"
+    },
+    {
+      "rank": 45,
+      "model_id": "ford_e_series",
+      "display_name": "Ford E-Series",
+      "sales_value": 5000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "045-ford-e-series.png",
+      "video_label": "#45 Ford E-Series",
+      "video_subtitle": "5 млн | United States"
+    },
+    {
+      "rank": 46,
+      "model_id": "hyundai_accent",
+      "display_name": "Hyundai Accent",
+      "sales_value": 5000000,
+      "types": [
+        "South Korea"
+      ],
+      "image_file": "046-hyundai-accent.png",
+      "video_label": "#46 Hyundai Accent",
+      "video_subtitle": "5 млн | South Korea"
+    },
+    {
+      "rank": 47,
+      "model_id": "hyundai_sonata",
+      "display_name": "Hyundai Sonata",
+      "sales_value": 5000000,
+      "types": [
+        "South Korea"
+      ],
+      "image_file": "047-hyundai-sonata.png",
+      "video_label": "#47 Hyundai Sonata",
+      "video_subtitle": "5 млн | South Korea"
+    },
+    {
+      "rank": 48,
+      "model_id": "mitsubishi_galant",
+      "display_name": "Mitsubishi Galant",
+      "sales_value": 5000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "048-mitsubishi-galant.png",
+      "video_label": "#48 Mitsubishi Galant",
+      "video_subtitle": "5 млн | Japan"
+    },
+    {
+      "rank": 49,
+      "model_id": "suzuki_wagon_r",
+      "display_name": "Suzuki Wagon R",
+      "sales_value": 5000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "049-suzuki-wagon-r.png",
+      "video_label": "#49 Suzuki Wagon R",
+      "video_subtitle": "5 млн | Japan"
+    },
+    {
+      "rank": 50,
+      "model_id": "toyota_land_cruiser",
+      "display_name": "Toyota Land Cruiser",
+      "sales_value": 5000000,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "050-toyota-land-cruiser.png",
+      "video_label": "#50 Toyota Land Cruiser",
+      "video_subtitle": "5 млн | Japan"
+    },
+    {
+      "rank": 51,
+      "model_id": "chevrolet_camaro",
+      "display_name": "Chevrolet Camaro",
+      "sales_value": 4800000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "051-chevrolet-camaro.png",
+      "video_label": "#51 Chevrolet Camaro",
+      "video_subtitle": "4.8 млн | United States"
+    },
+    {
+      "rank": 52,
+      "model_id": "fiat_126",
+      "display_name": "Fiat 126",
+      "sales_value": 4671586,
+      "types": [
+        "Italy"
+      ],
+      "image_file": "052-fiat-126.png",
+      "video_label": "#52 Fiat 126",
+      "video_subtitle": "4.7 млн | Italy"
+    },
+    {
+      "rank": 53,
+      "model_id": "chevrolet_caprice",
+      "display_name": "Chevrolet Caprice",
+      "sales_value": 4630000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "053-chevrolet-caprice.png",
+      "video_label": "#53 Chevrolet Caprice",
+      "video_subtitle": "4.6 млн | United States"
+    },
+    {
+      "rank": 54,
+      "model_id": "opel_vectra",
+      "display_name": "Opel Vectra",
+      "sales_value": 4500000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "054-opel-vectra.png",
+      "video_label": "#54 Opel Vectra",
+      "video_subtitle": "4.5 млн | Germany"
+    },
+    {
+      "rank": 55,
+      "model_id": "opel_ascona",
+      "display_name": "Opel Ascona",
+      "sales_value": 4400000,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "055-opel-ascona.png",
+      "video_label": "#55 Opel Ascona",
+      "video_subtitle": "4.4 млн | Germany"
+    },
+    {
+      "rank": 56,
+      "model_id": "ford_cortina",
+      "display_name": "Ford Cortina",
+      "sales_value": 4300000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "056-ford-cortina.png",
+      "video_label": "#56 Ford Cortina",
+      "video_subtitle": "4.3 млн | United States"
+    },
+    {
+      "rank": 57,
+      "model_id": "fiat_500",
+      "display_name": "Fiat 500",
+      "sales_value": 4250000,
+      "types": [
+        "Italy"
+      ],
+      "image_file": "057-fiat-500.png",
+      "video_label": "#57 Fiat 500",
+      "video_subtitle": "4.3 млн | Italy"
+    },
+    {
+      "rank": 58,
+      "model_id": "audi_80_and_90",
+      "display_name": "Audi 80 and 90",
+      "sales_value": 4238247,
+      "types": [
+        "Germany"
+      ],
+      "image_file": "058-audi-80-and-90.png",
+      "video_label": "#58 Audi 80 and 90",
+      "video_subtitle": "4.2 млн | Germany"
+    },
+    {
+      "rank": 59,
+      "model_id": "toyota_celica",
+      "display_name": "Toyota Celica",
+      "sales_value": 4129626,
+      "types": [
+        "Japan"
+      ],
+      "image_file": "059-toyota-celica.png",
+      "video_label": "#59 Toyota Celica",
+      "video_subtitle": "4.1 млн | Japan"
+    },
+    {
+      "rank": 60,
+      "model_id": "chevrolet_cruze",
+      "display_name": "Chevrolet Cruze",
+      "sales_value": 4000000,
+      "types": [
+        "United States"
+      ],
+      "image_file": "060-chevrolet-cruze.png",
+      "video_label": "#60 Chevrolet Cruze",
+      "video_subtitle": "4 млн | United States"
+    }
+  ]
+}

@@ -6,7 +6,11 @@ import {
     type PresentationSubjectMetrics,
     type ResolvedCameraPose,
 } from "../../../lib/ranking-corridor/presentation/projection-gate";
-import { RAIL_FOCUS_PROJECTION_GATE_PRESET } from "../../../lib/ranking-corridor/presentation/rail-focus-presentation-preset";
+import {
+    applyBiographySteleCameraFit,
+    BIOGRAPHY_STELE_PROJECTION_GATE_PRESET,
+} from "../../../lib/ranking-corridor/presentation/biography-stele-focus-presentation-preset";
+import { BIOGRAPHY_STELE_FOCUS_HOLD_V1_PACKAGE } from "../../../lib/ranking-corridor/scene-presets/biography-stele-focus-hold-v1/package";
 import {
     getCameraState,
     getCameraTimelineFrame,
@@ -24,23 +28,9 @@ type PresentationActivationSearch = {
     height: number;
 };
 
-export const CAMERA_PRESENTATION_PRESET = RAIL_FOCUS_PROJECTION_GATE_PRESET;
-const BIO_STELE_CAMERA_OFFSET_X = -2.2;
-const BIO_STELE_CAMERA_OFFSET_Y = 4.8;
-const BIO_STELE_CAMERA_OFFSET_Z = 2.8;
-const BIO_STELE_LOOK_OFFSET_X = -1.4;
-const BIO_STELE_LOOK_OFFSET_Y = 22.4;
+export const CAMERA_PRESENTATION_PRESET = BIOGRAPHY_STELE_PROJECTION_GATE_PRESET;
 let lastResolvedCameraPoseFrame: number | null = null;
 let lastResolvedCameraPose: ResolvedCameraPose | null = null;
-
-const applyBiographyCameraFit = (pose: ResolvedCameraPose): ResolvedCameraPose => ({
-    camX: pose.camX + BIO_STELE_CAMERA_OFFSET_X,
-    camY: pose.camY + BIO_STELE_CAMERA_OFFSET_Y,
-    camZ: pose.camZ + BIO_STELE_CAMERA_OFFSET_Z,
-    lookX: pose.lookX + BIO_STELE_LOOK_OFFSET_X,
-    lookY: pose.lookY + BIO_STELE_LOOK_OFFSET_Y,
-    lookZ: pose.lookZ,
-});
 
 export const getResolvedCameraPose = (frame: number): ResolvedCameraPose => {
     if (lastResolvedCameraPoseFrame === frame && lastResolvedCameraPose) {
@@ -51,11 +41,11 @@ export const getResolvedCameraPose = (frame: number): ResolvedCameraPose => {
     let pose: ResolvedCameraPose;
 
     if (isIntroFrame(cameraFrame)) {
-        pose = applyBiographyCameraFit(getIntroCameraState(cameraFrame));
+        pose = applyBiographySteleCameraFit(getIntroCameraState(cameraFrame));
     } else if (cameraFrame <= sequenceCompleteFrame) {
         const state = getCameraState(cameraFrame);
 
-        pose = applyBiographyCameraFit({
+        pose = applyBiographySteleCameraFit({
             camX: state.camX,
             camY: state.camY,
             camZ: 55 + (state.camZOffset || 0),
@@ -64,7 +54,7 @@ export const getResolvedCameraPose = (frame: number): ResolvedCameraPose => {
             lookZ: 10,
         });
     } else {
-        pose = applyBiographyCameraFit(getCinematicCameraState(cameraFrame - sequenceCompleteFrame));
+        pose = applyBiographySteleCameraFit(getCinematicCameraState(cameraFrame - sequenceCompleteFrame));
     }
 
     lastResolvedCameraPoseFrame = frame;
@@ -96,7 +86,7 @@ export const getPresentationState = ({
 export const findPresentationActivationFrame = (search: PresentationActivationSearch): number | null => {
     return findProjectionActivationFrame({
         ...search,
-        cacheKey: "richest-women/rail-focus-presentation/v1",
+        cacheKey: `${BIOGRAPHY_STELE_FOCUS_HOLD_V1_PACKAGE.id}/projection-activation`,
         preset: CAMERA_PRESENTATION_PRESET,
         getPoseForFrame: getResolvedCameraPose,
     });

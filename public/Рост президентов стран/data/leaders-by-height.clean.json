@@ -1,0 +1,674 @@
+[
+    {
+        "rank": 1,
+        "country": "Saudi Arabia",
+        "iso3": "SAU",
+        "leader": "Salman bin Abdulaziz Al Saud",
+        "height_cm": 207,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\070-SAU-saudi-arabia.jpg"
+    },
+    {
+        "rank": 2,
+        "country": "Albania",
+        "iso3": "ALB",
+        "leader": "Edi Rama",
+        "height_cm": 201,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\025-ALB-albania.jpg"
+    },
+    {
+        "rank": 3,
+        "country": "Serbia",
+        "iso3": "SRB",
+        "leader": "Aleksandar Vučić",
+        "height_cm": 199,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\034-SRB-serbia.jpg"
+    },
+    {
+        "rank": 5,
+        "country": "Lithuania",
+        "iso3": "LTU",
+        "leader": "Gitanas Nausėda",
+        "height_cm": 193,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\061-LTU-lithuania.jpg"
+    },
+    {
+        "rank": 6,
+        "country": "Poland",
+        "iso3": "POL",
+        "leader": "Karol Nawrocki",
+        "height_cm": 191,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\057-POL-poland.jpg"
+    },
+    {
+        "rank": 8,
+        "country": "Azerbaijan",
+        "iso3": "AZE",
+        "leader": "Ilham Aliyev",
+        "height_cm": 188,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\006-AZE-azerbaijan.jpg"
+    },
+    {
+        "rank": 9,
+        "country": "United States",
+        "iso3": "USA",
+        "leader": "Donald Trump",
+        "height_cm": 188,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\092-USA-united-states.jpg"
+    },
+    {
+        "rank": 11,
+        "country": "Costa Rica",
+        "iso3": "CRI",
+        "leader": "Rodrigo Chaves",
+        "height_cm": 185,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\045-CRI-costa-rica.jpg"
+    },
+    {
+        "rank": 12,
+        "country": "Turkiye",
+        "iso3": "TUR",
+        "leader": "Recep Tayyip Erdoğan",
+        "height_cm": 185,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\041-TUR-turkiye.jpg"
+    },
+    {
+        "rank": 13,
+        "country": "Austria",
+        "iso3": "AUT",
+        "leader": "Alexander Van der Bellen",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\087-AUT-austria.jpg"
+    },
+    {
+        "rank": 15,
+        "country": "Botswana",
+        "iso3": "BWA",
+        "leader": "Duma Boko",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\010-BWA-botswana.jpg"
+    },
+    {
+        "rank": 16,
+        "country": "Cuba",
+        "iso3": "CUB",
+        "leader": "Miguel Díaz-Canel",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\021-CUB-cuba.jpg"
+    },
+    {
+        "rank": 18,
+        "country": "Czechia",
+        "iso3": "CZE",
+        "leader": "Petr Pavel",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\065-CZE-czechia.jpg"
+    },
+    {
+        "rank": 19,
+        "country": "Greece",
+        "iso3": "GRC",
+        "leader": "Konstantinos Tasoulas",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\056-GRC-greece.jpg"
+    },
+    {
+        "rank": 20,
+        "country": "Hungary",
+        "iso3": "HUN",
+        "leader": "Tamás Sulyok",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\050-HUN-hungary.jpg"
+    },
+    {
+        "rank": 21,
+        "country": "Kazakhstan",
+        "iso3": "KAZ",
+        "leader": "Qasym-Jomart Toqaev",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\036-KAZ-kazakhstan.jpg"
+    },
+    {
+        "rank": 22,
+        "country": "Montenegro",
+        "iso3": "MNE",
+        "leader": "Jakov Milatović",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\030-MNE-montenegro.jpg"
+    },
+    {
+        "rank": 24,
+        "country": "Qatar",
+        "iso3": "QAT",
+        "leader": "Tamim bin Hamad Al",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\091-QAT-qatar.jpg"
+    },
+    {
+        "rank": 25,
+        "country": "Slovak Republic",
+        "iso3": "SVK",
+        "leader": "Robert Fico",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\058-SVK-slovak-republic.jpg"
+    },
+    {
+        "rank": 26,
+        "country": "Turkmenistan",
+        "iso3": "TKM",
+        "leader": "Serdar Berdimuhamedow",
+        "height_cm": 183,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\003-TKM-turkmenistan.jpg"
+    },
+    {
+        "rank": 27,
+        "country": "Belarus",
+        "iso3": "BLR",
+        "leader": "Alexander Lukashenko",
+        "height_cm": 182,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\015-BLR-belarus.jpg"
+    },
+    {
+        "rank": 28,
+        "country": "Malaysia",
+        "iso3": "MYS",
+        "leader": "Ibrahim Iskandar of Johor",
+        "height_cm": 182,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\028-MYS-malaysia.jpg"
+    },
+    {
+        "rank": 29,
+        "country": "Croatia",
+        "iso3": "HRV",
+        "leader": "Zoran Milanović",
+        "height_cm": 180,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\055-HRV-croatia.jpg"
+    },
+    {
+        "rank": 30,
+        "country": "Estonia",
+        "iso3": "EST",
+        "leader": "Alar Karis",
+        "height_cm": 180,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\064-EST-estonia.jpg"
+    },
+    {
+        "rank": 33,
+        "country": "Palau",
+        "iso3": "PLW",
+        "leader": "Surangel Whipps Jr.",
+        "height_cm": 180,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\040-PLW-palau.jpg"
+    },
+    {
+        "rank": 34,
+        "country": "Antigua and Barbuda",
+        "iso3": "ATG",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\052-ATG-antigua-and-barbuda.jpg"
+    },
+    {
+        "rank": 35,
+        "country": "Argentina",
+        "iso3": "ARG",
+        "leader": "Javier Milei",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\035-ARG-argentina.jpg"
+    },
+    {
+        "rank": 36,
+        "country": "Australia",
+        "iso3": "AUS",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\089-AUS-australia.jpg"
+    },
+    {
+        "rank": 37,
+        "country": "Bahamas, The",
+        "iso3": "BHS",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\074-BHS-bahamas-the.jpg"
+    },
+    {
+        "rank": 38,
+        "country": "Belize",
+        "iso3": "BLZ",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\009-BLZ-belize.jpg"
+    },
+    {
+        "rank": 39,
+        "country": "Canada",
+        "iso3": "CAN",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\083-CAN-canada.jpg"
+    },
+    {
+        "rank": 40,
+        "country": "China",
+        "iso3": "CHN",
+        "leader": "Xi Jinping",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\031-CHN-china.jpg"
+    },
+    {
+        "rank": 41,
+        "country": "Dominican Republic",
+        "iso3": "DOM",
+        "leader": "Luis Abinader",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\024-DOM-dominican-republic.jpg"
+    },
+    {
+        "rank": 42,
+        "country": "Gabon",
+        "iso3": "GAB",
+        "leader": "Brice Clotaire Oligui Nguema",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\014-GAB-gabon.jpg"
+    },
+    {
+        "rank": 44,
+        "country": "Grenada",
+        "iso3": "GRD",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\027-GRD-grenada.jpg"
+    },
+    {
+        "rank": 45,
+        "country": "Guyana",
+        "iso3": "GUY",
+        "leader": "Irfaan Ali",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\063-GUY-guyana.jpg"
+    },
+    {
+        "rank": 46,
+        "country": "Jamaica",
+        "iso3": "JAM",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\012-JAM-jamaica.jpg"
+    },
+    {
+        "rank": 47,
+        "country": "Luxembourg",
+        "iso3": "LUX",
+        "leader": "Guillaume V, Grand Duke of Luxembourg",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\098-LUX-luxembourg.jpg"
+    },
+    {
+        "rank": 48,
+        "country": "Maldives",
+        "iso3": "MDV",
+        "leader": "Mohamed Muizzu",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\032-MDV-maldives.jpg"
+    },
+    {
+        "rank": 49,
+        "country": "Mongolia",
+        "iso3": "MNG",
+        "leader": "Khurelsukh Ukhnaa",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\002-MNG-mongolia.jpg"
+    },
+    {
+        "rank": 50,
+        "country": "New Zealand",
+        "iso3": "NZL",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\078-NZL-new-zealand.jpg"
+    },
+    {
+        "rank": 51,
+        "country": "Oman",
+        "iso3": "OMN",
+        "leader": "Haitham bin Tarik Al Said",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\049-OMN-oman.jpg"
+    },
+    {
+        "rank": 52,
+        "country": "Panama",
+        "iso3": "PAN",
+        "leader": "José Raúl Mulino",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\047-PAN-panama.jpg"
+    },
+    {
+        "rank": 53,
+        "country": "Portugal",
+        "iso3": "PRT",
+        "leader": "António José Seguro",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\060-PRT-portugal.jpg"
+    },
+    {
+        "rank": 54,
+        "country": "St. Kitts and Nevis",
+        "iso3": "KNA",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\054-KNA-st-kitts-and-nevis.jpg"
+    },
+    {
+        "rank": 55,
+        "country": "St. Lucia",
+        "iso3": "LCA",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\037-LCA-st-lucia.jpg"
+    },
+    {
+        "rank": 56,
+        "country": "St. Vincent and the Grenadines",
+        "iso3": "VCT",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\026-VCT-st-vincent-and-the-grenadines.jpg"
+    },
+    {
+        "rank": 57,
+        "country": "Sweden",
+        "iso3": "SWE",
+        "leader": "Carl XVI Gustaf of Sweden",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\086-SWE-sweden.jpg"
+    },
+    {
+        "rank": 59,
+        "country": "United Kingdom",
+        "iso3": "GBR",
+        "leader": "Charles III",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\082-GBR-united-kingdom.jpg"
+    },
+    {
+        "rank": 60,
+        "country": "Uruguay",
+        "iso3": "URY",
+        "leader": "Yamandú Orsi",
+        "height_cm": 178,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\053-URY-uruguay.jpg"
+    },
+    {
+        "rank": 61,
+        "country": "Latvia",
+        "iso3": "LVA",
+        "leader": "Edgars Rinkēvičs",
+        "height_cm": 177,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\051-LVA-latvia.jpg"
+    },
+    {
+        "rank": 62,
+        "country": "Armenia",
+        "iso3": "ARM",
+        "leader": "Vahagn Khachatryan",
+        "height_cm": 176,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\017-ARM-armenia.jpg"
+    },
+    {
+        "rank": 63,
+        "country": "Bahrain",
+        "iso3": "BHR",
+        "leader": "Hamad II of Bahrain",
+        "height_cm": 176,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\062-BHR-bahrain.jpg"
+    },
+    {
+        "rank": 64,
+        "country": "Nauru",
+        "iso3": "NRU",
+        "leader": "David Adeang",
+        "height_cm": 176,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\033-NRU-nauru.jpg"
+    },
+    {
+        "rank": 65,
+        "country": "Bulgaria",
+        "iso3": "BGR",
+        "leader": "Iliana Yotova",
+        "height_cm": 175,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\043-BGR-bulgaria.jpg"
+    },
+    {
+        "rank": 66,
+        "country": "Colombia",
+        "iso3": "COL",
+        "leader": "Gustavo Petro",
+        "height_cm": 175,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\013-COL-colombia.jpg"
+    },
+    {
+        "rank": 67,
+        "country": "Equatorial Guinea",
+        "iso3": "GNQ",
+        "leader": "Teodoro Obiang",
+        "height_cm": 175,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\001-GNQ-equatorial-guinea.jpg"
+    },
+    {
+        "rank": 68,
+        "country": "Kuwait",
+        "iso3": "KWT",
+        "leader": "Mishal Al-Ahmad Al-Jaber Al-Sabah",
+        "height_cm": 175,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\067-KWT-kuwait.jpg"
+    },
+    {
+        "rank": 70,
+        "country": "Seychelles",
+        "iso3": "SYC",
+        "leader": "Patrick Herminie",
+        "height_cm": 175,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\044-SYC-seychelles.jpg"
+    },
+    {
+        "rank": 71,
+        "country": "Singapore",
+        "iso3": "SGP",
+        "leader": "Tharman Shanmugaratnam",
+        "height_cm": 175,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\095-SGP-singapore.jpg"
+    },
+    {
+        "rank": 72,
+        "country": "United Arab Emirates",
+        "iso3": "ARE",
+        "leader": "Mohammed Bin Zayed Al Nahyan",
+        "height_cm": 175,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\080-ARE-united-arab-emirates.jpg"
+    },
+    {
+        "rank": 74,
+        "country": "Brunei Darussalam",
+        "iso3": "BRN",
+        "leader": "Hassanal Bolkiah I of Brunei",
+        "height_cm": 173,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\068-BRN-brunei-darussalam.jpg"
+    },
+    {
+        "rank": 75,
+        "country": "France",
+        "iso3": "FRA",
+        "leader": "Emmanuel Macron",
+        "height_cm": 173,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\077-FRA-france.jpg"
+    },
+    {
+        "rank": 77,
+        "country": "Chile",
+        "iso3": "CHL",
+        "leader": "Gabriel Boric",
+        "height_cm": 171,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\042-CHL-chile.jpg"
+    },
+    {
+        "rank": 78,
+        "country": "Peru",
+        "iso3": "PER",
+        "leader": "José María Balcázar",
+        "height_cm": 171,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\016-PER-peru.jpg"
+    },
+    {
+        "rank": 79,
+        "country": "Iceland",
+        "iso3": "ISL",
+        "leader": "Halla Tómasdóttir",
+        "height_cm": 170,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\093-ISL-iceland.jpg"
+    },
+    {
+        "rank": 81,
+        "country": "Mauritius",
+        "iso3": "MUS",
+        "leader": "Dharam Gokhool",
+        "height_cm": 170,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\029-MUS-mauritius.jpg"
+    },
+    {
+        "rank": 82,
+        "country": "Moldova",
+        "iso3": "MDA",
+        "leader": "Maia Sandu",
+        "height_cm": 170,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\008-MDA-moldova.jpg"
+    },
+    {
+        "rank": 83,
+        "country": "Russian Federation",
+        "iso3": "RUS",
+        "leader": "Vladimir Putin",
+        "height_cm": 170,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\039-RUS-russian-federation.jpg"
+    },
+    {
+        "rank": 84,
+        "country": "Thailand",
+        "iso3": "THA",
+        "leader": "Vajiralongkorn",
+        "height_cm": 170,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\007-THA-thailand.jpg"
+    },
+    {
+        "rank": 85,
+        "country": "Brazil",
+        "iso3": "BRA",
+        "leader": "Luiz Inácio Lula da Silva",
+        "height_cm": 168,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\022-BRA-brazil.jpg"
+    },
+    {
+        "rank": 86,
+        "country": "Georgia",
+        "iso3": "GEO",
+        "leader": "Salome Zourabichvili",
+        "height_cm": 168,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\018-GEO-georgia.jpg"
+    },
+    {
+        "rank": 87,
+        "country": "Bosnia and Herzegovina",
+        "iso3": "BIH",
+        "leader": "Borjana Krišto",
+        "height_cm": 167,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\020-BIH-bosnia-and-herzegovina.jpg"
+    },
+    {
+        "rank": 88,
+        "country": "Romania",
+        "iso3": "ROU",
+        "leader": "Nicușor Dan",
+        "height_cm": 167,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\048-ROU-romania.jpg"
+    },
+    {
+        "rank": 89,
+        "country": "Slovenia",
+        "iso3": "SVN",
+        "leader": "Nataša Pirc Musar",
+        "height_cm": 167,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\069-SVN-slovenia.jpg"
+    },
+    {
+        "rank": 90,
+        "country": "North Macedonia",
+        "iso3": "MKD",
+        "leader": "Gordana Siljanovska-Davkova",
+        "height_cm": 166,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\019-MKD-north-macedonia.jpg"
+    },
+    {
+        "rank": 91,
+        "country": "Barbados",
+        "iso3": "BRB",
+        "leader": "Sandra Mason",
+        "height_cm": 165,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\059-BRB-barbados.jpg"
+    },
+    {
+        "rank": 92,
+        "country": "Dominica",
+        "iso3": "DMA",
+        "leader": "Sylvanie Burton",
+        "height_cm": 165,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\023-DMA-dominica.jpg"
+    },
+    {
+        "rank": 93,
+        "country": "Japan",
+        "iso3": "JPN",
+        "leader": "Naruhito",
+        "height_cm": 165,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\066-JPN-japan.jpg"
+    },
+    {
+        "rank": 94,
+        "country": "Mexico",
+        "iso3": "MEX",
+        "leader": "Claudia Sheinbaum",
+        "height_cm": 165,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\038-MEX-mexico.jpg"
+    },
+    {
+        "rank": 95,
+        "country": "Suriname",
+        "iso3": "SUR",
+        "leader": "Jennifer Geerlings-Simons",
+        "height_cm": 165,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\005-SUR-suriname.jpg"
+    },
+    {
+        "rank": 96,
+        "country": "Trinidad and Tobago",
+        "iso3": "TTO",
+        "leader": "Christine Kangaloo",
+        "height_cm": 164,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\046-TTO-trinidad-and-tobago.jpg"
+    },
+    {
+        "rank": 98,
+        "country": "Marshall Islands",
+        "iso3": "MHL",
+        "leader": "Hilda Heine",
+        "height_cm": 163,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\011-MHL-marshall-islands.jpg"
+    },
+    {
+        "rank": 100,
+        "country": "Ecuador",
+        "iso3": "ECU",
+        "leader": "Daniel Noboa",
+        "height_cm": 160,
+        "photo": "D:\\CapCut\\PROJECTS REMOTION\\Р РѕСЃС‚ РїСЂРµР·РёРґРµРЅС‚РѕРІ СЃС‚СЂР°РЅ\\photos\\styled\\004-ECU-ecuador.jpg"
+    }
+]

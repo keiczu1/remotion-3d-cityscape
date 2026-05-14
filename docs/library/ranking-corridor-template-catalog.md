@@ -56,11 +56,7 @@ Source-of-truth для автоматизации живет в:
 - `public/ranking-corridor/<project-slug>/`, если у template есть локальные public assets
 - регистрацию новой композиции в `src/Root.tsx`
 
-Scaffold допускает уже созданные `launch-card.md` и `review-notes.md` в новом `projects/<project-slug>/`, но не копирует из source project project-local execution-артефакты:
+При клонировании из source project не копируются директории с результатами старых экспортов:
 
-- `build-plan.md`
-- `asset-manifest.md`
 - `review-artifacts/`
 - `exports/`
-
-Эти файлы должны materialize-иться заново уже под новый проект и его собственный production-цикл.

@@ -8,7 +8,7 @@ Source-of-truth для автоматизации живет в:
 
 ## Scene count
 
-- `scene-count-4` — `4` сцены, базовый и единственный поддерживаемый scene-count для `library-only-constructor-v1`.
+- `scene-count-4` — `4` сцены, базовый и единственный поддерживаемый scene-count для формата.
 
 ## Camera packages
 
@@ -41,4 +41,4 @@ Source-of-truth для автоматизации живет в:
 - `corridor-relief-ground-v1` — рельефная земля
 - `storm-effects-v1` — грозовые эффекты
 
-Если варианта нет в этом каталоге, он не считается частью default constructor path для `library-only-constructor-v1`.
+Если варианта нет в этом каталоге, он не считается частью default constructor path.

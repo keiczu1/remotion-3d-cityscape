@@ -1,4 +1,4 @@
-import type {CSSProperties} from "react";
+﻿import type {CSSProperties} from "react";
 import {useEffect, useMemo, useState} from "react";
 import {ThreeCanvas} from "@remotion/three";
 import {
@@ -1285,7 +1285,7 @@ const PortraitBiographySteleHeroBase = ({
 						{headerBadge({label: shortenPortraitBiographySteleOrigin(wealthOrigin), theme})}
 						<div
 							style={{
-								fontSize: 16,
+								fontSize: 28,
 								color: theme.muted,
 								fontWeight: 600,
 							}}
@@ -1313,3 +1313,4 @@ export const PortraitBiographySteleHero = (props: PortraitBiographySteleHeroProp
 
 	return <PortraitBiographySteleHeroWithHooks {...props} />;
 };
+

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Ranking Corridor Production"
-  short_description: "Production ranking corridor: build-plan, preview, final approval"
-  default_prompt: "Продолжи ranking corridor проект после `launch-card` в режиме `library-only-constructor-v1`: сначала разреши `project-slug` и фазу по файловому состоянию (`launch-card.md`, `build-plan.md`, `review-notes.md`), при необходимости materialize-ь template через `npm run scaffold:template`, затем продолжай только с нужного шага маршрута `build-plan -> preview-build -> preview-gate -> post-preview-build -> final approval` без любых устаревших промежуточных или вне-контрактных шагов."

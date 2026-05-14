@@ -1,6 +1,6 @@
 import { interpolate } from "remotion";
 import * as THREE from "three";
-import { buildSharedScenePresetTimingPlan } from "../../../lib/ranking-corridor/scene-presets/shared-timing";
+import { buildBiographySteleFocusHoldTimingPlan } from "../../../lib/ranking-corridor/scene-presets/biography-stele-focus-hold-v1/timing";
 
 import {
     BIO_STELE_BOTTOM_LOCAL_Y,
@@ -32,10 +32,6 @@ const CINEMATIC_TURN_FRAMES = 180;
 const CINEMATIC_RETURN_FRAMES = 600;
 
 /* Cut-hold orbit camera mode */
-const MAIN_PASS_MOVE_FRAMES = 108;
-const MAIN_PASS_EXTRA_READ_HOLD_FRAMES = 300;
-const MAIN_PASS_HOLD_FRAMES = 240 + MAIN_PASS_EXTRA_READ_HOLD_FRAMES;
-const MAIN_PASS_WINNER_HOLD_FRAMES = 300 + MAIN_PASS_EXTRA_READ_HOLD_FRAMES;
 const CAMERA_SETTLE_FRAMES = 18;
 const CAMERA_ORBIT_HOLD_FRAMES = 60;
 const STELE_PRELOAD_LEAD_FRAMES = 120;
@@ -71,26 +67,9 @@ export const getSteleHeight = (relHeight: number) => {
     return Math.max(3, scaledHeight);
 };
 
-const timingPlan = buildSharedScenePresetTimingPlan({
+const timingPlan = buildBiographySteleFocusHoldTimingPlan({
     itemCount: reversedData.length,
     introDurationFrames: INTRO_DURATION_IN_FRAMES,
-    supportedFps: 60,
-    sourceItemCount: reversedData.length,
-    supportedCountRange: [20, 150] as const,
-    targetDurationBandSeconds: [240, 900] as const,
-    baseMoveFrames: MAIN_PASS_MOVE_FRAMES,
-    baseHoldFrames: MAIN_PASS_HOLD_FRAMES,
-    sourceWinnerHoldFrames: MAIN_PASS_WINNER_HOLD_FRAMES,
-    adaptiveWinnerHoldFrames: MAIN_PASS_WINNER_HOLD_FRAMES,
-    adaptiveMinMoveFrames: MAIN_PASS_MOVE_FRAMES,
-    adaptiveMinHoldFrames: MAIN_PASS_HOLD_FRAMES,
-    adaptiveTopWindowCount: 1,
-    adaptiveTopWindowHoldMultiplier: 0,
-    moveScaleExponent: 1,
-    holdScaleExponent: 1,
-    finalCinematicFrames: 0,
-    legacySlowdownStartBaseFrames: 0,
-    legacySlowdownFactor: 1,
     strategy: "source-compatible",
     finaleTailPolicy: "off",
 });

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Ranking Corridor Launch"
-  short_description: "Старт ranking corridor: constructor/template selector и launch-card"
-  default_prompt: "Запусти новый ranking corridor проект в режиме `library-only-constructor-v1`: классифицируй тему, проведи constructor/template selector только по библиотеке и template-catalog, при необходимости задай один пакет вопросов и после ответа собери `projects/<project-slug>/launch-card.md` вместе со skeleton `projects/<project-slug>/review-notes.md`."

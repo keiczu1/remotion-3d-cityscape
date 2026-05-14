@@ -15,6 +15,7 @@ import { useCurrentFrame, random, interpolate } from "remotion";
 import * as THREE from "three";
 
 import {
+    BirchBackdrop,
     HighwayRibbon,
     HorizonMountainRidge,
     LowPolyCloud,
@@ -22,7 +23,6 @@ import {
     StormRainLayer,
     WindTurbine,
 } from "../../../lib/ranking-corridor/art";
-import { BirchBackdrop } from "./BirchBackdrop";
 import { composeInstanceMatrix, DynamicInstances } from "../../../lib/ranking-corridor/three";
 import {
     X_SPACING,
